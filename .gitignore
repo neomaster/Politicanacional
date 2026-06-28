@@ -1,7 +1,0 @@
-﻿# Ignore
-.DS_Store
-Thumbs.db
-.vscode/
-.env*
-node_modules/
-*.log
