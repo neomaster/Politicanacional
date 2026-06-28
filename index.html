@@ -991,10 +991,30 @@
       } catch (e) {}
     }
 
-    async function fetchWithProxy(url) {
-      // Lista expandida de proxies públicos para maior tolerância a falhas
-      const proxyTemplates = [
+    // Primary: rss2json - avoids direct CORS problems for most RSS feeds
+    // Fallbacks: multiple public proxies with robust handling
+    async function fetchFeed(url) {
+      const rss2jsonUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
+
+      // Try rss2json first (CORS friendly JSON API)
+      try {
+        const res = await fetch(rss2jsonUrl, {
+          headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.status === 'ok' && Array.isArray(json.items)) {
+            return { type: 'json', data: json };
+          }
+        }
+      } catch (e) {
+        // ignore, try fallbacks
+      }
+
+      // Fallback proxies (expanded and randomized)
+      const proxies = [
         (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+        (u) => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
         (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`,
         (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
         (u) => `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(u)}`,
@@ -1002,56 +1022,52 @@
         (u) => `https://yacdn.org/proxy/${encodeURIComponent(u)}`,
       ];
 
-      let lastError = 'Todos os proxies falharam';
+      const shuffled = proxies.sort(() => Math.random() - 0.5);
 
-      // Tenta em ordem aleatória para distribuir carga
-      const shuffled = [...proxyTemplates].sort(() => Math.random() - 0.5);
-
-      for (let makeProxy of shuffled) {
+      for (const makeProxy of shuffled) {
         const proxyUrl = makeProxy(url);
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        const to = setTimeout(() => controller.abort(), 8000);
 
         try {
           const res = await fetch(proxyUrl, {
             signal: controller.signal,
-            headers: { 
-              'Accept': 'application/rss+xml, application/xml, text/xml, */*',
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-              'Referer': 'https://www.google.com/'
-            },
-            mode: 'cors'
+            headers: {
+              'Accept': 'application/rss+xml, application/xml, application/json, text/xml, */*',
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
           });
-          clearTimeout(timeoutId);
+          clearTimeout(to);
 
-          if (res.ok) {
-            let text = await res.text();
-            
-            // Tenta limpar se vier HTML (alguns proxies retornam página de erro)
-            if (text.trim().startsWith('<!') || text.includes('<html')) {
-              // Tenta extrair conteúdo se possível, senão pula
-              const match = text.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-              if (match) text = match[1];
-              else continue;
-            }
+          if (!res.ok) continue;
 
-            // Validação básica para RSS/Atom
-            const lower = text.toLowerCase();
-            if (lower.includes('<rss') || lower.includes('<feed') || lower.includes('<item') || lower.includes('<entry')) {
-              return text;
-            } else {
-              lastError = `Proxy retornou conteúdo não-RSS (${res.status})`;
-              continue;
-            }
-          } else {
-            lastError = `Proxy ${res.status} ${res.statusText}`;
+          let text = await res.text();
+
+          // Handle JSON from allorigins /get
+          if (proxyUrl.includes('/get?') || (res.headers.get('content-type') || '').includes('json')) {
+            try {
+              const j = JSON.parse(text);
+              text = j.contents || j.data || '';
+            } catch {}
+          }
+
+          // Clean HTML wrappers if present
+          if (text.trim().startsWith('<!') || text.includes('<html')) {
+            const m = text.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+            if (m) text = m[1]; else continue;
+          }
+
+          // Basic RSS/Atom check
+          const l = text.toLowerCase();
+          if (l.includes('<rss') || l.includes('<feed') || l.includes('<item') || l.includes('<entry')) {
+            return { type: 'xml', data: text };
           }
         } catch (e) {
-          clearTimeout(timeoutId);
-          lastError = e.name === 'AbortError' ? 'Timeout' : (e.message || 'Erro de rede');
+          clearTimeout(to);
         }
       }
-      throw new Error(lastError);
+
+      throw new Error('All fetch methods failed for ' + url);
     }
 
     function parseRSS(xmlString, sourceName, sourceId) {
@@ -1080,6 +1096,25 @@
       });
     }
 
+    // Unified parser for rss2json JSON or XML
+    function parseFeed(feedResp, sourceName, sourceId) {
+      if (feedResp.type === 'json' && feedResp.data && Array.isArray(feedResp.data.items)) {
+        return feedResp.data.items.map(item => ({
+          id: sourceId + '_' + (item.link || item.title || '').slice(-40),
+          title: item.title || '(Sem título)',
+          link: item.link || '',
+          description: (item.description || item.content || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 260),
+          pubDate: item.pubDate || item.date || '',
+          source: sourceName,
+          sourceId,
+          region: detectRegion((item.title || '') + ' ' + (item.description || '')),
+          fetchedAt: Date.now()
+        }));
+      }
+      // fallback to XML parse
+      return parseRSS(feedResp.data || feedResp, sourceName, sourceId);
+    }
+
     // Concorrência limitada + atualização progressiva + telemetria visível por fonte
     async function fetchAllRSS(onSourceComplete) {
       const results = [];
@@ -1098,9 +1133,9 @@
         const promises = chunk.map(async (src) => {
           try {
             const start = performance.now();
-            const xml = await fetchWithProxy(src.url);
+            const feedResp = await fetchFeed(src.url);
             const duration = Math.round(performance.now() - start);
-            const parsed = parseRSS(xml, src.name, src.id);
+            const parsed = parseFeed(feedResp, src.name, src.id);
             const relevant = parsed.filter(a => isPoliticalRelevant(a.title, a.description));
 
             // Salva sucesso por fonte para fallback
