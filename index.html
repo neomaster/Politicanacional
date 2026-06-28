@@ -713,22 +713,35 @@
   <script>
     // ==================== CONFIG - BRASIL COLORS & DATA ====================
     const RSS_SOURCES = [
-      { id: 'folha', name: 'Folha de S.Paulo', url: 'https://feeds.folha.uol.com.br/poder/rss091.xml', bias: 'centro' },
-      { id: 'g1', name: 'G1 Política', url: 'https://g1.globo.com/rss/g1/politica', bias: 'centro' },
-      { id: 'cnn', name: 'CNN Brasil', url: 'https://www.cnnbrasil.com.br/tudo-sobre/politica/feed/', bias: 'centro' },
-      { id: 'uol', name: 'UOL Política', url: 'https://www.uol.com.br/noticias/politica.rss', bias: 'centro' },
-      { id: 'congresso', name: 'Congresso em Foco', url: 'https://www.congressoemfoco.com.br/feed/', bias: 'centro' },
-      { id: 'agenciabrasil', name: 'Agência Brasil', url: 'https://agenciabrasil.ebc.com.br/rss/politica/feed.xml', bias: 'centro' },
-      { id: 'metropoles', name: 'Metrópoles', url: 'https://www.metropoles.com/feed/politica', bias: 'centro' },
-      { id: 'exame', name: 'Exame', url: 'https://exame.com/feed/', bias: 'centro-direita' },
-      { id: 'valor', name: 'Valor Econômico', url: 'https://valor.globo.com/rss/politica/', bias: 'centro' },
-      { id: 'dw', name: 'DW Brasil', url: 'https://rss.dw.com/rdf/rss-pt-br-noticias', bias: 'centro' },
-      { id: 'bbc', name: 'BBC Brasil', url: 'https://feeds.bbci.co.uk/portuguese/rss.xml', bias: 'centro' },
-      { id: 'gazetadopovo', name: 'Gazeta do Povo', url: 'https://www.gazetadopovo.com.br/feed/', bias: 'centro-direita' },
-      { id: 'oantagonista', name: 'O Antagonista', url: 'https://oantagonista.com/feed/', bias: 'direita' },
-      { id: 'revistaoeste', name: 'Revista Oeste', url: 'https://revistaoeste.com/feed/', bias: 'direita' },
-      { id: 'plenonews', name: 'Pleno News', url: 'https://pleno.news/feed/', bias: 'centro-direita' },
-      { id: 'diariodopoder', name: 'Diário do Poder', url: 'https://diariodopoder.com.br/feed/', bias: 'direita' }
+      // Alta prioridade / geralmente bons
+      { id: 'g1-politica', name: 'G1 Política', url: 'https://g1.globo.com/rss/g1/politica/', bias: 'centro', category: 'politica', reliability: 'alta' },
+      { id: 'folha-poder', name: 'Folha Poder', url: 'https://feeds.folha.uol.com.br/poder/rss091.xml', bias: 'centro', category: 'politica', reliability: 'alta' },
+      { id: 'uol-politica', name: 'UOL Política', url: 'http://rss.home.uol.com.br/politica/ultimas', bias: 'centro', category: 'politica', reliability: 'media' },
+
+      // Boa cobertura política / validar no backend
+      { id: 'congresso', name: 'Congresso em Foco', url: 'https://www.congressoemfoco.com.br/feed/', bias: 'centro', category: 'politica', reliability: 'media' },
+      { id: 'poder360', name: 'Poder360', url: 'https://www.poder360.com.br/feed/', bias: 'centro', category: 'politica', reliability: 'media' },
+      { id: 'politize', name: 'Politize!', url: 'https://www.politize.com.br/feed/', bias: 'centro', category: 'politica', reliability: 'media' },
+      { id: 'intercept', name: 'The Intercept Brasil', url: 'https://www.intercept.com.br/feed/', bias: 'centro', category: 'politica', reliability: 'media' },
+
+      // Complementares: geral/economia/mundo com impacto político
+      { id: 'g1-brasil', name: 'G1 Brasil', url: 'https://g1.globo.com/rss/g1/brasil/', bias: 'centro', category: 'brasil', reliability: 'alta' },
+      { id: 'g1-economia', name: 'G1 Economia', url: 'https://g1.globo.com/rss/g1/economia/', bias: 'centro', category: 'economia', reliability: 'alta' },
+      { id: 'folha-mundo', name: 'Folha Mundo', url: 'https://feeds.folha.uol.com.br/mundo/rss091.xml', bias: 'centro', category: 'mundo', reliability: 'alta' },
+      { id: 'folha-mercado', name: 'Folha Mercado', url: 'https://feeds.folha.uol.com.br/mercado/rss091.xml', bias: 'centro', category: 'economia', reliability: 'alta' },
+      { id: 'dw-brasil', name: 'DW Brasil', url: 'https://rss.dw.com/rdf/rss-pt-br-noticias', bias: 'centro', category: 'internacional', reliability: 'media' },
+
+      // Direita/conservador - validar, podem bloquear ou variar
+      { id: 'oantagonista', name: 'O Antagonista', url: 'https://oantagonista.com.br/feed/', bias: 'direita', category: 'politica', reliability: 'media-baixa' },
+      { id: 'gazetadopovo', name: 'Gazeta do Povo', url: 'https://www.gazetadopovo.com.br/feed/', bias: 'direita', category: 'politica', reliability: 'media-baixa' },
+      { id: 'revistaoeste', name: 'Revista Oeste', url: 'https://revistaoeste.com/feed/', bias: 'direita', category: 'politica', reliability: 'media-baixa' },
+      { id: 'diariodopoder', name: 'Diário do Poder', url: 'https://diariodopoder.com.br/feed/', bias: 'direita', category: 'politica', reliability: 'media-baixa' },
+
+      // Problemáticos / só manter se passar na validação
+      { id: 'cnn-politica', name: 'CNN Brasil Política', url: 'https://www.cnnbrasil.com.br/politica/feed/', bias: 'centro-direita', category: 'politica', reliability: 'baixa' },
+      { id: 'exame', name: 'Exame', url: 'https://exame.com/feed/', bias: 'centro-direita', category: 'economia-politica', reliability: 'baixa' },
+      { id: 'metropoles', name: 'Metrópoles Política', url: 'https://www.metropoles.com/feed/politica', bias: 'centro', category: 'politica', reliability: 'baixa' },
+      { id: 'valor', name: 'Valor Política', url: 'https://valor.globo.com/rss/politica/', bias: 'centro', category: 'politica-economia', reliability: 'baixa' }
     ];
 
     const POLL_INTERVAL_MS = 42000; // ~42s - balance between freshness and proxy load
@@ -1209,25 +1222,35 @@
       RSS_SOURCES.forEach(src => {
         const st = sourceStatuses[src.id] || { status: 'pending' };
         let cls = 'bg-zinc-600 text-white';
-        let label = src.name;
+        let label = `${src.name} [${src.category || 'geral'}]`;
         let tip = 'Aguardando...';
+
+        // Reliability indicator
+        let relColor = 'bg-gray-500';
+        if (src.reliability === 'alta') relColor = 'bg-emerald-500';
+        else if (src.reliability === 'media') relColor = 'bg-yellow-500';
+        else if (src.reliability && src.reliability.includes('baixa')) relColor = 'bg-red-500';
 
         if (st.status === 'success') {
           cls = 'bg-emerald-700 text-white';
-          label = `${src.name} ${st.count ? `(${st.count})` : ''}`;
-          tip = `Sucesso • ${st.durationMs || '?'}ms`;
+          label = `${src.name} [${src.category}] ${st.count ? `(${st.count})` : ''}`;
+          tip = `Sucesso • ${st.durationMs || '?'}ms • ${src.reliability || ''}`;
         } else if (st.status === 'error') {
           cls = 'bg-red-700 text-white';
-          label = `${src.name} ✕`;
-          tip = `Falhou: ${st.error || 'erro'}`;
+          label = `${src.name} [${src.category}] ✕`;
+          tip = `Falhou: ${st.error || 'erro'} • ${src.reliability || ''}`;
+        } else if (st.status === 'cached') {
+          cls = 'bg-amber-700 text-white';
+          label = `${src.name} [${src.category}] (cache)`;
+          tip = `Usando cache • ${src.reliability || ''}`;
         } else if (st.status === 'pending') {
           cls = 'bg-zinc-500 text-white';
-          label = `${src.name}...`;
+          label = `${src.name} [${src.category}] ...`;
         }
 
         const pill = document.createElement('span');
-        pill.className = `px-1.5 py-0.5 rounded text-[9px] cursor-pointer ${cls}`;
-        pill.textContent = label;
+        pill.className = `px-1.5 py-0.5 rounded text-[9px] cursor-pointer flex items-center gap-1 ${cls}`;
+        pill.innerHTML = `${label} <span class="w-2 h-2 rounded-full ${relColor}"></span>`;
         pill.title = tip;
 
         if (st.status === 'error') {
