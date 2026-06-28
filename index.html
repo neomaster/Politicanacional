@@ -991,10 +991,12 @@
       } catch (e) {}
     }
 
-    // Primary: rss2json - avoids direct CORS problems for most RSS feeds
-    // Fallbacks: multiple public proxies with robust handling
+    // Use rss2json as primary (CORS-friendly, reliable for most feeds like G1, BBC, etc.)
+    // For full control and no external dependency, deploy your own backend (see instructions at bottom)
+    const RSS_PROXY_BASE = 'https://api.rss2json.com/v1/api.json?rss_url=';
+
     async function fetchFeed(url) {
-      const rss2jsonUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
+      const rss2jsonUrl = `${RSS_PROXY_BASE}${encodeURIComponent(url)}`;
 
       // Try rss2json first (CORS friendly JSON API)
       try {
@@ -2026,5 +2028,40 @@
     window.__resetDemo = () => { loadDemoData(); applyFilters(); };
     window.__forcePoll = () => refreshNews();
   </script>
+
+<!-- 
+  HOW TO USE YOUR OWN BACKEND (no more public proxies / CORS issues)
+
+  1. Deploy the index.html as static (GitHub Pages, Netlify, Vercel static, etc.)
+  2. Deploy a tiny backend that fetches the RSS on the server side and returns it with CORS headers.
+
+  Example: Vercel serverless function (api/rss.js)
+
+  // api/rss.js
+  export default async function handler(req, res) {
+    const { url } = req.query;
+    if (!url) return res.status(400).json({ error: 'Missing url' });
+
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; PoliticalDashboard/1.0)',
+          'Accept': 'application/rss+xml, application/xml, text/xml'
+        }
+      });
+      const text = await response.text();
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Content-Type', 'application/xml');
+      res.status(200).send(text);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  }
+
+  Then in this HTML, change the RSS_PROXY_BASE to your deployed backend:
+  const RSS_PROXY_BASE = 'https://your-project.vercel.app/api/rss?url=';
+
+  For full example with Node/Express or Cloudflare Worker, see the repo or ask.
+-->
 </body>
 </html>
