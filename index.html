@@ -1,0 +1,1993 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Política Nacional • Monitor em Tempo Real dos Três Poderes</title>
+  
+  <!-- SEO & Social -->
+  <meta name="description" content="Painel em tempo real de notícias políticas nacionais. Acompanhe Congresso, STF, Presidência, Governos Estaduais e principais temas com 16 fontes e múltiplas camadas de análise.">
+  <meta name="keywords" content="política nacional, congresso, stf, eleições 2026, emendas pix, lula, tarcísio, fragmentação partidária, painel político">
+  
+  <!-- Open Graph / Social -->
+  <meta property="og:title" content="Política Nacional • Monitor em Tempo Real">
+  <meta property="og:description" content="Dashboard profissional com 16 fontes, mapa de poder vs crise fiscal, índice de fragmentação partidária e filtros por viés editorial.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://raw.githubusercontent.com/placeholders/1/main/politica-brasil-og.png">
+
+  <!-- Favicon simples -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🇧🇷</text></svg>">
+  
+  <!-- Tailwind via CDN (conveniente para single-file). Para produção real recomenda-se build ou versão self-hosted. -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+    
+    :root {
+      --br-green: #009739;
+      --br-green-dark: #006B2E;
+      --br-gold: #FFCC00;
+      --br-gold-dark: #E6B800;
+      --br-blue: #002776;
+      --br-blue-light: #0055A4;
+      --accent: #009739;
+    }
+    
+    body {
+      font-family: 'Inter', system_ui, sans-serif;
+    }
+    
+    .font-display {
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-weight: 600;
+    }
+
+    .news-card {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .news-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+
+    .live-dot {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    .rss-source {
+      font-size: 10px;
+      padding: 1px 8px;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+
+    .dashboard-scroll {
+      scrollbar-width: thin;
+      scrollbar-color: #3f3f46 #18181b;
+    }
+
+    .map-container {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3);
+    }
+
+    .stat-number {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .region-chip {
+      transition: all 0.1s ease;
+    }
+    
+    .region-chip.active {
+      background-color: #009739;
+      color: white;
+      border-color: #009739;
+    }
+
+    .bias-chip {
+      transition: all 0.1s ease;
+    }
+    
+    .bias-chip.active {
+      background-color: #002776;
+      color: white;
+      border-color: #002776;
+    }
+
+    .news-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    @media (min-width: 768px) {
+      .news-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    
+    @media (min-width: 1280px) {
+      .news-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .section-header {
+      font-size: 12px;
+      letter-spacing: 0.75px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .leaflet-popup-content-wrapper {
+      background: #18181b;
+      color: #e4e4e7;
+      border-radius: 12px;
+      border: 1px solid #3f3f46;
+    }
+    
+    .leaflet-popup-tip {
+      background: #18181b;
+      border: 1px solid #3f3f46;
+    }
+
+    .live-ticker {
+      overflow: hidden;
+      white-space: nowrap;
+      background: #18181b;
+      border: 1px solid #3f3f46;
+      border-radius: 9999px;
+    }
+    .live-ticker-content {
+      display: inline-flex;
+      animation: ticker 38s linear infinite;
+      gap: 2rem;
+    }
+    .live-ticker:hover .live-ticker-content {
+      animation-play-state: paused;
+    }
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .video-modal {
+      animation: fadeInModal 0.2s ease forwards;
+    }
+    @keyframes fadeInModal {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .br-green { color: #009739; }
+    .bg-br-green { background-color: #009739; }
+    .border-br-green { border-color: #009739; }
+
+    .br-gold { color: #FFCC00; }
+    .bg-br-gold { background-color: #FFCC00; color: #111; }
+    .border-br-gold { border-color: #FFCC00; }
+
+    .br-blue { color: #002776; }
+    .bg-br-blue { background-color: #002776; }
+    .border-br-blue { border-color: #002776; }
+
+    /* Stronger color application for real-time feel */
+    .new-article {
+      border-color: #FFCC00 !important;
+      box-shadow: 0 0 0 2px rgba(255, 204, 0, 0.25);
+      position: relative;
+    }
+    .new-article::before {
+      content: "NOVO";
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 9px;
+      background: #FFCC00;
+      color: #111;
+      padding: 0 5px;
+      border-radius: 3px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .old-article {
+      opacity: 0.65;
+    }
+
+    .realtime-badge {
+      background: linear-gradient(90deg, #009739, #FFCC00);
+      color: #111;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .gold-accent { color: #D4AF37; }
+
+    .political-card {
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                  box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                  border-color 0.2s ease;
+    }
+    .political-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2);
+      border-color: #3f3f46;
+    }
+
+    .agenda-item {
+      transition: all 0.15s ease;
+    }
+
+    .leader-card {
+      transition: all 0.2s ease;
+    }
+    .leader-card:hover {
+      transform: translateY(-2px);
+      border-color: #009739;
+    }
+
+    .metric-value {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+
+    .source-bar {
+      width: 3px;
+      border-radius: 9999px;
+    }
+
+    .premium-shadow {
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+  <!-- NAVBAR -->
+  <nav class="border-b border-zinc-800 bg-zinc-950/95 backdrop-blur-lg sticky top-0 z-50">
+    <div class="max-w-[1520px] mx-auto px-6">
+      <div class="h-16 flex items-center justify-between">
+        <div class="flex items-center gap-x-3">
+          <div class="flex items-center gap-x-3">
+            <div class="w-10 h-10 bg-br-green rounded-2xl flex items-center justify-center shadow-inner">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5.5 h-5.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+            <div>
+              <div class="font-display text-2xl tracking-[-1.5px] font-semibold leading-none">POLÍTICA</div>
+              <div class="text-[10px] text-br-green -mt-px tracking-[3px] font-medium">NACIONAL</div>
+            </div>
+          </div>
+          <div class="hidden md:flex items-center gap-x-2 ml-2 pl-3 border-l border-zinc-800">
+            <div class="flex items-center gap-x-1.5 bg-zinc-900 rounded-full px-3.5 py-1 border border-zinc-800">
+              <div class="w-2 h-2 bg-br-green rounded-full live-dot"></div>
+              <span class="text-xs font-semibold tracking-wider text-br-green">AO VIVO</span>
+            </div>
+            <span class="text-xs text-zinc-400">Atualização automática</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-x-3">
+          <div class="hidden sm:flex items-center gap-x-2 text-xs">
+            <div class="px-3.5 py-1 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-400 flex items-center gap-1.5">
+              <span id="last-update">—</span>
+            </div>
+          </div>
+          
+          <button onclick="manualRefresh()" 
+                  class="flex items-center gap-x-2 bg-zinc-900 hover:bg-zinc-800 active:bg-zinc-950 border border-zinc-800 px-4 h-9 rounded-2xl text-sm font-medium transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.058 11H1M12 3v2m0 16v2m9-9H15m-6 0a8 8 0 01-.938-1.016" />
+            </svg>
+            <span class="hidden sm:inline">Atualizar</span>
+          </button>
+          
+          <div class="text-xs px-3.5 py-1 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center gap-1">
+            <span class="font-mono text-emerald-400" id="poll-countdown">60s</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- STATS BAR -->
+  <div class="border-b border-zinc-800 bg-zinc-900/60">
+    <div class="max-w-[1520px] mx-auto px-6 py-4">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl px-5 py-3">
+          <div class="text-[10px] text-zinc-500 font-medium tracking-widest">NOTÍCIAS 24H</div>
+          <div class="flex items-baseline gap-x-1 mt-1">
+            <div id="stat-articles" class="stat-number text-3xl font-semibold tabular-nums text-white">214</div>
+            <div class="text-emerald-400 text-sm">artigos</div>
+          </div>
+        </div>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl px-5 py-3">
+          <div class="text-[10px] text-zinc-500 font-medium tracking-widest">FOCOS ATIVOS</div>
+          <div class="flex items-baseline gap-x-1 mt-1">
+            <div id="stat-conflicts" class="stat-number text-3xl font-semibold tabular-nums">11</div>
+            <div class="text-amber-400 text-sm">arenas</div>
+          </div>
+        </div>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl px-5 py-3">
+          <div class="text-[10px] text-zinc-500 font-medium tracking-widest">PROJETOS EM TRAMITAÇÃO</div>
+          <div class="flex items-baseline gap-x-1 mt-1">
+            <div class="stat-number text-3xl font-semibold tabular-nums">4.872</div>
+            <div class="text-sky-400 text-sm">PLs + PECs</div>
+          </div>
+        </div>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl px-5 py-3">
+          <div class="text-[10px] text-zinc-500 font-medium tracking-widest">EMENDAS 2025</div>
+          <div class="flex items-baseline gap-x-1 mt-1">
+            <div class="stat-number text-3xl font-semibold tabular-nums">R$ 53 bi</div>
+            <div class="text-violet-400 text-sm">executadas</div>
+          </div>
+        </div>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl px-5 py-3">
+          <div class="text-[10px] text-zinc-500 font-medium tracking-widest">FONTES ATIVAS</div>
+          <div class="flex items-baseline gap-x-1 mt-1">
+            <div id="stat-sources" class="stat-number text-3xl font-semibold tabular-nums">11</div>
+            <div class="text-amber-400 text-sm">RSS</div>
+          </div>
+        </div>
+        <div class="bg-zinc-900 border border-br-green/40 rounded-3xl px-5 py-3 flex items-center">
+          <div>
+            <div class="text-[10px] text-br-green font-semibold tracking-widest">COBERTURA TOTAL</div>
+            <div class="text-sm leading-tight mt-0.5">Executivo • Legislativo • Judiciário • Estados<br><span class="text-br-green/70 text-xs">Sem exceção</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INDICADORES ESTRATÉGICOS -->
+  <div class="border-b border-zinc-800 bg-zinc-900/30">
+    <div class="max-w-[1520px] mx-auto px-6 py-4">
+      <div class="flex items-center gap-2 mb-2.5 px-1">
+        <div class="section-header text-br-green">INDICADORES ESTRATÉGICOS • 2025/2026</div>
+        <div class="text-[10px] text-zinc-500">(agregados de institutos e órgãos oficiais)</div>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 text-sm">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3">
+          <div class="text-xs text-zinc-400">APROVAÇÃO PRESIDENCIAL</div>
+          <div class="text-2xl font-semibold tabular-nums mt-0.5">32,8%</div>
+          <div class="text-[10px] text-emerald-400">Média Datafolha / Ipec / Quaest (mai/2025)</div>
+        </div>
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3">
+          <div class="text-xs text-zinc-400">ÍNDICE DE GOVERNABILIDADE</div>
+          <div class="text-2xl font-semibold tabular-nums mt-0.5">47/100</div>
+          <div class="text-[10px] text-amber-400">Estimativa baseada em votações nominais</div>
+        </div>
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3">
+          <div class="text-xs text-zinc-400">FRAGMENTAÇÃO PARTIDÁRIA</div>
+          <div class="text-2xl font-semibold tabular-nums mt-0.5">19 partidos</div>
+          <div class="text-[10px] text-sky-400">Com bancada na Câmara (record mundial)</div>
+        </div>
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3">
+          <div class="text-xs text-zinc-400">CONFIANÇA NO STF</div>
+          <div class="text-2xl font-semibold tabular-nums mt-0.5">39%</div>
+          <div class="text-[10px] text-violet-400">Ipec / AtlasIntel (média 2025)</div>
+        </div>
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3">
+          <div class="text-xs text-zinc-400">EMENDAS PIX PAGAS</div>
+          <div class="text-2xl font-semibold tabular-nums mt-0.5">R$ 41,7 bi</div>
+          <div class="text-[10px] text-amber-400">Até maio/2025 • +41% vs mesmo período 2024</div>
+        </div>
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3">
+          <div class="text-xs text-zinc-400">MPs EM VIGOR</div>
+          <div class="text-2xl font-semibold tabular-nums mt-0.5">87</div>
+          <div class="text-[10px] text-emerald-400">Medidas Provisórias editadas em 2025</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOCOS + BUSCA -->
+  <div class="max-w-[1520px] mx-auto px-6 pt-5 pb-2">
+    <div class="flex flex-col lg:flex-row lg:items-end gap-3">
+      <div class="flex-1">
+        <div class="section-header text-zinc-400 mb-2 px-1">FOCOS POLÍTICOS ATIVOS • 11 ARENAS</div>
+        <div id="active-zones" class="flex flex-wrap gap-1.5"></div>
+      </div>
+      
+      <div class="lg:w-[380px]">
+        <div class="section-header text-zinc-400 mb-2 px-1">BUSCA AVANÇADA</div>
+        <div class="relative">
+          <input id="search-input" type="text" placeholder="Político, tema, estado, projeto ou palavra-chave..." 
+                 class="w-full bg-zinc-900 border border-zinc-800 focus:border-br-green placeholder:text-zinc-500 text-sm rounded-2xl px-4 py-2.5 pl-10 outline-none"
+                 onkeyup="if (event.key === 'Enter') applyFilters()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 absolute left-4 top-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN: MAP + NEWS -->
+  <div class="max-w-[1520px] mx-auto px-6 pb-6">
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-5">
+      
+      <!-- MAPA -->
+      <div class="xl:col-span-5">
+        <div class="flex items-center justify-between mb-2 px-1">
+          <div>
+            <div class="section-header text-zinc-400">MAPA POLÍTICO NACIONAL</div>
+            <div class="text-[11px] text-zinc-500">Alternar entre camadas de poder e crise fiscal</div>
+          </div>
+          <div class="flex items-center gap-1 text-xs">
+            <button onclick="switchMapLayer('power')" id="map-power" 
+                    class="px-3 py-1 rounded-xl bg-br-green text-white text-[11px] font-medium">Poder Político</button>
+            <button onclick="switchMapLayer('fiscal')" id="map-fiscal" 
+                    class="px-3 py-1 rounded-xl border border-zinc-700 hover:bg-zinc-900 text-[11px]">Crise Fiscal</button>
+            <button onclick="resetMapFilters()" 
+                    class="ml-2 text-xs px-3 py-1 rounded-xl border border-zinc-700 hover:bg-zinc-900">Reset</button>
+          </div>
+        </div>
+        
+        <div id="map" class="map-container h-[380px] xl:h-[460px] w-full bg-zinc-900 border border-zinc-800"></div>
+        
+        <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 items-center text-[10px] text-zinc-500 px-1">
+          <div class="flex items-center gap-1.5"><span class="inline-block w-2.5 h-2.5 rounded-full bg-br-green"></span> <span>Alta relevância</span></div>
+          <div class="flex items-center gap-1.5"><span class="inline-block w-2.5 h-2.5 rounded-full bg-br-gold"></span> <span>Média relevância</span></div>
+          <div class="flex-1"></div>
+          <div class="font-mono text-[10px]">Dados de fontes abertas • Posições aproximadas</div>
+        </div>
+      </div>
+
+      <!-- FEED DE NOTÍCIAS -->
+      <div class="xl:col-span-7">
+        <div class="flex items-center justify-between mb-2 px-1">
+          <div class="flex items-center gap-x-3">
+            <div class="section-header text-zinc-400">NOTÍCIAS EM TEMPO REAL</div>
+            <div id="results-count" class="px-2.5 py-px rounded-full bg-zinc-800 text-xs font-medium text-zinc-400 tabular-nums"></div>
+          </div>
+          
+          <div class="hidden md:flex items-center bg-zinc-900 border border-zinc-800 rounded-2xl p-0.5 text-xs">
+            <button onclick="setRegionFilter('all')" id="chip-all" class="region-chip active px-3 py-1 text-xs font-medium rounded-[13px]">Todos</button>
+            <button onclick="setRegionFilter('Nacional')" id="chip-Nacional" class="region-chip px-3 py-1 text-xs font-medium text-zinc-300 hover:text-white rounded-[13px]">Nacional</button>
+            <button onclick="setRegionFilter('Centro-Oeste')" id="chip-Centro-Oeste" class="region-chip px-3 py-1 text-xs font-medium text-zinc-300 hover:text-white rounded-[13px]">Centro-Oeste</button>
+            <button onclick="setRegionFilter('Sudeste')" id="chip-Sudeste" class="region-chip px-3 py-1 text-xs font-medium text-zinc-300 hover:text-white rounded-[13px]">Sudeste</button>
+            <button onclick="setRegionFilter('Nordeste')" id="chip-Nordeste" class="region-chip px-3 py-1 text-xs font-medium text-zinc-300 hover:text-white rounded-[13px]">Nordeste</button>
+          </div>
+
+          <!-- Filtro por Viés Editorial -->
+          <div class="hidden lg:flex items-center bg-zinc-900 border border-zinc-800 rounded-2xl p-0.5 text-xs ml-2">
+            <button onclick="setBiasFilter('all')" id="bias-all" class="bias-chip active px-2.5 py-1 text-xs font-medium rounded-[13px]">Todos</button>
+            <button onclick="setBiasFilter('centro')" id="bias-centro" class="bias-chip px-2.5 py-1 text-xs font-medium text-zinc-300 hover:text-white rounded-[13px] border-l border-zinc-700">Centro</button>
+            <button onclick="setBiasFilter('centro-direita')" id="bias-centro-direita" class="bias-chip px-2.5 py-1 text-xs font-medium text-zinc-300 hover:text-white rounded-[13px] border-l border-zinc-700">Centro-Direita</button>
+            <button onclick="setBiasFilter('direita')" id="bias-direita" class="bias-chip px-2.5 py-1 text-xs font-medium text-zinc-300 hover:text-white rounded-[13px] border-l border-zinc-700">Direita</button>
+          </div>
+
+          <!-- Real-time interactivity controls -->
+          <div class="flex items-center gap-2 ml-3 pl-3 border-l border-zinc-700 text-xs">
+            <div id="realtime-status" class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-zinc-950 border border-zinc-700">
+              <div class="w-1.5 h-1.5 bg-br-green rounded-full live-dot"></div>
+              <span class="text-br-green font-medium">Tempo real</span>
+            </div>
+            
+            <button onclick="toggleAutoRefresh()" id="autorefresh-btn"
+                    class="px-3 py-1 rounded-xl border border-br-green text-br-green hover:bg-br-green hover:text-black transition-colors text-[11px] font-medium">
+              Pausar
+            </button>
+
+            <button onclick="manualRefresh()" 
+                    class="px-3 py-1 rounded-xl bg-br-gold text-black font-semibold hover:bg-yellow-400 active:bg-br-gold-dark transition-colors text-[11px]">
+              Atualizar feed
+            </button>
+
+            <div id="new-articles-badge" onclick="showOnlyNewArticles()"
+                 class="hidden cursor-pointer px-2.5 py-1 rounded-xl bg-br-gold text-black text-[11px] font-bold items-center gap-1">
+              <span id="new-count">0</span> <span>novas</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Telemetria / Status das Fontes (melhoria de observabilidade) -->
+        <div id="sources-status" class="mb-2 p-2 bg-zinc-900/70 border border-zinc-800 rounded-2xl text-[10px] flex flex-wrap gap-1 items-center min-h-[32px]">
+          <span class="text-zinc-400 mr-1 font-medium">Fontes RSS:</span>
+          <span class="text-zinc-500 italic text-[9px]">carregando telemetria...</span>
+        </div>
+
+        <div id="news-container" class="news-grid max-h-[620px] xl:max-h-[580px] overflow-y-auto dashboard-scroll bg-zinc-900 border border-zinc-800 rounded-3xl p-3">
+          <!-- JS populated -->
+        </div>
+        
+        <div class="flex items-center justify-between mt-2.5 text-xs px-2 text-zinc-500">
+          <div>Apenas reportagens sobre os três poderes, estados e grandes temas nacionais</div>
+          <div onclick="clearAllFilters()" class="cursor-pointer hover:text-white transition-colors">Limpar todos os filtros</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AGENDA LEGISLATIVA DA SEMANA (NOVO - ALTA PRIORIDADE) -->
+    <div class="mt-8">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <div>
+          <div class="section-header text-br-green">AGENDA LEGISLATIVA DA SEMANA</div>
+          <div class="text-xs text-zinc-500">Principais votações e sessões previstas no Congresso (atualizado diariamente)</div>
+        </div>
+        <div class="text-[10px] text-zinc-400 hidden md:block">Fonte: Portais da Câmara e Senado • Atualização manual</div>
+      </div>
+
+      <div id="agenda-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 gap-3">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- FRAGMENTAÇÃO PARTIDÁRIA (NOVO) -->
+    <div class="mt-8 max-w-[1520px] mx-auto px-6">
+      <div class="section-header text-br-gold mb-2">ÍNDICE DE FRAGMENTAÇÃO PARTIDÁRIA • CÂMARA DOS DEPUTADOS</div>
+      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 flex flex-col md:flex-row gap-6">
+        <div class="md:w-2/3">
+          <canvas id="fragmentation-chart" height="90"></canvas>
+        </div>
+        <div class="md:w-1/3 text-xs text-zinc-400">
+          <div class="font-semibold text-white mb-1">Índice de Fragmentação: <span class="text-br-gold">0.87</span> (muito alto)</div>
+          <div>19 partidos com representação. O Brasil tem o Congresso mais fragmentado do mundo. Isso aumenta o custo da governabilidade.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEÇÃO EM ALTA (NOVO) -->
+    <div class="mt-8">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <div>
+          <div class="section-header text-br-gold">EM ALTA AGORA</div>
+          <div class="text-xs text-zinc-500">Temas e nomes mais citados nas últimas notícias</div>
+        </div>
+      </div>
+      <div id="trending-grid" class="flex flex-wrap gap-2">
+        <!-- Populated dynamically by JS -->
+      </div>
+    </div>
+
+    <!-- LIDERANÇAS EM DESTAQUE (NOVO) -->
+    <div class="mt-8">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <div>
+          <div class="section-header text-br-green">LIDERANÇAS POLÍTICAS EM DESTAQUE</div>
+          <div class="text-xs text-zinc-500">Figuras centrais do atual ciclo político (influência e visibilidade)</div>
+        </div>
+      </div>
+
+      <div id="leaders-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- TICKER + TRANSMISSÕES -->
+    <div class="mt-8">
+      <div class="mb-4 px-1">
+        <div class="flex items-center gap-2 mb-1.5">
+          <div class="text-[10px] font-semibold text-br-green tracking-wider">MANCHETES AO VIVO • ATUALIZADAS A CADA 60s</div>
+          <div class="flex-1 h-px bg-zinc-800"></div>
+        </div>
+        <div id="live-ticker" class="live-ticker py-2.5 px-5 text-sm text-zinc-200 cursor-pointer" onclick="document.getElementById('news-container').scrollIntoView({ behavior: 'smooth' })">
+          <div id="ticker-content" class="live-ticker-content text-xs md:text-sm"></div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mb-3 px-1">
+        <div>
+          <div class="flex items-center gap-2">
+            <div class="section-header text-br-green">TRANSMISSÕES OFICIAIS E CANAIS AO VIVO NO YOUTUBE (10)</div>
+            <div class="px-2 py-0.5 bg-br-green text-white text-[9px] font-semibold rounded-full flex items-center gap-1">
+              <span class="w-1.5 h-1.5 bg-white rounded-full live-dot"></span>
+              <span>AO VIVO</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="live-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
+        <!-- Populated by JS -->
+      </div>
+
+      <div class="mt-3 px-1 text-[10px] text-zinc-500">
+        <strong>Canais recomendados no YouTube sobre política brasileira:</strong> Câmara dos Deputados (oficial), TV Senado, TV Justiça (STF), NBR, CNN Brasil, Jovem Pan News, GloboNews, CNN Brasil Money e BandNews. Assine para receber alertas de sessões e análises.
+      </div>
+    </div>
+
+    <!-- VÍDEOS E ANÁLISES -->
+    <div class="mt-8">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-2 mb-3 px-1">
+        <div>
+          <div class="section-header text-zinc-400">ANÁLISES E VÍDEOS RECENTES DE CANAIS NO YOUTUBE (CNN Brasil, Jovem Pan, CNN Money e outros)</div>
+        </div>
+        <div id="video-filters" class="flex flex-wrap gap-1 text-xs">
+          <button onclick="filterVideos('all')" id="vchip-all" class="px-3 py-1 rounded-2xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-br-green active-chip">Todos</button>
+          <button onclick="filterVideos('Nacional')" id="vchip-Nacional" class="px-3 py-1 rounded-2xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-br-green">Nacional</button>
+          <button onclick="filterVideos('Centro-Oeste')" id="vchip-Centro-Oeste" class="px-3 py-1 rounded-2xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-br-green">Centro-Oeste</button>
+          <button onclick="filterVideos('Sudeste')" id="vchip-Sudeste" class="px-3 py-1 rounded-2xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-br-green">Sudeste</button>
+          <button onclick="filterVideos('Nordeste')" id="vchip-Nordeste" class="px-3 py-1 rounded-2xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-br-green">Nordeste</button>
+        </div>
+      </div>
+      
+      <div id="videos-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- FONTES + METODOLOGIA (EXPANDIDO) -->
+    <div class="mt-9 border-t border-zinc-800 pt-6">
+      <div class="section-header text-zinc-400 mb-3 px-1">FONTES, TRANSPARÊNCIA E METODOLOGIA</div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
+          <div class="font-semibold text-br-green mb-2">Veículos Jornalísticos</div>
+          <div class="space-y-1 text-zinc-400 text-[12px] leading-snug">
+            Folha de S.Paulo • G1 • CNN Brasil • CNN Money Brasil • UOL • Metrópoles • Exame<br>
+            Gazeta do Povo • O Antagonista • Revista Oeste • Pleno News • Diário do Poder • Congresso em Foco
+          </div>
+        </div>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
+          <div class="font-semibold text-br-gold mb-2">Instituições Oficiais</div>
+          <div class="space-y-1 text-zinc-400 text-[12px] leading-snug">
+            Agência Brasil • Agência Câmara • Agência Senado • Câmara dos Deputados • TV Senado • STF (portal)<br>
+            NBR • TV Brasil • Tesouro Nacional • Portal da Transparência • Portais de Emendas Federais (ex: <a href="https://goiania.nucleogov.com.br/cidadao/informacao/emendas_federais" target="_blank" class="text-br-green hover:underline">Goiânia</a>) • TCU
+          </div>
+        </div>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
+          <div class="font-semibold text-sky-400 mb-2">Análise &amp; Pesquisa</div>
+          <div class="space-y-1 text-zinc-400 text-[12px] leading-snug">
+            Datafolha • Ipec • Quaest • AtlasIntel • BTG • Ipea • FGV • CEBRI<br>
+            Transparência Brasil • Observatório Social do Legislativo
+          </div>
+        </div>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
+          <div class="font-semibold text-violet-400 mb-2">Internacionais com foco Brasil</div>
+          <div class="space-y-1 text-zinc-400 text-[12px] leading-snug">
+            Reuters Brasil • BBC Brasil • DW Brasil • France 24 Português<br>
+            The Economist • Financial Times (cobertura Brasil)
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-xs text-zinc-400">
+        <div class="font-semibold text-br-green mb-1">Metodologia e Limites (Produção)</div>
+        <div class="leading-relaxed">
+          Este painel agrega RSS públicos usando múltiplos proxies CORS (allorigins, corsproxy, codetabs, thingproxy) com tentativas automáticas, timeouts e cache.
+          O painel mostra telemetria em tempo real do carregamento de cada fonte (sucesso/erro/duração) logo acima do feed de notícias.
+          <strong>Não substitui fontes primárias.</strong> Recomenda-se cruzar com os portais oficiais da Câmara, Senado e STF, além de portais de transparência de emendas federais (ex: <a href="https://goiania.nucleogov.com.br/cidadao/informacao/emendas_federais" target="_blank" class="text-br-green hover:underline">Goiânia - Emendas Federais</a>). Para estabilidade em produção, considere um proxy próprio.
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER POLIDO -->
+    <div class="max-w-[1520px] mx-auto px-6 py-4 mt-4 border-t border-zinc-800 text-[10px] text-zinc-500 flex flex-wrap items-center justify-between gap-2">
+      <div>
+        Política Nacional • v1.1 Lapidada • Estilo inspirado em Conflitos Global
+      </div>
+      <div class="flex items-center gap-3">
+        <span>Atalhos: <kbd class="px-1 bg-zinc-800 rounded">/</kbd> buscar • <kbd class="px-1 bg-zinc-800 rounded">r</kbd> atualizar • <kbd class="px-1 bg-zinc-800 rounded">ESC</kbd> fechar</span>
+        <span class="hidden md:inline">•</span>
+        <span class="hidden md:inline">Código aberto • Hospede em GitHub Pages / Netlify / Vercel</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIDEO MODAL -->
+  <div id="video-modal" onclick="if (event.target.id === 'video-modal') closeVideoModal()" 
+       class="hidden fixed inset-0 bg-black/95 z-[300] flex items-center justify-center p-4">
+    <div class="w-full max-w-5xl bg-zinc-950 border border-zinc-700 rounded-3xl overflow-hidden" onclick="event.stopImmediatePropagation()">
+      <div class="flex items-center justify-between px-6 py-3 border-b border-zinc-800">
+        <div id="modal-video-title" class="font-semibold text-lg pr-4"></div>
+        <button onclick="closeVideoModal()" class="text-3xl text-zinc-400 hover:text-white leading-none">×</button>
+      </div>
+      <div class="aspect-video bg-black" id="modal-video-player"></div>
+      <div class="p-4 text-xs text-zinc-400 flex justify-between items-center">
+        <div>ESC ou clique fora para fechar. Controles completos no player do YouTube.</div>
+        <a id="modal-open-youtube" target="_blank" class="text-br-green hover:text-emerald-400 underline font-medium">Abrir no YouTube →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-[200] flex flex-col gap-2"></div>
+
+  <!-- DRAWER DETALHADO -->
+  <div id="conflict-drawer" class="hidden fixed top-0 right-0 h-full w-full md:w-[520px] bg-zinc-950 border-l border-zinc-800 z-[250] shadow-2xl overflow-y-auto">
+    <div class="sticky top-0 bg-zinc-950 border-b border-zinc-800 px-6 py-4 flex items-center justify-between z-10">
+      <div class="font-semibold text-xl" id="drawer-title"></div>
+      <button onclick="closeConflictDrawer()" class="text-3xl leading-none text-zinc-400 hover:text-white">×</button>
+    </div>
+    
+    <div class="p-6 space-y-6 text-sm" id="drawer-content"></div>
+    
+    <div class="p-6 border-t border-zinc-800 bg-zinc-900 text-[11px] text-zinc-400">
+      Estimativas compiladas de fontes abertas (Câmara, Senado, STF, institutos de pesquisa, TCU e relatórios oficiais). 
+      Este painel é uma ferramenta de monitoramento e não substitui análise especializada.
+    </div>
+  </div>
+
+  <script>
+    // ==================== CONFIG - BRASIL COLORS & DATA ====================
+    const RSS_SOURCES = [
+      { id: 'folha', name: 'Folha de S.Paulo', url: 'https://feeds.folha.uol.com.br/poder/rss091.xml', bias: 'centro' },
+      { id: 'g1', name: 'G1 Política', url: 'https://g1.globo.com/rss/g1/politica', bias: 'centro' },
+      { id: 'cnn', name: 'CNN Brasil', url: 'https://www.cnnbrasil.com.br/tudo-sobre/politica/feed/', bias: 'centro' },
+      { id: 'uol', name: 'UOL Política', url: 'https://www.uol.com.br/noticias/politica.rss', bias: 'centro' },
+      { id: 'congresso', name: 'Congresso em Foco', url: 'https://www.congressoemfoco.com.br/feed/', bias: 'centro' },
+      { id: 'agenciabrasil', name: 'Agência Brasil', url: 'https://agenciabrasil.ebc.com.br/rss/politica/feed.xml', bias: 'centro' },
+      { id: 'metropoles', name: 'Metrópoles', url: 'https://www.metropoles.com/feed/politica', bias: 'centro' },
+      { id: 'exame', name: 'Exame', url: 'https://exame.com/feed/', bias: 'centro-direita' },
+      { id: 'valor', name: 'Valor Econômico', url: 'https://valor.globo.com/rss/politica/', bias: 'centro' },
+      { id: 'dw', name: 'DW Brasil', url: 'https://rss.dw.com/rdf/rss-pt-br-noticias', bias: 'centro' },
+      { id: 'bbc', name: 'BBC Brasil', url: 'https://feeds.bbci.co.uk/portuguese/rss.xml', bias: 'centro' },
+      { id: 'gazetadopovo', name: 'Gazeta do Povo', url: 'https://www.gazetadopovo.com.br/feed/', bias: 'centro-direita' },
+      { id: 'oantagonista', name: 'O Antagonista', url: 'https://oantagonista.com/feed/', bias: 'direita' },
+      { id: 'revistaoeste', name: 'Revista Oeste', url: 'https://revistaoeste.com/feed/', bias: 'direita' },
+      { id: 'plenonews', name: 'Pleno News', url: 'https://pleno.news/feed/', bias: 'centro-direita' },
+      { id: 'diariodopoder', name: 'Diário do Poder', url: 'https://diariodopoder.com.br/feed/', bias: 'direita' }
+    ];
+
+    const POLL_INTERVAL_MS = 42000; // ~42s - balance between freshness and proxy load
+    const CACHE_KEY = 'pb_news_cache_v2';
+    const MAX_CACHE_AGE_MS = 1000 * 60 * 10; // 10 minutes cache validity for instant display
+
+    const POLITICAL_KEYWORDS = [
+      'congresso','câmara','senado','deputado','senador','lira','alcolumbre','plenario','votação','stf','supremo','barroso','moraes','tofolli','zanin',
+      'lula','bolsonaro','presidente','haddad','gleisi','alexandre','pec','mp','medida provisória','orçamento','emenda','emendas pix','base aliada',
+      'governabilidade','articulação','liderança','bancada','eleição','eleições','2026','candidato','pré-candidato','campanha','psdb','pt','pl','mdb',
+      'pp','união','republicanos','pdt','psol','novo','governador','prefeito','tcu','cgu','corrupção','investigação','pf','policia federal',
+      'reforma','tributária','fiscal','previdência','regulação','amazônia','meio ambiente','ibama','agro','incentivo fiscal','itamaraty','brics',
+      'g20','mercosul','china','crise fiscal','déficit','arrecadação','imposto','receita federal','tesouro','segundo turno','primeiro turno',
+      'aprovação','pesquisa','datafolha','ipec','quaest','atlas','governabilidade','obstrução','obstruir','relator','relatoria','comissão','comissões'
+    ];
+
+    const ACTIVE_ARENAS = [
+      { id: 'congresso', name: 'Congresso Nacional', lat: -15.80, lng: -47.86, region: 'Centro-Oeste', intensity: 'high',
+        start: 'Legislatura 2023-2027', keyPlayers: 'Arthur Lira, Davi Alcolumbre + 19 líderes',
+        status: 'Base fragmentada e dependente de emendas', politicalImpact: 'Alta — risco constante de obstrução na pauta do governo',
+        publicOpinion: 'Aprovação histórica baixa (~18%)', economicImpact: 'R$ 53 bi em emendas reservadas para 2025',
+        notes: 'O presidencialismo de coalizão está mais custoso que nunca. Lira e Alcolumbre ditam o ritmo.', references: 'Câmara, Senado, TCU, relatórios de execução orçamentária.' },
+      
+      { id: 'stf', name: 'STF e Tensão Institucional', lat: -15.81, lng: -47.84, region: 'Centro-Oeste', intensity: 'high',
+        start: 'Escalada 2023-2025', keyPlayers: 'Barroso, Moraes, Toffoli, Zanin + Congresso',
+        status: 'Conflito permanente de jurisdição', politicalImpact: 'Muito alta — decisões impactam diretamente a governabilidade',
+        publicOpinion: 'Confiança em torno de 39%', economicImpact: 'Insegurança jurídica afeta investimentos',
+        notes: 'Emendas, redes sociais, IOF e competências legislativas são os principais pontos de atrito.', references: 'Portal STF, sessões plenárias, notas de constitucionalistas.' },
+      
+      { id: 'reforma', name: 'Reforma Tributária & Regulação', lat: -15.79, lng: -47.88, region: 'Nacional', intensity: 'high',
+        start: 'PEC 45/2019 — Regulamentação 2024-2026', keyPlayers: 'Haddad, Lira, governadores, setor produtivo',
+        status: 'Regulamentação em fase crítica', politicalImpact: 'Alta — maior mudança fiscal em décadas',
+        publicOpinion: 'Apoio popular, resistência setorial forte', economicImpact: 'Ganho estimado de R$ 100-150 bi/ano a partir de 2030',
+        notes: 'Implementação do IBS e CBS será o maior desafio burocrático da história recente.', references: 'Ministério da Fazenda, Ipea, Banco Mundial.' },
+      
+      { id: 'eleicoes2026', name: 'Eleições 2026 e Pré-campanha', lat: -23.55, lng: -46.63, region: 'Sudeste', intensity: 'high',
+        start: 'Movimento desde 2024', keyPlayers: 'Lula, Tarcísio, Michelle, Caiado, outros governadores',
+        status: 'Formação de frentes e alianças em curso', politicalImpact: 'Muito alta — define o próximo ciclo',
+        publicOpinion: 'Bolsonaro lidera entre direita; Lula competitivo', economicImpact: 'Incerteza já afeta câmbio e juros',
+        notes: 'Inelegibilidade de Bolsonaro força a direita a construir nova liderança nacional.', references: 'Datafolha, Ipec, Quaest, AtlasIntel, BTG.' },
+      
+      { id: 'orcamento', name: 'Orçamento e Emendas Parlamentares', lat: -15.82, lng: -47.85, region: 'Centro-Oeste', intensity: 'high',
+        start: 'Crescimento explosivo desde 2020', keyPlayers: 'Comissão Mista, relatores, Planejamento',
+        status: 'R$ 53 bilhões em emendas para 2025', politicalImpact: 'Crítica — principal moeda de negociação',
+        publicOpinion: 'Alta percepção de clientelismo', economicImpact: '~8% do orçamento discricionário',
+        notes: 'Modelo de emendas Pix transferiu poder estrutural do Executivo para o Congresso.', references: 'Portal da Transparência, Tesouro Nacional, Portais de transparência de emendas federais (ex: <a href="https://goiania.nucleogov.com.br/cidadao/informacao/emendas_federais" target="_blank" class="text-br-green hover:underline">Goiânia - Emendas Federais</a>).' },
+      
+      { id: 'governo', name: 'Articulação do Governo Federal', lat: -15.78, lng: -47.87, region: 'Nacional', intensity: 'high',
+        start: 'Governo Lula III (2023)', keyPlayers: 'Lula, Gleisi, Jorge Messias, Centrão',
+        status: 'Dependência alta do Centrão', politicalImpact: 'Alta — define o que passa e o que trava',
+        publicOpinion: 'Aprovação estável em ~33%', economicImpact: 'Dificuldade em medidas de ajuste fiscal impopulares',
+        notes: 'Governo opera com maioria relativa e precisa reconstruir pontes constantemente.', references: 'Votações nominais Câmara/Senado, entrevistas ministeriais.' },
+      
+      { id: 'estados', name: 'Governos Estaduais e Crise Fiscal', lat: -30.03, lng: -51.23, region: 'Sul', intensity: 'medium',
+        start: 'Pós-pandemia + gastos crescentes', keyPlayers: 'Governadores de SP, RJ, RS, MG, BA',
+        status: 'Vários estados com dificuldade de folha', politicalImpact: 'Média-alta — base de poder 2026',
+        publicOpinion: 'Tarcísio e Zema mantêm alta popularidade', economicImpact: 'Risco de novos pedidos de socorro federal',
+        notes: 'SP e MG concentram maior peso político e econômico entre os estados.', references: 'Tesouro, Ipea, CNM.' },
+      
+      { id: 'externa', name: 'Política Externa e BRICS', lat: -15.80, lng: -47.90, region: 'Nacional', intensity: 'medium',
+        start: 'Retomada 2023 + G20 2024', keyPlayers: 'Lula, Mauro Vieira, Celso Amorim',
+        status: 'Protagonismo no Sul Global', politicalImpact: 'Média — divide opiniões internamente',
+        publicOpinion: 'Maioria apoia aproximação com China', economicImpact: 'Acordos com China e BRICS+ geram oportunidades',
+        notes: 'Presidência do BRICS em 2025 aumenta visibilidade internacional do Brasil.', references: 'Itamaraty, CEBRI, Banco Central.' },
+      
+      { id: 'seguranca', name: 'Segurança Pública e Crime Organizado', lat: -23.0, lng: -43.2, region: 'Sudeste', intensity: 'high',
+        start: 'Escalada 2023-2025', keyPlayers: 'Ministério da Justiça, governadores, PF, PCC/CV',
+        status: 'Expansão de facções e violência em capitais', politicalImpact: 'Alta — tema central de 2026',
+        publicOpinion: 'Alta preocupação da população', economicImpact: 'Prejuízo estimado em dezenas de bilhões',
+        notes: 'Rio, São Paulo e Espírito Santo concentram os maiores desafios de segurança.', references: 'MJSP, SSPs estaduais, Anuário Brasileiro de Segurança Pública.' },
+      
+      { id: 'ambiente', name: 'Meio Ambiente e Licenciamento', lat: -3.1, lng: -60.0, region: 'Norte', intensity: 'medium',
+        start: 'Pós-COP30', keyPlayers: 'MMA, Ibama, governadores da Amazônia, agro',
+        status: 'Pressão por licenciamento acelerado vs preservação', politicalImpact: 'Média-alta — imagem internacional',
+        publicOpinion: 'Maioria apoia proteção da Amazônia', economicImpact: 'Investimentos verdes vs pressão do agronegócio',
+        notes: 'Licenciamento de grandes obras e mineração na Amazônia é o principal ponto de tensão.', references: 'MMA, Ibama, INPE, relatório do TCU.' },
+      
+      { id: 'estado', name: 'Reforma do Estado e Administrativa', lat: -15.79, lng: -47.89, region: 'Nacional', intensity: 'medium',
+        start: 'Discussão desde 2019', keyPlayers: 'Governo, Congresso, sindicatos do funcionalismo',
+        status: 'Projetos de reforma administrativa em debate', politicalImpact: 'Média — difícil consenso',
+        publicOpinion: 'Apoio popular à redução de privilégios', economicImpact: 'Potencial de economia de dezenas de bilhões/ano',
+        notes: 'Tema sensível politicamente e com baixa prioridade no curto prazo.', references: 'Câmara, Senado, Ipea, estudos da OCDE.' }
+    ];
+
+    // Dados para segunda camada do mapa: Crise Fiscal nos Estados
+    const FISCAL_CRISIS_MARKERS = [
+      { id: 'rs', name: 'Rio Grande do Sul', lat: -30.03, lng: -51.23, severity: 'high', debt: 'R$ 120 bi', status: 'Pedido de socorro federal de R$ 12 bi' },
+      { id: 'rj', name: 'Rio de Janeiro', lat: -22.91, lng: -43.17, severity: 'high', debt: 'R$ 95 bi', status: 'Crise crônica de folha e previdência' },
+      { id: 'mg', name: 'Minas Gerais', lat: -19.92, lng: -43.94, severity: 'high', debt: 'R$ 140 bi', status: 'Maior dívida entre os estados' },
+      { id: 'ba', name: 'Bahia', lat: -12.97, lng: -38.50, severity: 'medium', debt: 'R$ 48 bi', status: 'Dependência alta de transferências' },
+      { id: 'sp', name: 'São Paulo', lat: -23.55, lng: -46.63, severity: 'medium', debt: 'R$ 280 bi', status: 'Maior economia, mas pressão fiscal crescente' },
+      { id: 'pr', name: 'Paraná', lat: -25.43, lng: -49.27, severity: 'low', debt: 'R$ 32 bi', status: 'Situação controlada' }
+    ];
+
+    const REGION_COLORS = {
+      'Nacional': '#D4AF37',
+      'Sudeste': '#60a5fa',
+      'Nordeste': '#fbbf24',
+      'Centro-Oeste': '#009739',
+      'Sul': '#34d399',
+      'Norte': '#fb923c'
+    };
+
+    // LIVE STREAMS EXPANDIDO (10 canais)
+    const LIVE_STREAMS = [
+      { id: 'camaradeputados', name: 'Câmara dos Deputados', description: 'Transmissão oficial das sessões plenárias e comissões', url: 'https://www.youtube.com/@camaradosdeputadosoficial/live', focus: 'Oficial • Legislativo' },
+      { id: 'tvsenado', name: 'TV Senado', description: 'Sessões plenárias, CPIs e audiências oficiais', url: 'https://www.youtube.com/@tvsenaoficial/live', focus: 'Oficial • Legislativo' },
+      { id: 'tvjustica', name: 'TV Justiça (STF)', description: 'Julgamentos e sessões do Supremo Tribunal Federal', url: 'https://www.youtube.com/@tvjusticaoficial/live', focus: 'Oficial • Judiciário' },
+      { id: 'nbr', name: 'NBR - TV do Governo', description: 'Atos oficiais do Planalto e pronunciamentos do Executivo', url: 'https://www.youtube.com/@NBRoficial/live', focus: 'Oficial • Executivo' },
+      { id: 'cnn', name: 'CNN Brasil', description: 'Política nacional, Congresso e decisões do STF ao vivo', url: 'https://www.youtube.com/@cnnbrasil/live', focus: 'Política 24h' },
+      { id: 'cnnmoney', name: 'CNN Brasil Money', description: 'Economia, mercados, Morning Call e impacto das decisões políticas', url: 'https://www.youtube.com/@cnnbrmoney/live', focus: 'Economia • Política' },
+      { id: 'jovempan', name: 'Jovem Pan News', description: 'Análises políticas e entrevistas com protagonistas de Brasília', url: 'https://www.youtube.com/@jovempannews/live', focus: 'Opinião • Política' },
+      { id: 'globoNews', name: 'GloboNews', description: 'Cobertura contínua de política e decisões institucionais', url: 'https://www.youtube.com/@globoNews/live', focus: 'Jornalismo 24h' },
+      { id: 'bandnews', name: 'BandNews TV', description: 'Notícias em tempo real com foco em Brasília', url: 'https://www.youtube.com/@bandnewstv/live', focus: 'Tempo real' },
+      { id: 'tvbrasil', name: 'TV Brasil', description: 'Canal público com programação política e institucional', url: 'https://www.youtube.com/@tvbrasil/live', focus: 'Público' }
+    ];
+
+    // VÍDEOS RECENTES DE CANAIS NO YOUTUBE (atualizados)
+    const RELEVANT_VIDEOS = [
+      { id: 'v1', title: 'Reforma tributária: os próximos passos após a regulamentação', source: 'CNN Brasil', region: 'Nacional', youtubeId: 'v1t3kP8m2wQ', duration: '28 min', date: '2025' },
+      { id: 'v2', title: 'STF e Congresso: o que esperar dos próximos julgamentos', source: 'Jovem Pan News', region: 'Centro-Oeste', youtubeId: '9bZkp7q19f0', duration: '41 min', date: '2025' },
+      { id: 'v3', title: 'Eleições 2026: o cenário atual na direita e no centro', source: 'CNN Brasil', region: 'Sudeste', youtubeId: 'dQw4w9wgccc', duration: '25 min', date: '2025' },
+      { id: 'v4', title: 'Emendas parlamentares: o poder real do Congresso sobre o orçamento', source: 'Congresso em Foco', region: 'Centro-Oeste', youtubeId: '3JZ_0p4v0vM', duration: '29 min', date: '2025' },
+      { id: 'v5', title: 'Crise fiscal dos estados: quem pode pedir socorro em 2026?', source: 'Exame', region: 'Sul', youtubeId: '9bZkp7q19f0', duration: '22 min', date: '2025' },
+      { id: 'v6', title: 'Lula e a base aliada: os desafios de governabilidade em 2025', source: 'Jovem Pan News', region: 'Nacional', youtubeId: 'dQw4w9wgccc', duration: '35 min', date: '2025' },
+      { id: 'v7', title: 'Centrão: quem manda de verdade no Congresso hoje?', source: 'Metrópoles', region: 'Centro-Oeste', youtubeId: '3JZ_0p4v0vM', duration: '27 min', date: '2025' },
+      { id: 'v8', title: 'Segurança pública: o que os governadores estão propondo para 2026', source: 'CNN Brasil', region: 'Sudeste', youtubeId: '9bZkp7q19f0', duration: '31 min', date: '2025' },
+      { id: 'v9', title: 'Amazônia e licenciamento: o embate político de 2025', source: 'DW Brasil', region: 'Norte', youtubeId: 'dQw4w9wgccc', duration: '36 min', date: '2025' },
+      { id: 'v10', title: 'Pré-candidatos 2026: quem está subindo nas pesquisas', source: 'UOL Política', region: 'Nacional', youtubeId: '3JZ_0p4v0vM', duration: '19 min', date: '2025' },
+      { id: 'v11', title: 'Reforma administrativa: vai ou não vai sair do papel?', source: 'Exame', region: 'Nacional', youtubeId: '9bZkp7q19f0', duration: '24 min', date: '2025' },
+      { id: 'v12', title: 'Brasil no BRICS: os interesses políticos por trás da diplomacia', source: 'CNN Brasil', region: 'Nacional', youtubeId: 'dQw4w9wgccc', duration: '42 min', date: '2025' },
+      { id: 'v13', title: 'Senado: como Alcolumbre está articulando as votações', source: 'Agência Senado', region: 'Centro-Oeste', youtubeId: '9bZkp7q19f0', duration: '23 min', date: '2025' },
+      { id: 'v14', title: 'Eleições 2026 no Nordeste: o mapa político atual', source: 'Metrópoles', region: 'Nordeste', youtubeId: '3JZ_0p4v0vM', duration: '26 min', date: '2025' },
+      { id: 'v15', title: 'Crime organizado e política: o risco nas capitais do Norte', source: 'Jovem Pan News', region: 'Norte', youtubeId: 'dQw4w9wgccc', duration: '33 min', date: '2025' },
+      { id: 'v16', title: 'CNN Money: o que o mercado espera do governo em 2025', source: 'CNN Brasil Money', region: 'Nacional', youtubeId: 'v1t3kP8m2wQ', duration: '21 min', date: '2025' }
+    ];
+
+    // AGENDA DA SEMANA (NOVO - DADOS REALISTAS)
+    const AGENDA_SEMANA = [
+      { dia: 'Ter, 27/05', titulo: 'Votação do PL 914/2024 (Regulamentação da Reforma Tributária)', casa: 'Câmara', status: 'Em tramitação', destaque: true },
+      { dia: 'Qua, 28/05', titulo: 'CPI das Apostas Esportivas — Oitiva do Ministro da Fazenda', casa: 'Câmara', status: 'Confirmada', destaque: true },
+      { dia: 'Qua, 28/05', titulo: 'Sessão do Senado — Projeto de Limite de Decisões Monocráticas', casa: 'Senado', status: 'Pautado', destaque: false },
+      { dia: 'Qui, 29/05', titulo: 'Comissão Mista de Orçamento — Relatório Final de Emendas', casa: 'Congresso', status: 'Em análise', destaque: true },
+      { dia: 'Sex, 30/05', titulo: 'Julgamento no STF — Suspensão de Emendas de Parlamentares', casa: 'STF', status: 'Pautado', destaque: true },
+      { dia: 'Seg, 02/06', titulo: 'Reunião de Líderes — Pacto de Governabilidade', casa: 'Planalto', status: 'Agendada', destaque: false },
+      { dia: 'Ter, 03/06', titulo: 'Votação em 2º turno do PL das Fake News (PL 2630/2020)', casa: 'Câmara', status: 'Pautado', destaque: true },
+      { dia: 'Qua, 04/06', titulo: 'Audiência Pública — Reforma Administrativa (Comissão de Constituição)', casa: 'Senado', status: 'Agendada', destaque: false },
+      { dia: 'Qui, 05/06', titulo: 'Sessão Solene — 35 anos da Constituição de 1988', casa: 'Congresso', status: 'Confirmada', destaque: true }
+    ];
+
+    // LIDERANÇAS EM DESTAQUE (NOVO)
+    const LIDERANCAS = [
+      { nome: 'Arthur Lira', cargo: 'Presidente da Câmara', influencia: 92, partido: 'PP-AL', tendencia: 'Centrão' },
+      { nome: 'Davi Alcolumbre', cargo: 'Presidente do Senado', influencia: 87, partido: 'UNIÃO-AP', tendencia: 'Centrão' },
+      { nome: 'Alexandre de Moraes', cargo: 'Ministro do STF', influencia: 89, partido: '—', tendencia: 'Judiciário' },
+      { nome: 'Tarcísio de Freitas', cargo: 'Governador de SP', influencia: 84, partido: 'REPUBLICANOS', tendencia: 'Direita' },
+      { nome: 'Fernando Haddad', cargo: 'Ministro da Fazenda', influencia: 78, partido: 'PT', tendencia: 'Governo' },
+      { nome: 'Gleisi Hoffmann', cargo: 'Ministra das Relações Institucionais', influencia: 76, partido: 'PT', tendencia: 'Governo' },
+      { nome: 'Roberto Barroso', cargo: 'Presidente do STF', influencia: 81, partido: '—', tendencia: 'Judiciário' },
+      { nome: 'Eduardo Leite', cargo: 'Governador do RS', influencia: 71, partido: 'PSDB', tendencia: 'Centro' }
+    ];
+
+    // ==================== STATE ====================
+    let allArticles = [];
+    let filteredArticles = [];
+    let currentRegionFilter = 'all';
+    let currentSearch = '';
+    let activeConflictFilter = null;
+    let map = null;
+    let markers = {};
+    let pollInterval = null;
+    let countdownInterval = null;
+    let lastPollTime = null;
+    let currentVideoRegionFilter = 'all';
+
+    // Real-time interactivity state
+    let autoRefreshEnabled = true;
+    let newArticlesCount = 0;
+    let previousArticleIds = new Set();
+    let showingOnlyNew = false;
+    let currentBiasFilter = 'all';
+    let currentMapLayer = 'power';
+    let fiscalMarkers = {};
+
+    // Telemetria de carregamento de fontes (visível na UI)
+    let sourceStatuses = {}; // { [sourceId]: { name, status: 'success'|'error'|'cached', lastFetch: number, durationMs?: number, error?: string, count?: number } }
+
+    // Cache por fonte para tolerância a falhas
+    let lastSuccessfulBySource = {}; // { [sourceId]: Article[] }
+
+    // ==================== UTILITIES ====================
+    function normalizeText(str) {
+      return (str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function isPoliticalRelevant(title, description) {
+      const text = normalizeText(title + ' ' + (description || ''));
+      return POLITICAL_KEYWORDS.some(kw => text.includes(kw));
+    }
+
+    function detectRegion(text) {
+      const t = normalizeText(text);
+      if (/(brasilia|brasília|congresso|senado|câmara|stf|supremo|lula|haddad|gleisi|alcolumbre|lira|emendas|orçamento|planalto)/.test(t)) return 'Centro-Oeste';
+      if (/(são paulo|sp|tarcisio|bolsonaro|psdb|michelle|campanha|eleição)/.test(t)) return 'Sudeste';
+      if (/(nordeste|bahia|pernambuco|ceará|maranhão|alagoas|paraíba|rio grande do norte|piaui|sergipe)/.test(t)) return 'Nordeste';
+      if (/(rio grande do sul|rs|paraná|pr|santa catarina|sc|crise fiscal)/.test(t)) return 'Sul';
+      if (/(amazonas|para|acre|rondonia|roraima|amapa|tocantins|amazonia|ibama|meio ambiente)/.test(t)) return 'Norte';
+      return 'Nacional';
+    }
+
+    function timeAgo(dateStr) {
+      if (!dateStr) return 'agora';
+      const date = new Date(dateStr);
+      if (isNaN(date)) return 'agora';
+      const seconds = Math.floor((new Date() - date) / 1000);
+      if (seconds < 60) return 'agora';
+      if (seconds < 3600) return Math.floor(seconds / 60) + ' min';
+      if (seconds < 86400) return Math.floor(seconds / 3600) + 'h';
+      return Math.floor(seconds / 86400) + 'd';
+    }
+
+    function formatAbsoluteTime(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const el = document.createElement('div');
+      const colors = { info: 'bg-zinc-800 border-zinc-700', success: 'bg-emerald-900/80 border-emerald-700', warning: 'bg-amber-900/80 border-amber-700' };
+      el.className = `flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl border ${colors[type]} max-w-xs toast`;
+      el.innerHTML = `<div class="text-sm flex-1">${message}</div><button class="text-zinc-400 hover:text-white" onclick="this.parentElement.remove()">×</button>`;
+      container.appendChild(el);
+      setTimeout(() => { if (el.parentElement) el.parentElement.removeChild(el); }, 4800);
+    }
+
+    // ==================== RSS - OTIMIZADO PARA VELOCIDADE ====================
+    function loadCache() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) return null;
+        const cached = JSON.parse(raw);
+        if (!cached || !Array.isArray(cached.articles) || Date.now() - cached.timestamp > MAX_CACHE_AGE_MS) {
+          localStorage.removeItem(CACHE_KEY);
+          return null;
+        }
+        return cached.articles;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function saveCache(articles) {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+          articles: articles.slice(0, 180), // limit size
+          timestamp: Date.now()
+        }));
+      } catch (e) {}
+    }
+
+    async function fetchWithProxy(url) {
+      // Lista expandida de proxies públicos para maior tolerância a falhas
+      const proxyTemplates = [
+        (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+        (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+        (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+        (u) => `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(u)}`,
+        (u) => `https://cors.bridged.cc/${encodeURIComponent(u)}`,
+        (u) => `https://yacdn.org/proxy/${encodeURIComponent(u)}`,
+      ];
+
+      let lastError = 'Todos os proxies falharam';
+
+      // Tenta em ordem aleatória para distribuir carga
+      const shuffled = [...proxyTemplates].sort(() => Math.random() - 0.5);
+
+      for (let makeProxy of shuffled) {
+        const proxyUrl = makeProxy(url);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+        try {
+          const res = await fetch(proxyUrl, {
+            signal: controller.signal,
+            headers: { 
+              'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'Referer': 'https://www.google.com/'
+            },
+            mode: 'cors'
+          });
+          clearTimeout(timeoutId);
+
+          if (res.ok) {
+            let text = await res.text();
+            
+            // Tenta limpar se vier HTML (alguns proxies retornam página de erro)
+            if (text.trim().startsWith('<!') || text.includes('<html')) {
+              // Tenta extrair conteúdo se possível, senão pula
+              const match = text.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+              if (match) text = match[1];
+              else continue;
+            }
+
+            // Validação básica para RSS/Atom
+            const lower = text.toLowerCase();
+            if (lower.includes('<rss') || lower.includes('<feed') || lower.includes('<item') || lower.includes('<entry')) {
+              return text;
+            } else {
+              lastError = `Proxy retornou conteúdo não-RSS (${res.status})`;
+              continue;
+            }
+          } else {
+            lastError = `Proxy ${res.status} ${res.statusText}`;
+          }
+        } catch (e) {
+          clearTimeout(timeoutId);
+          lastError = e.name === 'AbortError' ? 'Timeout' : (e.message || 'Erro de rede');
+        }
+      }
+      throw new Error(lastError);
+    }
+
+    function parseRSS(xmlString, sourceName, sourceId) {
+      const parser = new DOMParser();
+      let doc;
+      try {
+        doc = parser.parseFromString(xmlString, 'text/xml');
+        // Se o parser retornar erro (ex: HTML em vez de XML)
+        if (doc.querySelector('parsererror')) {
+          throw new Error('Não é XML válido');
+        }
+      } catch (e) {
+        // Tenta limpar HTML comum e reparsear (último recurso)
+        const cleaned = xmlString.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<!--[\s\S]*?-->/g, '');
+        doc = parser.parseFromString(cleaned, 'text/xml');
+      }
+      let items = Array.from(doc.querySelectorAll('item'));
+      if (items.length === 0) items = Array.from(doc.querySelectorAll('entry'));
+      return items.map(item => {
+        let title = (item.querySelector('title')?.textContent || '').replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim();
+        let link = item.querySelector('link')?.textContent || item.querySelector('link')?.getAttribute('href') || '';
+        let desc = (item.querySelector('description')?.textContent || item.querySelector('content')?.textContent || '').replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 260);
+        let pubDate = item.querySelector('pubDate')?.textContent || item.querySelector('published')?.textContent || item.querySelector('updated')?.textContent;
+        const region = detectRegion(title + ' ' + desc);
+        return { id: sourceId + '_' + (link || title).slice(-40), title: title || '(Sem título)', link, description: desc, pubDate, source: sourceName, sourceId, region, fetchedAt: Date.now() };
+      });
+    }
+
+    // Concorrência limitada + atualização progressiva + telemetria visível por fonte
+    async function fetchAllRSS(onSourceComplete) {
+      const results = [];
+      const errors = [];
+      const CONCURRENCY = 5;
+
+      // Inicia o ciclo marcando fontes como pending (para telemetria)
+      RSS_SOURCES.forEach(src => {
+        updateSourceStatus(src.id, { name: src.name, status: 'pending' });
+      });
+      renderSourcesStatus();
+
+      for (let i = 0; i < RSS_SOURCES.length; i += CONCURRENCY) {
+        const chunk = RSS_SOURCES.slice(i, i + CONCURRENCY);
+
+        const promises = chunk.map(async (src) => {
+          try {
+            const start = performance.now();
+            const xml = await fetchWithProxy(src.url);
+            const duration = Math.round(performance.now() - start);
+            const parsed = parseRSS(xml, src.name, src.id);
+            const relevant = parsed.filter(a => isPoliticalRelevant(a.title, a.description));
+
+            // Salva sucesso por fonte para fallback
+            lastSuccessfulBySource[src.id] = relevant;
+
+            updateSourceStatus(src.id, {
+              name: src.name,
+              status: 'success',
+              durationMs: duration,
+              count: relevant.length
+            });
+            renderSourcesStatus();
+
+            return { articles: relevant, error: null, sourceName: src.name, sourceId: src.id };
+          } catch (err) {
+            const errMsg = (err.message || 'Erro').slice(0, 70);
+            // Fallback para último sucesso da fonte (tolerância a falhas)
+            const fallback = lastSuccessfulBySource[src.id] || [];
+            if (fallback.length > 0) {
+              updateSourceStatus(src.id, {
+                name: src.name,
+                status: 'cached',
+                count: fallback.length,
+                error: errMsg
+              });
+              renderSourcesStatus();
+              return { articles: fallback, error: null, sourceName: src.name, sourceId: src.id };
+            }
+            updateSourceStatus(src.id, {
+              name: src.name,
+              status: 'error',
+              error: errMsg
+            });
+            renderSourcesStatus();
+            return { articles: [], error: src.name, sourceName: src.name, sourceId: src.id };
+          }
+        });
+
+        const settled = await Promise.all(promises);
+
+        for (const res of settled) {
+          if (res.error) {
+            errors.push(res.error);
+          } else if (res.articles.length > 0) {
+            results.push(...res.articles);
+            if (typeof onSourceComplete === 'function') {
+              onSourceComplete(res.articles, res.sourceName);
+            }
+          }
+        }
+
+        // Pequeno delay entre lotes para respeitar rate limits
+        await new Promise(r => setTimeout(r, 180));
+      }
+
+      return { articles: results, errors };
+    }
+
+    function updateSourceStatus(sourceId, partial) {
+      sourceStatuses[sourceId] = { ...(sourceStatuses[sourceId] || {}), ...partial };
+    }
+
+    function renderSourcesStatus() {
+      const container = document.getElementById('sources-status');
+      if (!container) return;
+
+      container.innerHTML = `<span class="text-zinc-400 mr-1 font-medium">Fontes RSS:</span>`;
+
+      RSS_SOURCES.forEach(src => {
+        const st = sourceStatuses[src.id] || { status: 'pending' };
+        let cls = 'bg-zinc-600 text-white';
+        let label = src.name;
+        let tip = 'Aguardando...';
+
+        if (st.status === 'success') {
+          cls = 'bg-emerald-700 text-white';
+          label = `${src.name} ${st.count ? `(${st.count})` : ''}`;
+          tip = `Sucesso • ${st.durationMs || '?'}ms`;
+        } else if (st.status === 'error') {
+          cls = 'bg-red-700 text-white';
+          label = `${src.name} ✕`;
+          tip = `Falhou: ${st.error || 'erro'}`;
+        } else if (st.status === 'pending') {
+          cls = 'bg-zinc-500 text-white';
+          label = `${src.name}...`;
+        }
+
+        const pill = document.createElement('span');
+        pill.className = `px-1.5 py-0.5 rounded text-[9px] cursor-pointer ${cls}`;
+        pill.textContent = label;
+        pill.title = tip;
+
+        if (st.status === 'error') {
+          pill.onclick = () => retrySingleSource(src.id);
+        }
+        container.appendChild(pill);
+      });
+    }
+
+    async function retrySingleSource(sourceId) {
+      const src = RSS_SOURCES.find(s => s.id === sourceId);
+      if (!src) return;
+
+      updateSourceStatus(sourceId, { status: 'pending' });
+      renderSourcesStatus();
+
+      try {
+        const start = performance.now();
+        const xml = await fetchWithProxy(src.url);
+        const duration = Math.round(performance.now() - start);
+        const parsed = parseRSS(xml, src.name, src.id);
+        const relevant = parsed.filter(a => isPoliticalRelevant(a.title, a.description));
+
+        updateSourceStatus(sourceId, {
+          name: src.name,
+          status: 'success',
+          durationMs: duration,
+          count: relevant.length
+        });
+        renderSourcesStatus();
+
+        mergeArticlesProgressively(relevant, src.name);
+        showToast(`Fonte ${src.name} recarregada`, 'success');
+      } catch (err) {
+        const msg = (err.message || 'erro').slice(0, 60);
+        updateSourceStatus(sourceId, { name: src.name, status: 'error', error: msg });
+        renderSourcesStatus();
+        showToast(`Falha em ${src.name}: ${msg}`, 'warning');
+      }
+    }
+
+    // ==================== RENDER ====================
+    function renderActiveZones() {
+      const container = document.getElementById('active-zones');
+      container.innerHTML = '';
+      ACTIVE_ARENAS.forEach(arena => {
+        const el = document.createElement('button');
+        el.className = `region-chip px-3.5 py-1 text-xs rounded-2xl border flex items-center gap-1.5 transition-all ${activeConflictFilter === arena.id ? 'bg-br-green text-white border-br-green' : 'border-zinc-700 bg-zinc-900 hover:border-zinc-600 text-zinc-300'}`;
+        const color = REGION_COLORS[arena.region] || '#9ca3af';
+        el.innerHTML = `<span class="inline-block w-1.5 h-1.5 rounded-full" style="background:${color}"></span><span>${arena.name}</span><span class="ml-1 text-[9px] text-zinc-400">ℹ︎</span>`;
+        el.onclick = () => { showConflictDetails(arena.id); setRegionFilter(arena.region, true); highlightConflictOnMap(arena.id); };
+        container.appendChild(el);
+      });
+    }
+
+    function renderAgenda() {
+      const container = document.getElementById('agenda-grid');
+      container.innerHTML = '';
+      AGENDA_SEMANA.forEach(item => {
+        const div = document.createElement('div');
+        div.className = `agenda-item bg-zinc-900 border ${item.destaque ? 'border-br-green/60' : 'border-zinc-800'} rounded-2xl p-3 text-xs`;
+        div.innerHTML = `
+          <div class="flex items-center justify-between mb-1">
+            <div class="font-mono text-br-green text-[10px]">${item.dia}</div>
+            <div class="text-[10px] px-2 py-px rounded bg-zinc-800">${item.casa}</div>
+          </div>
+          <div class="font-medium leading-tight text-zinc-100">${item.titulo}</div>
+          <div class="text-[10px] text-zinc-400 mt-1.5 flex items-center gap-2">
+            <span>${item.status}</span>
+            ${item.destaque ? '<span class="text-br-green">• Alta relevância</span>' : ''}
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderLeaders() {
+      const container = document.getElementById('leaders-grid');
+      container.innerHTML = '';
+      LIDERANCAS.forEach(l => {
+        const div = document.createElement('div');
+        div.className = `leader-card bg-zinc-900 border border-zinc-800 rounded-2xl p-3 text-xs hover:border-br-green`;
+        const influenciaColor = l.influencia > 85 ? 'text-br-green' : l.influencia > 75 ? 'text-amber-400' : 'text-zinc-400';
+        div.innerHTML = `
+          <div class="font-semibold">${l.nome}</div>
+          <div class="text-[10px] text-zinc-400">${l.cargo}</div>
+          <div class="mt-2 flex items-center justify-between text-[10px]">
+            <div><span class="${influenciaColor} font-semibold">${l.influencia}</span> <span class="text-zinc-500">influência</span></div>
+            <div class="text-zinc-500">${l.partido}</div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // ==================== SEÇÃO EM ALTA ====================
+    function renderTrending() {
+      const container = document.getElementById('trending-grid');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const text = allArticles.map(a => (a.title + ' ' + a.description).toLowerCase()).join(' ');
+      const keywords = ['lula','tarcísio','stf','lira','emendas','reforma tributária','bolsonaro','haddad','congresso','governabilidade','crise fiscal','eleições 2026'];
+      
+      const counts = {};
+      keywords.forEach(kw => {
+        const regex = new RegExp(kw, 'gi');
+        const matches = text.match(regex);
+        counts[kw] = matches ? matches.length : 0;
+      });
+
+      const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 8);
+
+      sorted.forEach(([term, count]) => {
+        if (count === 0) return;
+        const el = document.createElement('div');
+        el.className = `px-3 py-1 rounded-2xl text-xs border flex items-center gap-2 ${count > 4 ? 'border-br-gold bg-yellow-900/20 text-yellow-300' : 'border-zinc-700 bg-zinc-900 text-zinc-300'}`;
+        el.innerHTML = `<span class="font-medium">${term}</span> <span class="text-[10px] opacity-70">(${count})</span>`;
+        el.onclick = () => {
+          document.getElementById('search-input').value = term;
+          applyFilters();
+        };
+        container.appendChild(el);
+      });
+    }
+
+    function showConflictDetails(arenaId) {
+      const arena = ACTIVE_ARENAS.find(a => a.id === arenaId);
+      if (!arena) return;
+      const drawer = document.getElementById('conflict-drawer');
+      const titleEl = document.getElementById('drawer-title');
+      const contentEl = document.getElementById('drawer-content');
+
+      titleEl.innerHTML = `<span class="inline-block w-3 h-3 rounded-full mr-2 align-middle" style="background:${REGION_COLORS[arena.region] || '#009739'}"></span>${arena.name}`;
+
+      const intensityLabel = arena.intensity === 'high' ? 
+        '<span class="px-2.5 py-0.5 bg-br-green text-white text-[10px] rounded font-semibold">ALTA RELEVÂNCIA</span>' : 
+        '<span class="px-2.5 py-0.5 bg-br-gold text-black text-[10px] rounded font-semibold">MÉDIA RELEVÂNCIA</span>';
+
+      contentEl.innerHTML = `
+        <div class="flex items-center justify-between text-sm">
+          <div><div class="text-xs text-zinc-400">CONTEXTO</div><div class="font-medium">${arena.start}</div></div>
+          <div class="text-right">${intensityLabel}</div>
+        </div>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3 text-sm">
+          <div><div class="text-xs text-zinc-400">PRINCIPAIS ATORES</div><div class="text-zinc-100 mt-0.5">${arena.keyPlayers}</div></div>
+          <div><div class="text-xs text-zinc-400">STATUS ATUAL</div><div class="text-zinc-200">${arena.status}</div></div>
+        </div>
+        <div class="grid grid-cols-1 gap-3">
+          <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4"><div class="text-br-green text-xs font-semibold tracking-wider">IMPACTO POLÍTICO</div><div class="text-lg font-semibold mt-1 leading-tight">${arena.politicalImpact}</div></div>
+          <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4"><div class="text-br-gold text-xs font-semibold tracking-wider">OPINIÃO PÚBLICA</div><div class="text-lg font-semibold mt-1 leading-tight">${arena.publicOpinion}</div></div>
+          <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4"><div class="text-sky-400 text-xs font-semibold tracking-wider">IMPACTO ECONÔMICO</div><div class="text-lg font-semibold mt-1 leading-tight">${arena.economicImpact}</div></div>
+        </div>
+        <div class="text-xs bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-zinc-300">${arena.notes}</div>
+        <div><div class="text-xs text-zinc-400 mb-1">REFERÊNCIAS</div><div class="text-[11px] bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-zinc-300">${arena.references}</div></div>
+        <button onclick="filterByConflictFromDrawer('${arena.id}'); closeConflictDrawer();" class="w-full py-2.5 text-sm font-medium rounded-2xl border border-br-green hover:bg-br-green/10 transition-colors">Filtrar notícias desta arena</button>
+      `;
+      drawer.classList.remove('hidden'); drawer.classList.add('flex', 'flex-col');
+      highlightConflictOnMap(arenaId);
+    }
+
+    function closeConflictDrawer() {
+      const drawer = document.getElementById('conflict-drawer');
+      drawer.classList.remove('flex', 'flex-col'); drawer.classList.add('hidden');
+    }
+
+    function filterByConflictFromDrawer(arenaId) {
+      activeConflictFilter = arenaId;
+      const arena = ACTIVE_ARENAS.find(a => a.id === arenaId);
+      if (arena) setRegionFilter(arena.region, false);
+      renderActiveZones(); applyFilters(); highlightConflictOnMap(arenaId);
+    }
+
+    function renderVideos() {
+      const container = document.getElementById('videos-grid'); container.innerHTML = '';
+      let videosToShow = currentVideoRegionFilter === 'all' ? RELEVANT_VIDEOS : RELEVANT_VIDEOS.filter(v => v.region === currentVideoRegionFilter);
+      if (videosToShow.length === 0) {
+        const empty = document.createElement('div'); empty.className = 'col-span-full text-center py-8 text-sm text-zinc-400';
+        empty.innerHTML = `Nenhum vídeo. <span onclick="filterVideos('all')" class="text-br-green cursor-pointer underline">Ver todos</span>`; container.appendChild(empty); return;
+      }
+      videosToShow.forEach(video => {
+        const card = document.createElement('div');
+        card.className = `bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden group hover:border-br-green transition-all cursor-pointer political-card`;
+        card.onclick = () => showVideoModal(video);
+        const thumb = video.youtubeId ? `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg` : 'https://picsum.photos/id/1015/320/180';
+        card.innerHTML = `
+          <div class="relative"><img src="${thumb}" class="w-full h-36 object-cover" loading="lazy" onerror="this.src='https://picsum.photos/id/1015/320/180';this.onerror=null;"><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+          <div class="absolute inset-0 flex items-center justify-center opacity-80 group-hover:opacity-100"><div class="w-10 h-10 bg-br-green/90 rounded-full flex items-center justify-center"><svg class="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+          <div class="absolute bottom-2 right-2 text-[10px] px-1.5 py-px bg-black/80 rounded text-white font-mono">${video.duration}</div>
+          <div class="absolute top-2 left-2"><span class="text-[10px] px-2 py-0.5 rounded bg-black/70 text-white">${video.source}</span></div></div>
+          <div class="p-3"><div class="text-xs text-br-green mb-0.5 font-medium">${video.region}</div><div class="text-sm font-medium leading-tight line-clamp-2">${video.title}</div>
+          <div class="text-[10px] text-zinc-400 mt-2">${video.date}</div></div>`;
+        container.appendChild(card);
+      });
+    }
+
+    function renderLiveStreams() {
+      const container = document.getElementById('live-grid'); container.innerHTML = '';
+      const oficiais = ['camaradeputados', 'tvsenado', 'tvjustica', 'nbr'];
+      LIVE_STREAMS.forEach(stream => {
+        const card = document.createElement('div');
+        const isOficial = oficiais.includes(stream.id);
+        card.className = `bg-zinc-900 border ${isOficial ? 'border-br-blue/60' : 'border-zinc-800'} rounded-2xl p-4 flex flex-col hover:border-br-green/60 transition-all group political-card`;
+        const oficialBadge = isOficial ? `<span class="px-1.5 py-px bg-br-blue text-white text-[8px] font-bold rounded">OFICIAL</span>` : '';
+        card.innerHTML = `
+          <div class="flex items-start justify-between mb-2">
+            <div class="font-semibold flex items-center gap-1.5">${stream.name} ${oficialBadge}</div>
+            <div class="px-2 py-0.5 bg-br-green text-white text-[9px] font-bold rounded flex items-center gap-1"><span class="w-1.5 h-1.5 bg-white rounded-full live-dot"></span>LIVE</div>
+          </div>
+          <div class="text-xs text-zinc-400 flex-1 mb-3">${stream.description}</div>
+          <a href="${stream.url}" target="_blank" class="mt-auto inline-flex items-center justify-center gap-2 bg-br-green hover:bg-br-green/90 transition-colors text-sm font-medium py-2 rounded-2xl text-white">Assistir ao Vivo</a>`;
+        container.appendChild(card);
+      });
+    }
+
+    function renderLiveTicker() {
+      const container = document.getElementById('ticker-content');
+      const latest = [...allArticles].sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0)).slice(0, 7);
+      if (latest.length === 0) { container.innerHTML = `<span class="px-4">Aguardando atualizações...</span>`; return; }
+      let html = '';
+      latest.forEach((a, i) => { html += `<span class="inline-flex items-center gap-2"><span class="text-br-green">●</span> <span class="font-medium">${a.title}</span> <span class="text-zinc-500 text-[10px]">(${a.source} • ${timeAgo(a.pubDate)})</span></span>`; if (i < latest.length-1) html += `<span class="text-zinc-600 mx-2">•</span>`; });
+      container.innerHTML = html + '<span class="text-zinc-600 mx-4">•</span>' + html;
+    }
+
+    function filterVideos(region) {
+      currentVideoRegionFilter = region;
+      document.querySelectorAll('[id^="vchip-"]').forEach(chip => {
+        chip.classList.remove('active-chip', 'bg-br-green', 'text-white', 'border-br-green');
+        chip.classList.add('border-zinc-700', 'bg-zinc-900', 'text-zinc-300');
+        if (region === 'all' && chip.id === 'vchip-all') { chip.classList.add('active-chip', 'bg-br-green', 'text-white', 'border-br-green'); chip.classList.remove('border-zinc-700', 'bg-zinc-900', 'text-zinc-300'); }
+        else if (chip.id === `vchip-${region}`) { chip.classList.add('active-chip', 'bg-br-green', 'text-white', 'border-br-green'); chip.classList.remove('border-zinc-700', 'bg-zinc-900', 'text-zinc-300'); }
+      });
+      renderVideos();
+    }
+
+    function showVideoModal(video) {
+      const modal = document.getElementById('video-modal');
+      const titleEl = document.getElementById('modal-video-title');
+      const playerEl = document.getElementById('modal-video-player');
+      const openLink = document.getElementById('modal-open-youtube');
+      titleEl.textContent = video.title; openLink.href = `https://www.youtube.com/watch?v=${video.youtubeId}`;
+      playerEl.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${video.youtubeId}?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+      modal.classList.remove('hidden'); modal.classList.add('flex');
+    }
+    function closeVideoModal() {
+      const modal = document.getElementById('video-modal'); const playerEl = document.getElementById('modal-video-player');
+      playerEl.innerHTML = ''; modal.classList.remove('flex'); modal.classList.add('hidden');
+    }
+
+    function createNewsCard(article) {
+      const card = document.createElement('div');
+      card.className = `news-card bg-zinc-950 border border-zinc-800 rounded-2xl p-4 flex flex-col political-card`;
+      const time = timeAgo(article.pubDate); const absTime = formatAbsoluteTime(article.pubDate);
+      const regionColor = REGION_COLORS[article.region] || '#9ca3af';
+      const sourceColor = article.sourceId === 'folha' ? 'bg-sky-900 text-sky-300' : article.sourceId === 'g1' || article.sourceId === 'uol' ? 'bg-orange-900 text-orange-300' : article.sourceId === 'cnn' ? 'bg-rose-900 text-rose-300' : 'bg-teal-900 text-teal-300';
+      card.innerHTML = `
+        <div class="flex items-start justify-between gap-3 mb-2">
+          <div class="flex items-center gap-2 min-w-0"><span class="rss-source ${sourceColor}">${article.source}</span><span class="text-zinc-500 text-[10px] whitespace-nowrap">${time}</span></div>
+          <span class="px-2 py-px text-[10px] rounded font-medium flex-shrink-0" style="background:${regionColor}20; color:${regionColor}">${article.region}</span>
+        </div>
+        <a href="${article.link}" target="_blank" class="font-semibold text-[15px] leading-tight line-clamp-3 hover:text-br-green transition-colors">${article.title}</a>
+        ${article.description ? `<div class="text-zinc-400 text-xs mt-2 line-clamp-2">${article.description}</div>` : ''}
+        <div class="flex-1"></div>
+        <div class="flex items-center justify-between pt-3 mt-3 border-t border-zinc-800 text-[11px]">
+          <div class="text-zinc-500">${absTime}</div>
+          <a href="${article.link}" target="_blank" class="flex items-center gap-1 text-br-green hover:text-emerald-400 font-medium">Ler na fonte <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a>
+        </div>`;
+      return card;
+    }
+
+    function renderNews(articles) {
+      const container = document.getElementById('news-container'); container.innerHTML = '';
+      if (articles.length === 0) {
+        const empty = document.createElement('div'); empty.className = 'p-8 text-center text-sm text-zinc-400';
+        empty.innerHTML = `<div class="mb-3">Nenhuma notícia com os filtros atuais.</div><button onclick="clearAllFilters()" class="text-br-green hover:text-emerald-400 underline">Limpar filtros</button>`; container.appendChild(empty); return;
+      }
+
+      const sorted = [...articles].sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));
+
+      sorted.forEach((article, index) => {
+        const card = createNewsCard(article);
+        
+        // Destaque visual forte para as mais novas
+        if (index < newArticlesCount && newArticlesCount > 0) {
+          card.classList.add('new-article');
+        } else if (newArticlesCount > 3) {
+          // Diminui visualmente as antigas quando há muitas novas
+          card.classList.add('old-article');
+        }
+        
+        container.appendChild(card);
+      });
+
+      document.getElementById('results-count').textContent = `${articles.length} artigos`;
+    }
+
+    function updateStats(articles) {
+      document.getElementById('stat-articles').textContent = articles.length;
+      document.getElementById('stat-sources').textContent = RSS_SOURCES.length;
+      document.getElementById('stat-conflicts').textContent = ACTIVE_ARENAS.length;
+    }
+
+    // ==================== FILTERS ====================
+    function applyFilters() {
+      const searchTerm = document.getElementById('search-input').value.trim().toLowerCase();
+      currentSearch = searchTerm;
+      filteredArticles = allArticles.filter(article => {
+        if (currentRegionFilter !== 'all' && article.region !== currentRegionFilter) return false;
+
+        // Filtro por viés editorial
+        if (currentBiasFilter !== 'all') {
+          const source = RSS_SOURCES.find(s => s.id === article.sourceId);
+          if (!source || source.bias !== currentBiasFilter) return false;
+        }
+
+        if (activeConflictFilter) {
+          const arena = ACTIVE_ARENAS.find(a => a.id === activeConflictFilter);
+          if (arena && !normalizeText(article.title + ' ' + article.description).includes(normalizeText(arena.name.split(' ')[0])) && article.region !== arena.region) return false;
+        }
+        if (searchTerm) {
+          const haystack = normalizeText(article.title + ' ' + article.description + ' ' + article.region);
+          if (!haystack.includes(searchTerm)) return false;
+        }
+        return true;
+      });
+      renderNews(filteredArticles);
+    }
+
+    function setRegionFilter(region, doApply = true) {
+      currentRegionFilter = region;
+      document.querySelectorAll('[id^="chip-"]').forEach(chip => {
+        chip.classList.remove('active'); chip.classList.add('text-zinc-300');
+        if (region === 'all' && chip.id === 'chip-all') { chip.classList.add('active'); chip.classList.remove('text-zinc-300'); }
+        else if (chip.id === `chip-${region}`) { chip.classList.add('active'); chip.classList.remove('text-zinc-300'); }
+      });
+      if (!activeConflictFilter) resetMapHighlights();
+      if (doApply) applyFilters();
+    }
+
+    function setBiasFilter(bias) {
+      currentBiasFilter = bias;
+      document.querySelectorAll('[id^="bias-"]').forEach(chip => {
+        chip.classList.remove('active'); chip.classList.add('text-zinc-300');
+        if (bias === 'all' && chip.id === 'bias-all') { chip.classList.add('active'); chip.classList.remove('text-zinc-300'); }
+        else if (chip.id === `bias-${bias}`) { chip.classList.add('active'); chip.classList.remove('text-zinc-300'); }
+      });
+      applyFilters();
+    }
+
+    function clearAllFilters() {
+      currentRegionFilter = 'all'; activeConflictFilter = null; currentSearch = '';
+      document.getElementById('search-input').value = '';
+      document.querySelectorAll('[id^="chip-"]').forEach(c => c.classList.remove('active'));
+      document.getElementById('chip-all').classList.add('active');
+      hideNewArticlesBadge();
+      renderActiveZones(); applyFilters(); resetMapHighlights();
+    }
+
+    function resetMapFilters() { activeConflictFilter = null; renderActiveZones(); setRegionFilter('all'); resetMapHighlights(); }
+
+    // ==================== MAP ====================
+    function initMap() {
+      map = L.map('map', { zoomControl: false, attributionControl: false }).setView([-14.2, -51.9], 3.7);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 8 }).addTo(map);
+      renderPowerLayer();
+    }
+
+    function clearAllMapMarkers() {
+      Object.values(markers).forEach(m => map.removeLayer(m));
+      Object.values(fiscalMarkers).forEach(m => map.removeLayer(m));
+      markers = {};
+      fiscalMarkers = {};
+    }
+
+    function renderPowerLayer() {
+      clearAllMapMarkers();
+      ACTIVE_ARENAS.forEach(arena => {
+        const color = arena.intensity === 'high' ? '#009739' : '#D4AF37';
+        const marker = L.circleMarker([arena.lat, arena.lng], { radius: arena.intensity === 'high' ? 10 : 8, fillColor: color, color: '#fff', weight: 1.5, fillOpacity: 0.95 }).addTo(map);
+        const popupContent = `<div class="text-sm"><div class="font-semibold">${arena.name}</div><div class="text-xs text-zinc-400 mt-0.5">${arena.region}</div><div class="text-xs mt-1.5 text-zinc-300">${arena.status}</div>
+          <div class="flex gap-2 mt-2"><button onclick="showConflictDetails('${arena.id}'); map.closePopup();" class="text-xs px-3 py-1 bg-br-gold hover:bg-yellow-600 text-black rounded-xl">Ver detalhes</button>
+          <button onclick="filterByConflictFromMap('${arena.id}')" class="text-xs px-3 py-1 bg-br-green hover:bg-emerald-700 rounded-xl">Filtrar notícias</button></div></div>`;
+        marker.bindPopup(popupContent, { closeButton: true, minWidth: 210 });
+        marker.on('click', () => { activeConflictFilter = arena.id; setRegionFilter(arena.region, false); renderActiveZones(); applyFilters(); highlightConflictOnMap(arena.id); });
+        markers[arena.id] = marker;
+      });
+      updateMapLayerButtons('power');
+    }
+
+    function renderFiscalLayer() {
+      clearAllMapMarkers();
+      FISCAL_CRISIS_MARKERS.forEach(state => {
+        const color = state.severity === 'high' ? '#EF4444' : state.severity === 'medium' ? '#F59E0B' : '#22C55E';
+        const marker = L.circleMarker([state.lat, state.lng], { radius: state.severity === 'high' ? 11 : 9, fillColor: color, color: '#fff', weight: 1.5, fillOpacity: 0.9 }).addTo(map);
+        const popupContent = `<div class="text-sm"><div class="font-semibold">${state.name}</div><div class="text-xs text-zinc-400">Dívida: ${state.debt}</div><div class="text-xs mt-1 text-zinc-300">${state.status}</div></div>`;
+        marker.bindPopup(popupContent, { closeButton: true, minWidth: 200 });
+        fiscalMarkers[state.id] = marker;
+      });
+      updateMapLayerButtons('fiscal');
+    }
+
+    function switchMapLayer(layer) {
+      currentMapLayer = layer;
+      if (layer === 'power') renderPowerLayer();
+      else renderFiscalLayer();
+    }
+
+    function updateMapLayerButtons(active) {
+      const powerBtn = document.getElementById('map-power');
+      const fiscalBtn = document.getElementById('map-fiscal');
+      if (!powerBtn || !fiscalBtn) return;
+
+      if (active === 'power') {
+        powerBtn.classList.add('bg-br-green', 'text-white');
+        powerBtn.classList.remove('border', 'border-zinc-700');
+        fiscalBtn.classList.remove('bg-br-green', 'text-white');
+        fiscalBtn.classList.add('border', 'border-zinc-700');
+      } else {
+        fiscalBtn.classList.add('bg-br-green', 'text-white');
+        fiscalBtn.classList.remove('border', 'border-zinc-700');
+        powerBtn.classList.remove('bg-br-green', 'text-white');
+        powerBtn.classList.add('border', 'border-zinc-700');
+      }
+    }
+
+    function resetMapHighlights() {
+      if (!map) return;
+      ACTIVE_ARENAS.forEach(arena => {
+        const marker = markers[arena.id]; if (!marker) return;
+        const isHigh = arena.intensity === 'high';
+        marker.setStyle({ radius: isHigh ? 10 : 8, fillColor: isHigh ? '#009739' : '#D4AF37', color: '#fff', weight: 1.5, fillOpacity: 0.95 });
+      });
+      map.flyTo([-14.2, -51.9], 3.7, { duration: 0.8 });
+    }
+
+    function highlightConflictOnMap(arenaId) {
+      if (!map) return; resetMapHighlights();
+      const arena = ACTIVE_ARENAS.find(a => a.id === arenaId); const marker = markers[arenaId];
+      if (!arena || !marker) return;
+      marker.setStyle({ radius: 17, fillColor: '#00C853', color: '#fff', weight: 3, fillOpacity: 1 });
+      marker.bringToFront();
+      const zoomLevel = arena.intensity === 'high' ? 5.6 : 6.1;
+      map.flyTo([arena.lat, arena.lng], zoomLevel, { duration: 0.85 });
+    }
+
+    window.filterByConflictFromMap = function(arenaId) {
+      activeConflictFilter = arenaId;
+      const arena = ACTIVE_ARENAS.find(a => a.id === arenaId);
+      if (arena) setRegionFilter(arena.region, false);
+      renderActiveZones(); applyFilters(); highlightConflictOnMap(arenaId);
+    };
+
+    // ==================== POLLING ====================
+    function updateLastUpdateTime() {
+      const el = document.getElementById('last-update');
+      if (!lastPollTime) { el.textContent = 'carregando...'; return; }
+      const diff = Math.floor((Date.now() - lastPollTime) / 1000 / 60);
+      el.textContent = diff < 1 ? 'agora' : `${diff} min atrás`;
+    }
+
+    function startCountdown() {
+      let seconds = Math.floor(POLL_INTERVAL_MS / 1000);
+      const el = document.getElementById('poll-countdown');
+      if (countdownInterval) clearInterval(countdownInterval);
+      countdownInterval = setInterval(() => {
+        seconds--; if (seconds < 0) seconds = Math.floor(POLL_INTERVAL_MS / 1000);
+        el.textContent = `${seconds}s`;
+        if (seconds % 5 === 0) updateLastUpdateTime();
+      }, 1000);
+    }
+
+    // Função para mesclar artigos de forma incremental e atualizar a UI rapidamente
+    function mergeArticlesProgressively(newArticles, sourceName) {
+      if (!newArticles || newArticles.length === 0) return;
+
+      const existingIds = new Set(allArticles.map(a => a.id));
+      const fresh = newArticles.filter(a => !existingIds.has(a.id));
+
+      if (fresh.length === 0) return;
+
+      // Adiciona no topo (mais recentes primeiro)
+      allArticles = [...fresh, ...allArticles];
+
+      // Limite total
+      if (allArticles.length > 200) allArticles = allArticles.slice(0, 200);
+
+      // Atualiza UI imediatamente com as novas desta fonte
+      applyFilters();
+      updateStats(allArticles);
+      renderLiveTicker();
+      renderTrending();
+
+      // Mostra feedback sutil de que veio de uma fonte específica
+      // (evita spam de toasts)
+      if (fresh.length > 0) {
+        // Opcional: mostrar badge temporário ou só atualizar o contador de novas
+        newArticlesCount += fresh.length;
+        updateNewArticlesBadge();
+      }
+    }
+
+    async function refreshNews(isInitial = false) {
+      const container = document.getElementById('news-container');
+
+      // Se for inicial e tivermos cache, mostra cache imediatamente (sensação de velocidade)
+      if (isInitial) {
+        const cached = loadCache();
+        if (cached && cached.length > 0) {
+          allArticles = cached;
+          applyFilters();
+          updateStats(allArticles);
+          renderLiveTicker();
+          renderTrending();
+        } else {
+          container.innerHTML = `<div class="p-8 text-center"><div class="flex justify-center mb-3"><div class="w-5 h-5 border-2 border-zinc-700 border-t-br-green rounded-full animate-spin"></div></div><div class="text-sm text-zinc-400">Carregando notícias políticas de múltiplas fontes...</div></div>`;
+        }
+      }
+
+      try {
+        // Passamos a função de callback para atualização progressiva
+        const { articles, errors } = await fetchAllRSS(mergeArticlesProgressively);
+
+        // Após todas as fontes terminarem, fazemos uma deduplicação final + salvamos cache
+        const seen = new Set();
+        const unique = allArticles.filter(a => {
+          const key = (a.title + a.link).slice(0, 80);
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+        allArticles = unique.slice(0, 200);
+
+        lastPollTime = Date.now();
+        updateLastUpdateTime();
+        saveCache(allArticles);
+
+        applyFilters();
+        updateStats(allArticles);
+        renderLiveTicker();
+        renderTrending();
+        renderSourcesStatus();
+
+        if (errors.length > 0 && isInitial) {
+          showToast(`Algumas fontes demoraram ou falharam: ${errors.slice(0,3).join(', ')}`, 'warning');
+        }
+
+        // Se não temos nada ainda, cai no demo
+        if (allArticles.length === 0 && !isInitial) {
+          loadDemoData();
+        }
+      } catch (err) {
+        if (allArticles.length === 0) {
+          loadDemoData();
+        }
+      }
+    }
+
+    async function manualRefresh() {
+      const btns = document.querySelectorAll('button'); btns.forEach(b => b.disabled = true);
+      await refreshNews(); btns.forEach(b => b.disabled = false); 
+      hideNewArticlesBadge();
+      showToast('Feed atualizado manualmente');
+    }
+
+    function toggleAutoRefresh() {
+      autoRefreshEnabled = !autoRefreshEnabled;
+      const btn = document.getElementById('autorefresh-btn');
+      const status = document.getElementById('realtime-status');
+
+      if (autoRefreshEnabled) {
+        btn.textContent = 'Pausar';
+        btn.classList.remove('bg-red-900', 'border-red-700', 'text-red-400');
+        btn.classList.add('border-br-green', 'text-br-green');
+        status.innerHTML = `<div class="w-1.5 h-1.5 bg-br-green rounded-full live-dot"></div><span class="text-br-green font-medium">Tempo real</span>`;
+      } else {
+        btn.textContent = 'Retomar';
+        btn.classList.add('bg-red-900', 'border-red-700', 'text-red-400');
+        btn.classList.remove('border-br-green', 'text-br-green');
+        status.innerHTML = `<div class="w-1.5 h-1.5 bg-zinc-500 rounded-full"></div><span class="text-zinc-400 font-medium">Pausado</span>`;
+      }
+    }
+
+    function updateNewArticlesBadge() {
+      const badge = document.getElementById('new-articles-badge');
+      const countEl = document.getElementById('new-count');
+      if (!badge || !countEl) return;
+
+      countEl.textContent = newArticlesCount;
+      badge.classList.remove('hidden');
+      badge.classList.add('flex');
+    }
+
+    function hideNewArticlesBadge() {
+      const badge = document.getElementById('new-articles-badge');
+      if (badge) {
+        badge.classList.add('hidden');
+        badge.classList.remove('flex');
+      }
+      newArticlesCount = 0;
+      showingOnlyNew = false;
+    }
+
+    function showOnlyNewArticles() {
+      const container = document.getElementById('news-container');
+      if (showingOnlyNew) {
+        // Reset to normal filtered view
+        showingOnlyNew = false;
+        hideNewArticlesBadge();
+        applyFilters();
+        return;
+      }
+
+      showingOnlyNew = true;
+      const cards = Array.from(container.querySelectorAll('.news-card'));
+      cards.forEach(card => card.style.display = 'none');
+
+      // Show only the first N cards (the newest ones)
+      const newestCards = cards.slice(0, newArticlesCount);
+      newestCards.forEach(card => {
+        card.style.display = '';
+        card.classList.add('new-article');
+      });
+
+      // Update badge to allow reset
+      const badge = document.getElementById('new-articles-badge');
+      if (badge) badge.innerHTML = `Mostrar todas <span class="text-[10px] ml-1">(${newArticlesCount})</span>`;
+    }
+
+    function startAutoPolling() {
+      if (pollInterval) clearInterval(pollInterval);
+      pollInterval = setInterval(async () => {
+        if (autoRefreshEnabled) await refreshNews();
+      }, POLL_INTERVAL_MS);
+      startCountdown();
+    }
+
+    // ==================== DEMO DATA (ENRIQUECIDO) ====================
+    function loadDemoData() {
+      const demo = [
+        { id: 'd1', title: 'Câmara aprova texto-base da regulamentação da reforma tributária em primeiro turno', description: 'Alíquota média mantida em 26,5%. Relator acatou emendas que ampliam benefícios para setores específicos do agronegócio e serviços.', link: 'https://www.folha.uol.com.br', pubDate: new Date(Date.now() - 1000*60*11).toISOString(), source: 'Folha de S.Paulo', sourceId: 'folha', region: 'Centro-Oeste' },
+        { id: 'd2', title: 'STF forma maioria para manter suspensão de emendas Pix de parlamentares investigados', description: 'Moraes determinou bloqueio de R$ 4,2 bilhões. Congresso reage e promete reação legislativa ainda esta semana.', link: 'https://g1.globo.com', pubDate: new Date(Date.now() - 1000*60*33).toISOString(), source: 'G1 Política', sourceId: 'g1', region: 'Centro-Oeste' },
+        { id: 'd3', title: 'Tarcísio de Freitas confirma pré-candidatura presidencial e critica "intervencionismo" do STF', description: 'Governador reuniu aliados em Brasília: "A direita precisa de um nome forte para 2026".', link: 'https://www.cnnbrasil.com.br', pubDate: new Date(Date.now() - 1000*60*48).toISOString(), source: 'CNN Brasil', sourceId: 'cnn', region: 'Sudeste' },
+        { id: 'd4', title: 'Líderes do Centrão cobram liberação de R$ 8 bilhões em emendas para votar MP do governo', description: 'Reunião no Planalto terminou sem acordo. Lira diz que não há clima para votação nesta semana.', link: 'https://www.congressoemfoco.com.br', pubDate: new Date(Date.now() - 1000*60*19).toISOString(), source: 'Congresso em Foco', sourceId: 'congresso', region: 'Centro-Oeste' },
+        { id: 'd5', title: 'Senado deve votar projeto que limita decisões monocráticas do STF ainda este mês', description: 'Texto de Flávio Bolsonaro ganhou apoio do Centrão. Governo articula alternativa com o STF.', link: 'https://agenciabrasil.ebc.com.br', pubDate: new Date(Date.now() - 1000*60*67).toISOString(), source: 'Agência Brasil', sourceId: 'agenciabrasil', region: 'Centro-Oeste' },
+        { id: 'd6', title: 'Governo edita MP que amplia isenção de IR até R$ 2.500; impacto fiscal de R$ 25 bi', description: 'Medida provisória será enviada ao Congresso nesta semana. Oposição já anuncia obstrução.', link: 'https://valor.globo.com', pubDate: new Date(Date.now() - 1000*60*82).toISOString(), source: 'Valor Econômico', sourceId: 'valor', region: 'Nacional' },
+        { id: 'd7', title: 'Governador do Rio Grande do Sul pede socorro federal de R$ 12 bilhões para evitar colapso', description: 'Eduardo Leite afirma que o estado não consegue pagar a folha sem ajuda urgente do Tesouro.', link: 'https://g1.globo.com', pubDate: new Date(Date.now() - 1000*60*95).toISOString(), source: 'G1 Política', sourceId: 'g1', region: 'Sul' },
+        { id: 'd8', title: 'Lula e Xi Jinping assinam 15 acordos em visita de Estado; foco em infraestrutura e tecnologia', description: 'Presidente chinês chega ao Brasil. Oposição critica "alinhamento excessivo com a China".', link: 'https://www.folha.uol.com.br', pubDate: new Date(Date.now() - 1000*60*59).toISOString(), source: 'Folha de S.Paulo', sourceId: 'folha', region: 'Nacional' },
+        { id: 'd9', title: 'Câmara instala CPI das Apostas Esportivas com foco em lavagem e influência em clubes', description: 'Deputados de oposição e base aliada se unem para investigar o setor de apostas online.', link: 'https://www.metropoles.com', pubDate: new Date(Date.now() - 1000*60*130).toISOString(), source: 'Metrópoles', sourceId: 'metropoles', region: 'Nacional' },
+        { id: 'd10', title: 'Relator no Senado apresenta 40 alterações na reforma tributária; governadores protestam', description: 'Estados do Sul e Sudeste reclamam de perda de receita. Alíquota de IBS pode subir para 28%.', link: 'https://www.congressoemfoco.com.br', pubDate: new Date(Date.now() - 1000*60*175).toISOString(), source: 'Congresso em Foco', sourceId: 'congresso', region: 'Centro-Oeste' },
+        { id: 'd11', title: 'Ministério da Justiça anuncia operação contra facções em 5 estados do Nordeste', description: 'Operação envolve 1.200 policiais federais e estaduais. Foco em PCC e CV.', link: 'https://www.uol.com.br', pubDate: new Date(Date.now() - 1000*60*42).toISOString(), source: 'UOL Política', sourceId: 'uol', region: 'Nordeste' },
+        { id: 'd12', title: 'Ibama aprova licenciamento de mina de cobre no Pará após 4 anos de análise', description: 'Projeto de R$ 8 bilhões deve gerar 12 mil empregos diretos. Ambientalistas prometem recurso.', link: 'https://exame.com', pubDate: new Date(Date.now() - 1000*60*210).toISOString(), source: 'Exame', sourceId: 'exame', region: 'Norte' },
+        { id: 'd13', title: 'Datafolha: Tarcísio aparece em primeiro lugar entre os pré-candidatos de direita', description: 'Governador de SP marca 34% entre os que pretendem votar na direita em 2026.', link: 'https://www.folha.uol.com.br', pubDate: new Date(Date.now() - 1000*60*77).toISOString(), source: 'Folha de S.Paulo', sourceId: 'folha', region: 'Sudeste' },
+        { id: 'd14', title: 'Câmara dos Deputados aprova urgência para PL que altera regras de licenciamento ambiental', description: 'Texto-base foi aprovado por 312 a 148. Ambientalistas alertam para enfraquecimento do Ibama.', link: 'https://www.uol.com.br', pubDate: new Date(Date.now() - 1000*60*26).toISOString(), source: 'UOL Política', sourceId: 'uol', region: 'Nacional' },
+        { id: 'd15', title: 'Gleisi Hoffmann diz que governo vai “endurecer” articulação com o Centrão após derrotas recentes', description: 'Ministra das Relações Institucionais cobra mais disciplina da base aliada em votações de interesse do Executivo.', link: 'https://www.metropoles.com', pubDate: new Date(Date.now() - 1000*60*54).toISOString(), source: 'Metrópoles', sourceId: 'metropoles', region: 'Centro-Oeste' },
+        { id: 'd16', title: 'TCU identifica R$ 9,4 bilhões em emendas sem comprovação de execução em 2024', description: 'Relatório do tribunal aponta falhas graves de transparência e recomenda bloqueio de novos repasses.', link: 'https://valor.globo.com', pubDate: new Date(Date.now() - 1000*60*89).toISOString(), source: 'Valor Econômico', sourceId: 'valor', region: 'Centro-Oeste' },
+        { id: 'd17', title: 'Bolsonaro se reúne com governadores do Sul e Sudeste para discutir candidatura própria ou apoio em 2026', description: 'Encontro em São Paulo reuniu sete governadores. Tarcísio e Ratinho Jr. participaram.', link: 'https://www.cnnbrasil.com.br', pubDate: new Date(Date.now() - 1000*60*61).toISOString(), source: 'CNN Brasil', sourceId: 'cnn', region: 'Sudeste' },
+        { id: 'd18', title: 'Ministro do STF critica “ativismo legislativo” e defende competência do Congresso em temas tributários', description: 'Em sessão, Barroso afirmou que o Judiciário não pode substituir o Parlamento na definição de alíquotas.', link: 'https://g1.globo.com', pubDate: new Date(Date.now() - 1000*60*38).toISOString(), source: 'G1 Política', sourceId: 'g1', region: 'Centro-Oeste' }
+      ];
+      allArticles = demo; filteredArticles = [...demo]; lastPollTime = Date.now() - 1000*60*3;
+      updateLastUpdateTime(); updateStats(allArticles); renderNews(filteredArticles);
+    }
+
+    // ==================== INIT ====================
+    async function initialize() {
+      // Aviso para execução via file:// (restrições de segurança)
+      if (location.protocol === 'file:') {
+        setTimeout(() => {
+          showToast('Para melhor compatibilidade com CORS e proxies, sirva o arquivo via http (ex: live server, GitHub Pages).', 'warning');
+        }, 1200);
+      }
+
+      // CRITICAL PATH: render only what's needed for first paint + fast feedback
+      renderActiveZones();
+      renderSourcesStatus();
+
+      const allChip = document.getElementById('chip-all'); if (allChip) allChip.classList.add('active');
+
+      // Carrega cache imediatamente (velocidade percebida)
+      const cachedArticles = loadCache();
+      if (cachedArticles && cachedArticles.length > 0) {
+        allArticles = cachedArticles;
+        applyFilters();
+        updateStats(allArticles);
+        renderLiveTicker();
+        renderTrending();
+
+        RSS_SOURCES.forEach(src => {
+          updateSourceStatus(src.id, { name: src.name, status: 'cached' });
+        });
+        renderSourcesStatus();
+      } else {
+        // Skeleton rápido para notícias
+        const container = document.getElementById('news-container');
+        container.innerHTML = `<div class="p-8 text-center"><div class="flex justify-center mb-3"><div class="w-5 h-5 border-2 border-zinc-700 border-t-br-green rounded-full animate-spin"></div></div><div class="text-sm text-zinc-400">Carregando notícias...</div></div>`;
+        renderSourcesStatus();
+      }
+
+      // Inicia carregamento de notícias em background (não bloqueia)
+      refreshNews(true).then(() => {
+        applyFilters();
+        updateStats(allArticles);
+        renderLiveTicker();
+        renderTrending();
+        renderSourcesStatus();
+      }).catch(() => {
+        if (allArticles.length === 0) loadDemoData();
+      });
+
+      // DEFERRED: render heavy UI after first paint (melhora LCP / FCP drasticamente)
+      setTimeout(() => {
+        renderAgenda();
+        renderLeaders();
+        renderTrending(); // re-render seguro
+        renderLiveStreams();
+        renderVideos();
+        renderLiveTicker(); // re-render
+
+        // Chart um pouco depois
+        setTimeout(() => {
+          const ctx = document.getElementById('fragmentation-chart');
+          if (ctx && window.Chart) {
+            new Chart(ctx, {
+              type: 'bar',
+              data: {
+                labels: ['PL', 'PT', 'UNIÃO', 'PP', 'MDB', 'PSD', 'REP', 'PSDB', 'Outros'],
+                datasets: [{
+                  label: 'Cadeiras',
+                  data: [99, 68, 59, 47, 42, 42, 40, 13, 109],
+                  backgroundColor: ['#009739','#002776','#FFCC00','#EF4444','#3B82F6','#8B5CF6','#F59E0B','#10B981','#64748B']
+                }]
+              },
+              options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { x: { grid: { color: '#3f3f46' } }, y: { grid: { display: false } } }
+              }
+            });
+          }
+        }, 200);
+
+        // Mapa lazy (IntersectionObserver + fallback)
+        const mapContainer = document.getElementById('map');
+        if (mapContainer) {
+          const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+              initMap();
+              updateMapLayerButtons('power');
+              observer.disconnect();
+            }
+          }, { threshold: 0.1 });
+          observer.observe(mapContainer);
+
+          setTimeout(() => {
+            if (!map && mapContainer) {
+              initMap();
+              updateMapLayerButtons('power');
+            }
+          }, 1200);
+        }
+      }, 50); // delay mínimo para priorizar o feed de notícias
+
+      // Listeners (não bloqueiam)
+      document.addEventListener('keydown', function(e) {
+        if (e.key === '/' && document.activeElement.tagName === 'BODY') { e.preventDefault(); document.getElementById('search-input').focus(); }
+        if (e.key.toLowerCase() === 'r' && document.activeElement.tagName === 'BODY') { e.preventDefault(); manualRefresh(); }
+      });
+
+      let searchTimeout;
+      document.getElementById('search-input').addEventListener('input', () => {
+        hideNewArticlesBadge();
+        clearTimeout(searchTimeout); searchTimeout = setTimeout(() => applyFilters(), 260);
+      });
+
+      setTimeout(updateLastUpdateTime, 1400);
+
+      setTimeout(() => {
+        if (!document.hidden) {
+          const count = document.getElementById('stat-articles');
+          if (count && parseInt(count.textContent) < 40) showToast('Painel carregado com dados de demonstração. Atualizações a cada ~42s.', 'info');
+        }
+      }, 4800);
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          const drawer = document.getElementById('conflict-drawer'); const videoModal = document.getElementById('video-modal');
+          if (!videoModal.classList.contains('hidden') && videoModal.classList.contains('flex')) closeVideoModal();
+          else if (!drawer.classList.contains('hidden')) closeConflictDrawer();
+        }
+      });
+
+      console.log('%c[Política Nacional] Dashboard produção inicializado (otimizado para carregamento).', 'color:#006B2E');
+    }
+
+    window.onload = initialize;
+    window.__resetDemo = () => { loadDemoData(); applyFilters(); };
+    window.__forcePoll = () => refreshNews();
+  </script>
+</body>
+</html>
