@@ -1244,10 +1244,12 @@
 
       try {
         const start = performance.now();
-        const xml = await fetchWithProxy(src.url);
+        const feedResp = await fetchFeed(src.url);
         const duration = Math.round(performance.now() - start);
-        const parsed = parseRSS(xml, src.name, src.id);
+        const parsed = parseFeed(feedResp, src.name, src.id);
         const relevant = parsed.filter(a => isPoliticalRelevant(a.title, a.description));
+
+        lastSuccessfulBySource[src.id] = relevant;
 
         updateSourceStatus(sourceId, {
           name: src.name,
