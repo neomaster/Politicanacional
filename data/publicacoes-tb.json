@@ -1,0 +1,54 @@
+{
+  "fonte": "https://www.transparencia.org.br/publicacoes/",
+  "atualizadoEm": "2026-07-19",
+  "publicacoes": [
+    {
+      "titulo": "Similares ao orçamento secreto, 'emendas de liderança' somaram R$ 1,3 bi em 2025",
+      "resumo": "Líderes partidários assumiram autoria de 16% das emendas de comissão da Câmara, ocultando parlamentares que indicaram o beneficiário final.",
+      "data": "13/07/2026",
+      "tags": ["Emendas", "Orçamento", "Accountability"],
+      "url": "https://www.transparencia.org.br/publicacoes/similares-ao-orcamento-secreto-emendas-de-lideranca-somaram-r-13-bi-em-2025/",
+      "download": "https://www.transparencia.org.br/wp-content/uploads/2020/10/Relatorio-Opacidade-nas-emendas-de-comissao.pdf"
+    },
+    {
+      "titulo": "98% dos promotores e procuradores do MP ganharam acima do teto constitucional em 2024",
+      "resumo": "Pagamentos extrateto superaram R$ 2,3 bilhões em 25 unidades do MP. Análise via DadosJusBr.",
+      "data": "06/10/2025",
+      "tags": ["Sistema de Justiça", "Orçamento", "Teto"],
+      "url": "https://www.transparencia.org.br/publicacoes/98-dos-promotores-e-procuradores-do-mp-ganharam-acima-do-teto-constitucional-em-2024/",
+      "download": "https://www.transparencia.org.br/wp-content/uploads/2025/10/98_promotores_procuradores_acima_teto.pdf"
+    },
+    {
+      "titulo": "Recomendações de transparência e rastreabilidade das emendas parlamentares no estado de SP",
+      "resumo": "Sugestões à CGE-SP à luz da ADPF 854: publicização em tempo real, sistemas abertos e interoperabilidade.",
+      "data": "11/03/2026",
+      "tags": ["Emendas", "SP", "Relatórios"],
+      "url": "https://www.transparencia.org.br/publicacoes/recomendacoes-de-transparencia-e-rastreabilidade-das-emendas-parlamentares-no-estado-de-sp/",
+      "download": "https://www.transparencia.org.br/wp-content/uploads/2026/03/RECOMENDACOES-EMENDAS-CGE-SP.pdf"
+    },
+    {
+      "titulo": "A arquitetura do além-teto: honorários de sucumbência na AGU",
+      "resumo": "Estudo sobre falhas de governança, controle e transparência na gestão dos honorários de advogados da União.",
+      "data": "01/06/2026",
+      "tags": ["AGU", "Teto", "Governança"],
+      "url": "https://www.transparencia.org.br/publicacoes/a-arquitetura-do-alem-teto-falhas-em-governanca-e-transparencia-da-gestao-dos-honorarios-dos-advogados-da-uniao/",
+      "download": null
+    },
+    {
+      "titulo": "Emendas de bancada “paralelas” driblaram decisões do STF",
+      "resumo": "Emendas não impositivas apadrinhadas por ofícios — associação com parlamentares ocultada na execução.",
+      "data": "02/10/2025",
+      "tags": ["Emendas", "STF", "Orçamento"],
+      "url": "https://www.transparencia.org.br/publicacoes/emendas-de-bancada-paralelas-driblaram-decisoes-do-stf-2025/",
+      "download": null
+    },
+    {
+      "titulo": "Medicamentos Transparentes — projeto",
+      "resumo": "Plataforma com IA para padronizar e comparar preços em compras públicas de medicamentos.",
+      "data": "01/10/2025",
+      "tags": ["Saúde", "Compras", "Projeto"],
+      "url": "https://www.transparencia.org.br/projetos/medicamentos-transparentes/",
+      "download": null
+    }
+  ]
+}

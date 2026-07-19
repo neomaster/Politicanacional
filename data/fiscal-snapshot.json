@@ -1,0 +1,50 @@
+{
+  "ano": 2026,
+  "fonte": "https://portaldatransparencia.gov.br/receitas",
+  "fonteDespesas": "https://portaldatransparencia.gov.br/despesas",
+  "coletadoEm": "2026-07-19",
+  "nota": "Snapshot curado do painel de Receitas Públicas do Portal da Transparência do Governo Federal. Valores em R$. A API oficial (api.portaldatransparencia.gov.br) exige chave-api-dados.",
+  "receitaPrevista": 6342744077483.83,
+  "receitaRealizada": 3117229044323.74,
+  "despesaPagaEstimada": 2980000000000,
+  "categorias": [
+    {
+      "nome": "Receitas correntes",
+      "valor": 1660537186026.01,
+      "pct": 53.27,
+      "cor": "#009739"
+    },
+    {
+      "nome": "Receitas de capital",
+      "valor": 1416950649246.99,
+      "pct": 45.46,
+      "cor": "#002776"
+    },
+    {
+      "nome": "Correntes intra-orçamentárias",
+      "valor": 13331896461.2,
+      "pct": 0.43,
+      "cor": "#FFCC00"
+    },
+    {
+      "nome": "Capital intra-orçamentárias",
+      "valor": 26409312589.54,
+      "pct": 0.85,
+      "cor": "#60a5fa"
+    }
+  ],
+  "despesasPorFuncao": [
+    { "nome": "Previdência social", "pct": 28 },
+    { "nome": "Encargos especiais / dívida", "pct": 18 },
+    { "nome": "Saúde", "pct": 9 },
+    { "nome": "Educação", "pct": 7 },
+    { "nome": "Assistência social", "pct": 6 },
+    { "nome": "Defesa / segurança", "pct": 5 },
+    { "nome": "Demais funções", "pct": 27 }
+  ],
+  "indicadoresBCB": {
+    "selicSerie": 432,
+    "ipca15Serie": 13522,
+    "api": "https://api.bcb.gov.br/dados/serie/bcdata.sgs.{codigo}/dados/ultimos/{n}?formato=json"
+  }
+}

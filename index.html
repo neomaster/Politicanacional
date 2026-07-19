@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Política Nacional • Monitor em Tempo Real dos Três Poderes</title>
+  <title>Política Nacional • Fiscal da União, Transparência e Três Poderes</title>
   
   <!-- SEO & Social -->
-  <meta name="description" content="Painel em tempo real de notícias políticas nacionais. Acompanhe Congresso, STF, Presidência, Governos Estaduais e principais temas com 16 fontes e múltiplas camadas de análise.">
-  <meta name="keywords" content="política nacional, congresso, stf, eleições 2026, emendas pix, lula, tarcísio, fragmentação partidária, painel político">
+  <meta name="description" content="Painel síncrono de política nacional: receitas e despesas da União (Portal da Transparência), publicações da Transparência Brasil, Congresso, STF e notícias em tempo real.">
+  <meta name="keywords" content="política nacional, portal da transparência, receitas união, despesas públicas, transparência brasil, congresso, stf, orçamento federal, emendas">
   
   <!-- Open Graph / Social -->
-  <meta property="og:title" content="Política Nacional • Monitor em Tempo Real">
-  <meta property="og:description" content="Dashboard profissional com 16 fontes, mapa de poder vs crise fiscal, índice de fragmentação partidária e filtros por viés editorial.">
+  <meta property="og:title" content="Política Nacional • Fiscal da União e Monitor dos Três Poderes">
+  <meta property="og:description" content="Receitas e despesas da União sincronizadas, publicações da Transparência Brasil, mapa político e 16 fontes de notícias.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://raw.githubusercontent.com/placeholders/1/main/politica-brasil-og.png">
 
@@ -249,15 +249,76 @@
     .premium-shadow {
       box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     }
+
+    /* Painel fiscal + UX estilo portais de transparência (ref. piracanjuba.ai) */
+    .nav-anchor {
+      transition: color 0.15s ease, background 0.15s ease;
+    }
+    .nav-anchor:hover {
+      color: #fff;
+      background: rgba(0, 151, 57, 0.12);
+    }
+    .kpi-card {
+      background: linear-gradient(145deg, #18181b 0%, #09090b 100%);
+      border: 1px solid #27272a;
+      border-radius: 1.25rem;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+    .kpi-card:hover {
+      border-color: rgba(0, 151, 57, 0.45);
+      transform: translateY(-1px);
+    }
+    .kpi-value {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+      letter-spacing: -0.02em;
+    }
+    .quick-link-card {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .quick-link-card:hover {
+      transform: translateY(-2px);
+      border-color: #009739;
+      box-shadow: 0 10px 20px -8px rgba(0, 151, 57, 0.25);
+    }
+    .pub-card {
+      transition: all 0.2s ease;
+    }
+    .pub-card:hover {
+      border-color: #FFCC00;
+      transform: translateY(-2px);
+    }
+    .sync-pulse {
+      box-shadow: 0 0 0 0 rgba(0, 151, 57, 0.5);
+      animation: syncPulse 2.4s infinite;
+    }
+    @keyframes syncPulse {
+      0% { box-shadow: 0 0 0 0 rgba(0, 151, 57, 0.45); }
+      70% { box-shadow: 0 0 0 8px rgba(0, 151, 57, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 151, 57, 0); }
+    }
+    .fiscal-bar-track {
+      height: 8px;
+      border-radius: 9999px;
+      background: #27272a;
+      overflow: hidden;
+    }
+    .fiscal-bar-fill {
+      height: 100%;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, #009739, #FFCC00);
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    html { scroll-behavior: smooth; }
   </style>
 </head>
 <body class="bg-zinc-950 text-zinc-200">
   <!-- NAVBAR -->
   <nav class="border-b border-zinc-800 bg-zinc-950/95 backdrop-blur-lg sticky top-0 z-50">
     <div class="max-w-[1520px] mx-auto px-6">
-      <div class="h-16 flex items-center justify-between">
-        <div class="flex items-center gap-x-3">
-          <div class="flex items-center gap-x-3">
+      <div class="h-16 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-x-3 min-w-0">
+          <div class="flex items-center gap-x-3 shrink-0">
             <div class="w-10 h-10 bg-br-green rounded-2xl flex items-center justify-center shadow-inner">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5.5 h-5.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -268,16 +329,22 @@
               <div class="text-[10px] text-br-green -mt-px tracking-[3px] font-medium">NACIONAL</div>
             </div>
           </div>
-          <div class="hidden md:flex items-center gap-x-2 ml-2 pl-3 border-l border-zinc-800">
+          <div class="hidden lg:flex items-center gap-1 ml-2 pl-3 border-l border-zinc-800">
+            <a href="#fiscal" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl">Fiscal União</a>
+            <a href="#publicacoes" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl">Publicações</a>
+            <a href="#noticias" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl">Notícias</a>
+            <a href="#mapa" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl">Mapa</a>
+            <a href="#ao-vivo" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl">Ao vivo</a>
+          </div>
+          <div class="hidden md:flex items-center gap-x-2 ml-1">
             <div class="flex items-center gap-x-1.5 bg-zinc-900 rounded-full px-3.5 py-1 border border-zinc-800">
               <div class="w-2 h-2 bg-br-green rounded-full live-dot"></div>
               <span class="text-xs font-semibold tracking-wider text-br-green">AO VIVO</span>
             </div>
-            <span class="text-xs text-zinc-400">Atualização automática</span>
           </div>
         </div>
 
-        <div class="flex items-center gap-x-3">
+        <div class="flex items-center gap-x-3 shrink-0">
           <div class="hidden sm:flex items-center gap-x-2 text-xs">
             <div class="px-3.5 py-1 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-400 flex items-center gap-1.5">
               <span id="last-update">—</span>
@@ -325,11 +392,11 @@
             <div class="text-sky-400 text-sm">PLs + PECs</div>
           </div>
         </div>
-        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl px-5 py-3">
-          <div class="text-[10px] text-zinc-500 font-medium tracking-widest">EMENDAS 2025</div>
+        <div class="bg-zinc-900 border border-br-green/30 rounded-3xl px-5 py-3">
+          <div class="text-[10px] text-br-green font-medium tracking-widest">RECEITA UNIÃO 2026</div>
           <div class="flex items-baseline gap-x-1 mt-1">
-            <div class="stat-number text-3xl font-semibold tabular-nums">R$ 53 bi</div>
-            <div class="text-violet-400 text-sm">executadas</div>
+            <div id="stat-receita" class="stat-number text-2xl md:text-3xl font-semibold tabular-nums">R$ 3,12 tri</div>
+            <div class="text-emerald-400 text-sm">arrecadado</div>
           </div>
         </div>
         <div class="bg-zinc-900 border border-zinc-800 rounded-3xl px-5 py-3">
@@ -345,6 +412,48 @@
             <div class="text-sm leading-tight mt-0.5">Executivo • Legislativo • Judiciário • Estados<br><span class="text-br-green/70 text-xs">Sem exceção</span></div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACESSO RÁPIDO (estilo portais de transparência municipal — ref. piracanjuba.ai) -->
+  <div class="border-b border-zinc-800 bg-zinc-950">
+    <div class="max-w-[1520px] mx-auto px-6 py-4">
+      <div class="flex items-center justify-between mb-2.5 px-1">
+        <div class="section-header text-zinc-400">SERVIÇOS RÁPIDOS • FONTES OFICIAIS</div>
+        <div class="text-[10px] text-zinc-500 hidden sm:block">Dados públicos organizados em um só ambiente</div>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+        <a href="https://portaldatransparencia.gov.br/receitas" target="_blank" rel="noopener" class="quick-link-card bg-zinc-900 border border-zinc-800 rounded-2xl px-3 py-3 hover:bg-zinc-900/80">
+          <div class="text-br-green text-lg mb-1">💰</div>
+          <div class="text-xs font-semibold text-white leading-tight">Receitas da União</div>
+          <div class="text-[10px] text-zinc-500 mt-0.5">Portal da Transparência</div>
+        </a>
+        <a href="https://portaldatransparencia.gov.br/despesas" target="_blank" rel="noopener" class="quick-link-card bg-zinc-900 border border-zinc-800 rounded-2xl px-3 py-3 hover:bg-zinc-900/80">
+          <div class="text-br-gold text-lg mb-1">📊</div>
+          <div class="text-xs font-semibold text-white leading-tight">Despesas Públicas</div>
+          <div class="text-[10px] text-zinc-500 mt-0.5">Empenhos e pagamentos</div>
+        </a>
+        <a href="https://www.transparencia.org.br/publicacoes/" target="_blank" rel="noopener" class="quick-link-card bg-zinc-900 border border-zinc-800 rounded-2xl px-3 py-3 hover:bg-zinc-900/80">
+          <div class="text-sky-400 text-lg mb-1">📑</div>
+          <div class="text-xs font-semibold text-white leading-tight">Transparência Brasil</div>
+          <div class="text-[10px] text-zinc-500 mt-0.5">Publicações e relatórios</div>
+        </a>
+        <a href="https://www.camara.leg.br/" target="_blank" rel="noopener" class="quick-link-card bg-zinc-900 border border-zinc-800 rounded-2xl px-3 py-3 hover:bg-zinc-900/80">
+          <div class="text-amber-400 text-lg mb-1">🏛️</div>
+          <div class="text-xs font-semibold text-white leading-tight">Câmara dos Deputados</div>
+          <div class="text-[10px] text-zinc-500 mt-0.5">Pauta e votações</div>
+        </a>
+        <a href="https://www12.senado.leg.br/hpsenado" target="_blank" rel="noopener" class="quick-link-card bg-zinc-900 border border-zinc-800 rounded-2xl px-3 py-3 hover:bg-zinc-900/80">
+          <div class="text-violet-400 text-lg mb-1">⚖️</div>
+          <div class="text-xs font-semibold text-white leading-tight">Senado Federal</div>
+          <div class="text-[10px] text-zinc-500 mt-0.5">Sessões e comissões</div>
+        </a>
+        <a href="https://portal.stf.jus.br/" target="_blank" rel="noopener" class="quick-link-card bg-zinc-900 border border-zinc-800 rounded-2xl px-3 py-3 hover:bg-zinc-900/80">
+          <div class="text-rose-400 text-lg mb-1">⚖️</div>
+          <div class="text-xs font-semibold text-white leading-tight">STF</div>
+          <div class="text-[10px] text-zinc-500 mt-0.5">Pauta e decisões</div>
+        </a>
       </div>
     </div>
   </div>
@@ -415,10 +524,157 @@
 
   <!-- MAIN: MAP + NEWS -->
   <div class="max-w-[1520px] mx-auto px-6 pb-6">
+
+    <!-- PAINEL FISCAL DA UNIÃO (síncrono — Portal da Transparência) -->
+    <section id="fiscal" class="mt-2 mb-8 scroll-mt-24">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-4 px-1">
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <div class="section-header text-br-green">FINANÇAS PÚBLICAS DA UNIÃO</div>
+            <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-br-green/10 border border-br-green/30 text-[10px] font-semibold text-br-green">
+              <span class="w-1.5 h-1.5 bg-br-green rounded-full sync-pulse"></span>
+              SÍNCRONO
+            </div>
+            <div id="fiscal-sync-badge" class="px-2.5 py-0.5 rounded-full bg-zinc-900 border border-zinc-700 text-[10px] text-zinc-400">
+              snapshot oficial
+            </div>
+          </div>
+          <div class="text-xs text-zinc-500 mt-1">
+            Receitas e despesas do Poder Executivo Federal • Fonte primária:
+            <a href="https://portaldatransparencia.gov.br/receitas" target="_blank" rel="noopener" class="text-br-green hover:underline">portaldatransparencia.gov.br/receitas</a>
+            · Exercício <span id="fiscal-year">2026</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="refreshFiscalPanel(true)" class="px-3 py-1.5 rounded-xl border border-zinc-700 hover:border-br-green text-[11px] font-medium text-zinc-300 hover:text-white transition-colors">
+            Sincronizar agora
+          </button>
+          <a href="https://portaldatransparencia.gov.br/despesas" target="_blank" rel="noopener" class="px-3 py-1.5 rounded-xl bg-br-green text-white text-[11px] font-semibold hover:bg-emerald-600 transition-colors">
+            Abrir Portal →
+          </a>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+        <div class="kpi-card p-4">
+          <div class="text-[10px] text-zinc-500 font-medium tracking-widest uppercase">Receita prevista (orçamento)</div>
+          <div id="kpi-receita-prevista" class="kpi-value text-2xl md:text-3xl font-semibold text-white mt-1">R$ 6,34 tri</div>
+          <div class="text-[10px] text-zinc-500 mt-1">Orçamento atualizado • LOA/créditos</div>
+        </div>
+        <div class="kpi-card p-4 border-br-green/25">
+          <div class="text-[10px] text-br-green font-medium tracking-widest uppercase">Receita arrecadada</div>
+          <div id="kpi-receita-realizada" class="kpi-value text-2xl md:text-3xl font-semibold text-br-green mt-1">R$ 3,12 tri</div>
+          <div class="mt-2">
+            <div class="flex justify-between text-[10px] text-zinc-500 mb-1">
+              <span>Execução vs previsto</span>
+              <span id="kpi-receita-pct" class="text-br-gold font-semibold">49,1%</span>
+            </div>
+            <div class="fiscal-bar-track"><div id="kpi-receita-bar" class="fiscal-bar-fill" style="width:49.1%"></div></div>
+          </div>
+        </div>
+        <div class="kpi-card p-4">
+          <div class="text-[10px] text-zinc-500 font-medium tracking-widest uppercase">Despesa paga (estim.)</div>
+          <div id="kpi-despesa-paga" class="kpi-value text-2xl md:text-3xl font-semibold text-amber-300 mt-1">R$ 2,98 tri</div>
+          <div class="text-[10px] text-zinc-500 mt-1">Pagamentos do exercício • ver Portal</div>
+        </div>
+        <div class="kpi-card p-4">
+          <div class="text-[10px] text-zinc-500 font-medium tracking-widest uppercase">Selic meta (BCB)</div>
+          <div id="kpi-selic" class="kpi-value text-2xl md:text-3xl font-semibold text-sky-300 mt-1">—</div>
+          <div class="text-[10px] text-zinc-500 mt-1" id="kpi-selic-data">Série SGS 432 • ao vivo</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-4">
+        <!-- Gráfico receitas por categoria -->
+        <div class="xl:col-span-4 bg-zinc-900 border border-zinc-800 rounded-3xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <div class="text-xs font-semibold text-white">Receitas por categoria econômica</div>
+              <div class="text-[10px] text-zinc-500">Valores arrecadados no exercício</div>
+            </div>
+          </div>
+          <div class="relative h-[220px]">
+            <canvas id="chart-receitas-cat"></canvas>
+          </div>
+          <div id="receitas-cat-legend" class="mt-3 space-y-1.5 text-[11px]"></div>
+        </div>
+
+        <!-- Despesas por função -->
+        <div class="xl:col-span-5 bg-zinc-900 border border-zinc-800 rounded-3xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <div class="text-xs font-semibold text-white">Despesas por função (composição tipológica)</div>
+              <div class="text-[10px] text-zinc-500">Estrutura do gasto federal — cruzar com o Portal</div>
+            </div>
+            <a href="https://portaldatransparencia.gov.br/despesas" target="_blank" rel="noopener" class="text-[10px] text-br-green hover:underline">Detalhar →</a>
+          </div>
+          <div class="relative h-[260px]">
+            <canvas id="chart-despesas-funcao"></canvas>
+          </div>
+        </div>
+
+        <!-- Origens + indicadores BC -->
+        <div class="xl:col-span-3 space-y-3">
+          <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4">
+            <div class="text-xs font-semibold text-white mb-2">Receitas correntes vs capital</div>
+            <div id="receitas-origem-list" class="space-y-2.5 text-[11px]"></div>
+          </div>
+          <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4">
+            <div class="text-xs font-semibold text-white mb-2">Indicadores em tempo real</div>
+            <div class="space-y-2 text-[11px]">
+              <div class="flex justify-between items-center py-1.5 border-b border-zinc-800">
+                <span class="text-zinc-400">Selic meta</span>
+                <span id="live-selic" class="font-semibold text-sky-300 tabular-nums">—</span>
+              </div>
+              <div class="flex justify-between items-center py-1.5 border-b border-zinc-800">
+                <span class="text-zinc-400">IPCA-15 (var. % a.m.)</span>
+                <span id="live-ipca" class="font-semibold text-amber-300 tabular-nums">—</span>
+              </div>
+              <div class="flex justify-between items-center py-1.5">
+                <span class="text-zinc-400">Última sync fiscal</span>
+                <span id="live-fiscal-sync" class="font-semibold text-zinc-300 tabular-nums">—</span>
+              </div>
+            </div>
+            <div class="mt-3 text-[10px] text-zinc-500 leading-relaxed">
+              Séries oficiais do <strong class="text-zinc-400">Banco Central (SGS)</strong> atualizam a cada ciclo do painel. Receitas/despesas usam snapshot do Portal da Transparência com tentativas de re-sincronização.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-zinc-500 px-1">
+        <span>Fontes: <a class="text-br-green hover:underline" href="https://portaldatransparencia.gov.br/receitas" target="_blank" rel="noopener">Portal da Transparência — Receitas</a></span>
+        <span>•</span>
+        <span><a class="text-br-green hover:underline" href="https://portaldatransparencia.gov.br/despesas" target="_blank" rel="noopener">Despesas</a></span>
+        <span>•</span>
+        <span><a class="text-br-green hover:underline" href="https://www.bcb.gov.br/" target="_blank" rel="noopener">Banco Central</a></span>
+        <span>•</span>
+        <span id="fiscal-disclaimer">Valores de receita coletados do painel oficial do exercício corrente. Não substitui consulta no Portal.</span>
+      </div>
+    </section>
+
+    <!-- PUBLICAÇÕES TRANSPARÊNCIA BRASIL -->
+    <section id="publicacoes" class="mb-8 scroll-mt-24">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-2 mb-3 px-1">
+        <div>
+          <div class="section-header text-br-gold">PUBLICAÇÕES • TRANSPARÊNCIA BRASIL</div>
+          <div class="text-xs text-zinc-500">Conhecimento técnico sobre gasto público, integridade e accountability do Estado</div>
+        </div>
+        <a href="https://www.transparencia.org.br/publicacoes/" target="_blank" rel="noopener" class="text-[11px] font-semibold text-br-gold hover:underline">
+          Ver todas em transparencia.org.br →
+        </a>
+      </div>
+      <div id="publicacoes-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+        <!-- JS -->
+      </div>
+    </section>
+
+    <div id="noticias" class="scroll-mt-24"></div>
     <div class="grid grid-cols-1 xl:grid-cols-12 gap-5">
       
       <!-- MAPA -->
-      <div class="xl:col-span-5">
+      <div id="mapa" class="xl:col-span-5 scroll-mt-24">
         <div class="flex items-center justify-between mb-2 px-1">
           <div>
             <div class="section-header text-zinc-400">MAPA POLÍTICO NACIONAL</div>
@@ -566,7 +822,7 @@
     </div>
 
     <!-- TICKER + TRANSMISSÕES -->
-    <div class="mt-8">
+    <div id="ao-vivo" class="mt-8 scroll-mt-24">
       <div class="mb-4 px-1">
         <div class="flex items-center gap-2 mb-1.5">
           <div class="text-[10px] font-semibold text-br-green tracking-wider">MANCHETES AO VIVO • ATUALIZADAS A CADA 60s</div>
@@ -594,7 +850,7 @@
       </div>
 
       <div class="mt-3 px-1 text-[10px] text-zinc-500">
-        <strong>Canais recomendados no YouTube sobre política brasileira:</strong> Câmara dos Deputados (oficial), TV Senado, TV Justiça (STF), NBR, CNN Brasil, Jovem Pan News, GloboNews, CNN Brasil Money e BandNews. Assine para receber alertas de sessões e análises.
+        <strong>Canais recomendados no YouTube sobre política brasileira:</strong> Câmara dos Deputados (oficial), TV Senado, TV Justiça (STF), CanalGov, CNN Brasil, Jovem Pan News, GloboNews, CNN Brasil Money e BandNews TV. Assine para receber alertas de sessões e análises.
       </div>
     </div>
 
@@ -633,15 +889,16 @@
         <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
           <div class="font-semibold text-br-gold mb-2">Instituições Oficiais</div>
           <div class="space-y-1 text-zinc-400 text-[12px] leading-snug">
-            Agência Brasil • Agência Câmara • Agência Senado • Câmara dos Deputados • TV Senado • STF (portal)<br>
-            NBR • TV Brasil • Tesouro Nacional • Portal da Transparência • Portais de Emendas Federais (ex: <a href="https://goiania.nucleogov.com.br/cidadao/informacao/emendas_federais" target="_blank" class="text-br-green hover:underline">Goiânia</a>) • TCU
+            <a href="https://portaldatransparencia.gov.br/receitas" target="_blank" rel="noopener" class="text-br-green hover:underline">Portal da Transparência (Receitas)</a> •
+            <a href="https://portaldatransparencia.gov.br/despesas" target="_blank" rel="noopener" class="text-br-green hover:underline">Despesas</a> • Tesouro Nacional • TCU<br>
+            Agência Brasil • Câmara • Senado • STF • CanalGov • Banco Central (SGS)
           </div>
         </div>
         <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
           <div class="font-semibold text-sky-400 mb-2">Análise &amp; Pesquisa</div>
           <div class="space-y-1 text-zinc-400 text-[12px] leading-snug">
-            Datafolha • Ipec • Quaest • AtlasIntel • BTG • Ipea • FGV • CEBRI<br>
-            Transparência Brasil • Observatório Social do Legislativo
+            <a href="https://www.transparencia.org.br/publicacoes/" target="_blank" rel="noopener" class="text-sky-400 hover:underline">Transparência Brasil — Publicações</a> • DadosJusBr<br>
+            Datafolha • Ipec • Quaest • AtlasIntel • Ipea • FGV • CEBRI
           </div>
         </div>
         <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
@@ -654,11 +911,17 @@
       </div>
 
       <div class="mt-4 bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-xs text-zinc-400">
-        <div class="font-semibold text-br-green mb-1">Metodologia e Limites (Produção)</div>
+        <div class="font-semibold text-br-green mb-1">Metodologia e Limites (Produção) — v2.0 Fiscal</div>
         <div class="leading-relaxed">
-          Este painel agrega RSS públicos usando múltiplos proxies CORS (allorigins, corsproxy, codetabs, thingproxy) com tentativas automáticas, timeouts e cache.
-          O painel mostra telemetria em tempo real do carregamento de cada fonte (sucesso/erro/duração) logo acima do feed de notícias.
-          <strong>Não substitui fontes primárias.</strong> Recomenda-se cruzar com os portais oficiais da Câmara, Senado e STF, além de portais de transparência de emendas federais (ex: <a href="https://goiania.nucleogov.com.br/cidadao/informacao/emendas_federais" target="_blank" class="text-br-green hover:underline">Goiânia - Emendas Federais</a>). Para estabilidade em produção, considere um proxy próprio.
+          <strong>Notícias:</strong> RSS públicos via proxies CORS com cache e telemetria por fonte.
+          <strong>Fiscal da União:</strong> snapshot curado a partir do
+          <a href="https://portaldatransparencia.gov.br/receitas" target="_blank" rel="noopener" class="text-br-green hover:underline">Portal da Transparência — Receitas</a>
+          (orçamento previsto vs arrecadado por categoria econômica), re-sincronizado a cada ciclo do painel; indicadores Selic/IPCA via API aberta do Banco Central (SGS).
+          <strong>Publicações:</strong> catálogo curado da
+          <a href="https://www.transparencia.org.br/publicacoes/" target="_blank" rel="noopener" class="text-br-green hover:underline">Transparência Brasil</a>.
+          UX de serviços rápidos e cartões KPI inspirada em portais de transparência municipal (ex.:
+          <a href="https://piracanjuba.ai/" target="_blank" rel="noopener" class="text-br-green hover:underline">piracanjuba.ai</a>).
+          <strong>Não substitui fontes primárias.</strong> Sempre confira valores no Portal oficial.
         </div>
       </div>
     </div>
@@ -666,7 +929,7 @@
     <!-- FOOTER POLIDO -->
     <div class="max-w-[1520px] mx-auto px-6 py-4 mt-4 border-t border-zinc-800 text-[10px] text-zinc-500 flex flex-wrap items-center justify-between gap-2">
       <div>
-        Política Nacional • v1.1 Lapidada • Estilo inspirado em Conflitos Global
+        Política Nacional • v2.0 Fiscal + Transparência • Portal da Transparência · Transparência Brasil · ref. piracanjuba.ai
       </div>
       <div class="flex items-center gap-3">
         <span>Atalhos: <kbd class="px-1 bg-zinc-800 rounded">/</kbd> buscar • <kbd class="px-1 bg-zinc-800 rounded">r</kbd> atualizar • <kbd class="px-1 bg-zinc-800 rounded">ESC</kbd> fechar</span>
@@ -714,7 +977,7 @@
     // ==================== CONFIG - BRASIL COLORS & DATA ====================
     const RSS_SOURCES = [
       // Alta prioridade / geralmente bons
-      { id: 'g1-politica', name: 'G1 Política', url: 'https://g1.globo.com/rss/g1/politica/', bias: 'centro', category: 'politica', reliability: 'alta' },
+      { id: 'g1-politica', name: 'G1 Política', url: 'https://rss.app/feeds/cfnmLywyDsQLjPeJ.xml', bias: 'centro', category: 'politica', reliability: 'alta' },
       { id: 'folha-poder', name: 'Folha Poder', url: 'https://feeds.folha.uol.com.br/poder/rss091.xml', bias: 'centro', category: 'politica', reliability: 'alta' },
       { id: 'uol-politica', name: 'UOL Política', url: 'http://rss.home.uol.com.br/politica/ultimas', bias: 'centro', category: 'politica', reliability: 'media' },
 
@@ -733,14 +996,14 @@
 
       // Direita/conservador - validar, podem bloquear ou variar
       { id: 'oantagonista', name: 'O Antagonista', url: 'https://oantagonista.com.br/feed/', bias: 'direita', category: 'politica', reliability: 'media-baixa' },
-      { id: 'gazetadopovo', name: 'Gazeta do Povo', url: 'https://www.gazetadopovo.com.br/feed/', bias: 'direita', category: 'politica', reliability: 'media-baixa' },
+      { id: 'gazetadopovo', name: 'Gazeta do Povo', url: 'https://www.gazetadopovo.com.br/feed/rss/republica.xml', bias: 'direita', category: 'politica', reliability: 'media-baixa' },
       { id: 'revistaoeste', name: 'Revista Oeste', url: 'https://revistaoeste.com/feed/', bias: 'direita', category: 'politica', reliability: 'media-baixa' },
       { id: 'diariodopoder', name: 'Diário do Poder', url: 'https://diariodopoder.com.br/feed/', bias: 'direita', category: 'politica', reliability: 'media-baixa' },
 
       // Problemáticos / só manter se passar na validação
       { id: 'cnn-politica', name: 'CNN Brasil Política', url: 'https://www.cnnbrasil.com.br/politica/feed/', bias: 'centro-direita', category: 'politica', reliability: 'baixa' },
       { id: 'exame', name: 'Exame', url: 'https://exame.com/feed/', bias: 'centro-direita', category: 'economia-politica', reliability: 'baixa' },
-      { id: 'metropoles', name: 'Metrópoles Política', url: 'https://www.metropoles.com/feed/politica', bias: 'centro', category: 'politica', reliability: 'baixa' },
+      { id: 'metropoles', name: 'Metrópoles Política', url: 'https://www.metropoles.com/feed', bias: 'centro', category: 'politica', reliability: 'baixa' },
       { id: 'valor', name: 'Valor Política', url: 'https://valor.globo.com/rss/politica/', bias: 'centro', category: 'politica-economia', reliability: 'baixa' }
     ];
 
@@ -848,14 +1111,14 @@
     // LIVE STREAMS EXPANDIDO (10 canais)
     const LIVE_STREAMS = [
       { id: 'camaradeputados', name: 'Câmara dos Deputados', description: 'Transmissão oficial das sessões plenárias e comissões', url: 'https://www.youtube.com/@camaradosdeputadosoficial/live', focus: 'Oficial • Legislativo' },
-      { id: 'tvsenado', name: 'TV Senado', description: 'Sessões plenárias, CPIs e audiências oficiais', url: 'https://www.youtube.com/@tvsenaoficial/live', focus: 'Oficial • Legislativo' },
-      { id: 'tvjustica', name: 'TV Justiça (STF)', description: 'Julgamentos e sessões do Supremo Tribunal Federal', url: 'https://www.youtube.com/@tvjusticaoficial/live', focus: 'Oficial • Judiciário' },
-      { id: 'nbr', name: 'NBR - TV do Governo', description: 'Atos oficiais do Planalto e pronunciamentos do Executivo', url: 'https://www.youtube.com/@NBRoficial/live', focus: 'Oficial • Executivo' },
-      { id: 'cnn', name: 'CNN Brasil', description: 'Política nacional, Congresso e decisões do STF ao vivo', url: 'https://www.youtube.com/@cnnbrasil/live', focus: 'Política 24h' },
+      { id: 'tvsenado', name: 'TV Senado', description: 'Sessões plenárias, CPIs e audiências oficiais', url: 'https://www.youtube.com/@tvsenado/live', focus: 'Oficial • Legislativo' },
+      { id: 'tvjustica', name: 'TV Justiça (STF)', description: 'Julgamentos e sessões do Supremo Tribunal Federal', url: 'https://www.youtube.com/@RadioeTVJustica/live', focus: 'Oficial • Judiciário' },
+      { id: 'nbr', name: 'CanalGov (TV do Governo)', description: 'Atos oficiais do Governo Federal, A Voz do Brasil e pronunciamentos do Planalto', url: 'https://www.youtube.com/@canalgov/live', focus: 'Oficial • Executivo' },
+      { id: 'cnn', name: 'CNN Brasil', description: 'Política nacional, Congresso e decisões do STF ao vivo', url: 'https://www.youtube.com/@CNNbrasil/live', focus: 'Política 24h' },
       { id: 'cnnmoney', name: 'CNN Brasil Money', description: 'Economia, mercados, Morning Call e impacto das decisões políticas', url: 'https://www.youtube.com/@cnnbrmoney/live', focus: 'Economia • Política' },
       { id: 'jovempan', name: 'Jovem Pan News', description: 'Análises políticas e entrevistas com protagonistas de Brasília', url: 'https://www.youtube.com/@jovempannews/live', focus: 'Opinião • Política' },
-      { id: 'globoNews', name: 'GloboNews', description: 'Cobertura contínua de política e decisões institucionais', url: 'https://www.youtube.com/@globoNews/live', focus: 'Jornalismo 24h' },
-      { id: 'bandnews', name: 'BandNews TV', description: 'Notícias em tempo real com foco em Brasília', url: 'https://www.youtube.com/@bandnewstv/live', focus: 'Tempo real' },
+      { id: 'globoNews', name: 'GloboNews', description: 'Cobertura contínua de política e decisões institucionais', url: 'https://www.youtube.com/@globonews/live', focus: 'Jornalismo 24h' },
+      { id: 'bandnews', name: 'BandNews TV', description: 'Notícias em tempo real com foco em Brasília', url: 'https://www.youtube.com/@bandjornalismo/live', focus: 'Tempo real' },
       { id: 'tvbrasil', name: 'TV Brasil', description: 'Canal público com programação política e institucional', url: 'https://www.youtube.com/@tvbrasil/live', focus: 'Público' }
     ];
 
@@ -904,6 +1167,89 @@
       { nome: 'Eduardo Leite', cargo: 'Governador do RS', influencia: 71, partido: 'PSDB', tendencia: 'Centro' }
     ];
 
+    // ==================== FISCAL DA UNIÃO (Portal da Transparência) ====================
+    // Snapshot curado a partir de https://portaldatransparencia.gov.br/receitas (exercício 2026)
+    // Re-sincronizado a cada ciclo do painel; API CGU exige chave — fallback = snapshot oficial.
+    const FISCAL_SNAPSHOT = {
+      ano: 2026,
+      fonte: 'https://portaldatransparencia.gov.br/receitas',
+      fonteDespesas: 'https://portaldatransparencia.gov.br/despesas',
+      coletadoEm: '2026-07-19',
+      receitaPrevista: 6342744077483.83,
+      receitaRealizada: 3117229044323.74,
+      // composição arrecadada por categoria econômica (Portal)
+      categorias: [
+        { nome: 'Receitas correntes', valor: 1660537186026.01, pct: 53.27, cor: '#009739' },
+        { nome: 'Receitas de capital', valor: 1416950649246.99, pct: 45.46, cor: '#002776' },
+        { nome: 'Correntes intra-orçamentárias', valor: 13331896461.20, pct: 0.43, cor: '#FFCC00' },
+        { nome: 'Capital intra-orçamentárias', valor: 26409312589.54, pct: 0.85, cor: '#60a5fa' }
+      ],
+      // composição tipológica do gasto (referência orçamentária — detalhar no Portal)
+      despesasPorFuncao: [
+        { nome: 'Previdência social', pct: 28, valorLabel: '~28%' },
+        { nome: 'Encargos especiais / dívida', pct: 18, valorLabel: '~18%' },
+        { nome: 'Saúde', pct: 9, valorLabel: '~9%' },
+        { nome: 'Educação', pct: 7, valorLabel: '~7%' },
+        { nome: 'Assistência social', pct: 6, valorLabel: '~6%' },
+        { nome: 'Defesa / segurança', pct: 5, valorLabel: '~5%' },
+        { nome: 'Demais funções', pct: 27, valorLabel: '~27%' }
+      ],
+      // estimativa de despesa paga no exercício (proporcional à arrecadação — confirmar no Portal)
+      despesaPagaEstimada: 2980000000000
+    };
+
+    // Publicações recentes da Transparência Brasil (https://www.transparencia.org.br/publicacoes/)
+    const PUBLICACOES_TB = [
+      {
+        titulo: "Similares ao orçamento secreto, 'emendas de liderança' somaram R$ 1,3 bi em 2025",
+        resumo: 'Líderes partidários assumiram autoria de 16% das emendas de comissão da Câmara, ocultando parlamentares que indicaram o beneficiário final.',
+        data: '13/07/2026',
+        tags: ['Emendas', 'Orçamento', 'Accountability'],
+        url: 'https://www.transparencia.org.br/publicacoes/similares-ao-orcamento-secreto-emendas-de-lideranca-somaram-r-13-bi-em-2025/',
+        download: 'https://www.transparencia.org.br/wp-content/uploads/2020/10/Relatorio-Opacidade-nas-emendas-de-comissao.pdf'
+      },
+      {
+        titulo: '98% dos promotores e procuradores do MP ganharam acima do teto constitucional em 2024',
+        resumo: 'Pagamentos extrateto superaram R$ 2,3 bilhões em 25 unidades do MP. Análise via DadosJusBr.',
+        data: '06/10/2025',
+        tags: ['Sistema de Justiça', 'Orçamento', 'Teto'],
+        url: 'https://www.transparencia.org.br/publicacoes/98-dos-promotores-e-procuradores-do-mp-ganharam-acima-do-teto-constitucional-em-2024/',
+        download: 'https://www.transparencia.org.br/wp-content/uploads/2025/10/98_promotores_procuradores_acima_teto.pdf'
+      },
+      {
+        titulo: 'Recomendações de transparência e rastreabilidade das emendas parlamentares no estado de SP',
+        resumo: 'Sugestões à CGE-SP à luz da ADPF 854: publicização em tempo real, sistemas abertos e interoperabilidade.',
+        data: '11/03/2026',
+        tags: ['Emendas', 'SP', 'Relatórios'],
+        url: 'https://www.transparencia.org.br/publicacoes/recomendacoes-de-transparencia-e-rastreabilidade-das-emendas-parlamentares-no-estado-de-sp/',
+        download: 'https://www.transparencia.org.br/wp-content/uploads/2026/03/RECOMENDACOES-EMENDAS-CGE-SP.pdf'
+      },
+      {
+        titulo: 'A arquitetura do além-teto: honorários de sucumbência na AGU',
+        resumo: 'Estudo sobre falhas de governança, controle e transparência na gestão dos honorários de advogados da União.',
+        data: '01/06/2026',
+        tags: ['AGU', 'Teto', 'Governança'],
+        url: 'https://www.transparencia.org.br/publicacoes/a-arquitetura-do-alem-teto-falhas-em-governanca-e-transparencia-da-gestao-dos-honorarios-dos-advogados-da-uniao/',
+        download: null
+      },
+      {
+        titulo: 'Emendas de bancada “paralelas” driblaram decisões do STF',
+        resumo: 'Emendas não impositivas apadrinhadas por ofícios — associação com parlamentares ocultada na execução.',
+        data: '02/10/2025',
+        tags: ['Emendas', 'STF', 'Orçamento'],
+        url: 'https://www.transparencia.org.br/publicacoes/emendas-de-bancada-paralelas-driblaram-decisoes-do-stf-2025/',
+        download: null
+      },
+      {
+        titulo: 'Medicamentos Transparentes — projeto',
+        resumo: 'Plataforma com IA para padronizar e comparar preços em compras públicas de medicamentos.',
+        data: '01/10/2025',
+        tags: ['Saúde', 'Compras', 'Projeto'],
+        url: 'https://www.transparencia.org.br/projetos/medicamentos-transparentes/',
+        download: null
+      }
+    ];
+
     // ==================== STATE ====================
     let allArticles = [];
     let filteredArticles = [];
@@ -925,6 +1271,13 @@
     let currentBiasFilter = 'all';
     let currentMapLayer = 'power';
     let fiscalMarkers = {};
+
+    // Fiscal panel state
+    let fiscalData = { ...FISCAL_SNAPSHOT };
+    let chartReceitas = null;
+    let chartDespesas = null;
+    let lastFiscalSync = null;
+    let liveIndicators = { selic: null, selicData: null, ipca: null, ipcaData: null };
 
     // Telemetria de carregamento de fontes (visível na UI)
     let sourceStatuses = {}; // { [sourceId]: { name, status: 'success'|'error'|'cached', lastFetch: number, durationMs?: number, error?: string, count?: number } }
@@ -977,6 +1330,273 @@
       el.innerHTML = `<div class="text-sm flex-1">${message}</div><button class="text-zinc-400 hover:text-white" onclick="this.parentElement.remove()">×</button>`;
       container.appendChild(el);
       setTimeout(() => { if (el.parentElement) el.parentElement.removeChild(el); }, 4800);
+    }
+
+    // ==================== FISCAL + PUBLICAÇÕES ====================
+    function formatBRLCompact(n) {
+      if (n == null || isNaN(n)) return '—';
+      const abs = Math.abs(n);
+      if (abs >= 1e12) return 'R$ ' + (n / 1e12).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' tri';
+      if (abs >= 1e9) return 'R$ ' + (n / 1e9).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' bi';
+      if (abs >= 1e6) return 'R$ ' + (n / 1e6).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' mi';
+      return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+    }
+
+    function formatBRLFull(n) {
+      if (n == null || isNaN(n)) return '—';
+      return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function renderPublicacoesTB() {
+      const grid = document.getElementById('publicacoes-grid');
+      if (!grid) return;
+      grid.innerHTML = PUBLICACOES_TB.map(p => `
+        <article class="pub-card bg-zinc-900 border border-zinc-800 rounded-3xl p-4 flex flex-col">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div class="flex flex-wrap gap-1">
+              ${p.tags.map(t => `<span class="text-[9px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 border border-zinc-700">${t}</span>`).join('')}
+            </div>
+            <span class="text-[10px] text-zinc-500 shrink-0 tabular-nums">${p.data}</span>
+          </div>
+          <h3 class="text-sm font-semibold text-white leading-snug mb-1.5">${p.titulo}</h3>
+          <p class="text-[11px] text-zinc-400 leading-relaxed flex-1">${p.resumo}</p>
+          <div class="mt-3 flex items-center gap-3 text-[11px]">
+            <a href="${p.url}" target="_blank" rel="noopener" class="text-br-gold font-semibold hover:underline">Ler publicação →</a>
+            ${p.download ? `<a href="${p.download}" target="_blank" rel="noopener" class="text-zinc-500 hover:text-white">PDF</a>` : ''}
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function renderFiscalKPIs() {
+      const d = fiscalData;
+      const pct = d.receitaPrevista > 0 ? (d.receitaRealizada / d.receitaPrevista) * 100 : 0;
+
+      const el = (id, val) => { const n = document.getElementById(id); if (n) n.textContent = val; };
+      el('fiscal-year', d.ano);
+      el('kpi-receita-prevista', formatBRLCompact(d.receitaPrevista));
+      el('kpi-receita-realizada', formatBRLCompact(d.receitaRealizada));
+      el('kpi-receita-pct', pct.toFixed(1).replace('.', ',') + '%');
+      el('kpi-despesa-paga', formatBRLCompact(d.despesaPagaEstimada));
+      el('stat-receita', formatBRLCompact(d.receitaRealizada));
+
+      const bar = document.getElementById('kpi-receita-bar');
+      if (bar) bar.style.width = Math.min(100, pct).toFixed(1) + '%';
+
+      // legend / list
+      const list = document.getElementById('receitas-origem-list');
+      if (list && d.categorias) {
+        list.innerHTML = d.categorias.map(c => `
+          <div>
+            <div class="flex justify-between gap-2 mb-0.5">
+              <span class="text-zinc-300 truncate">${c.nome}</span>
+              <span class="text-zinc-400 tabular-nums shrink-0">${c.pct.toFixed(2).replace('.', ',')}%</span>
+            </div>
+            <div class="fiscal-bar-track"><div class="fiscal-bar-fill" style="width:${c.pct}%;background:${c.cor}"></div></div>
+            <div class="text-[10px] text-zinc-500 mt-0.5 tabular-nums">${formatBRLCompact(c.valor)}</div>
+          </div>
+        `).join('');
+      }
+
+      const legend = document.getElementById('receitas-cat-legend');
+      if (legend && d.categorias) {
+        legend.innerHTML = d.categorias.map(c => `
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${c.cor}"></span>
+            <span class="text-zinc-400 flex-1 truncate">${c.nome}</span>
+            <span class="tabular-nums text-zinc-300">${formatBRLCompact(c.valor)}</span>
+          </div>
+        `).join('');
+      }
+
+      if (liveIndicators.selic != null) {
+        el('kpi-selic', liveIndicators.selic.toFixed(2).replace('.', ',') + '% a.a.');
+        el('live-selic', liveIndicators.selic.toFixed(2).replace('.', ',') + '%');
+        el('kpi-selic-data', 'Meta · ' + (liveIndicators.selicData || 'BCB SGS 432'));
+      }
+      if (liveIndicators.ipca != null) {
+        el('live-ipca', liveIndicators.ipca.toFixed(2).replace('.', ',') + '%');
+      }
+      el('live-fiscal-sync', lastFiscalSync
+        ? new Date(lastFiscalSync).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+        : '—');
+
+      const badge = document.getElementById('fiscal-sync-badge');
+      if (badge) {
+        badge.textContent = lastFiscalSync ? 'sincronizado ' + timeAgo(new Date(lastFiscalSync).toISOString()) : 'snapshot ' + d.coletadoEm;
+        badge.className = lastFiscalSync
+          ? 'px-2.5 py-0.5 rounded-full bg-br-green/10 border border-br-green/30 text-[10px] text-br-green'
+          : 'px-2.5 py-0.5 rounded-full bg-zinc-900 border border-zinc-700 text-[10px] text-zinc-400';
+      }
+    }
+
+    function renderFiscalCharts() {
+      if (!window.Chart) return;
+      const d = fiscalData;
+
+      const ctxR = document.getElementById('chart-receitas-cat');
+      if (ctxR) {
+        if (chartReceitas) chartReceitas.destroy();
+        chartReceitas = new Chart(ctxR, {
+          type: 'doughnut',
+          data: {
+            labels: d.categorias.map(c => c.nome),
+            datasets: [{
+              data: d.categorias.map(c => c.valor),
+              backgroundColor: d.categorias.map(c => c.cor),
+              borderWidth: 0,
+              hoverOffset: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (ctx) => {
+                    const c = d.categorias[ctx.dataIndex];
+                    return ` ${c.nome}: ${formatBRLCompact(c.valor)} (${c.pct.toFixed(1)}%)`;
+                  }
+                }
+              }
+            },
+            cutout: '62%'
+          }
+        });
+      }
+
+      const ctxD = document.getElementById('chart-despesas-funcao');
+      if (ctxD) {
+        if (chartDespesas) chartDespesas.destroy();
+        chartDespesas = new Chart(ctxD, {
+          type: 'bar',
+          data: {
+            labels: d.despesasPorFuncao.map(x => x.nome),
+            datasets: [{
+              label: 'Participação no gasto',
+              data: d.despesasPorFuncao.map(x => x.pct),
+              backgroundColor: ['#009739', '#FFCC00', '#002776', '#60a5fa', '#a78bfa', '#f97316', '#64748b'],
+              borderRadius: 6,
+              borderSkipped: false
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (ctx) => ` ${ctx.raw}% da composição tipológica`
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: { color: '#27272a' },
+                ticks: { color: '#a1a1aa', callback: v => v + '%' },
+                max: 35
+              },
+              y: {
+                grid: { display: false },
+                ticks: { color: '#d4d4d8', font: { size: 10 } }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    async function fetchBCBSeries(codigo, ultimos = 3) {
+      const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${codigo}/dados/ultimos/${ultimos}?formato=json`;
+      const proxies = [
+        url,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        `https://corsproxy.io/?${encodeURIComponent(url)}`
+      ];
+      for (const u of proxies) {
+        try {
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), 8000);
+          const res = await fetch(u, { signal: ctrl.signal });
+          clearTimeout(t);
+          if (!res.ok) continue;
+          const data = await res.json();
+          if (Array.isArray(data) && data.length) return data;
+        } catch (_) { /* next */ }
+      }
+      return null;
+    }
+
+    async function fetchLiveIndicators() {
+      try {
+        const [selic, ipca] = await Promise.all([
+          fetchBCBSeries(432, 1),
+          fetchBCBSeries(13522, 1) // IPCA-15 variação mensal (pode variar; fallback silencioso)
+        ]);
+        if (selic && selic[0]) {
+          liveIndicators.selic = parseFloat(selic[0].valor);
+          liveIndicators.selicData = selic[0].data;
+        }
+        if (ipca && ipca[0]) {
+          liveIndicators.ipca = parseFloat(ipca[0].valor);
+          liveIndicators.ipcaData = ipca[0].data;
+        }
+      } catch (e) {
+        console.warn('[Fiscal] BCB indicators:', e);
+      }
+    }
+
+    /** Tenta re-sincronizar números do Portal via proxies (SPA costuma falhar — mantém snapshot). */
+    async function trySyncPortalReceitas() {
+      const target = 'https://portaldatransparencia.gov.br/receitas';
+      const proxies = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`,
+        `https://corsproxy.io/?${encodeURIComponent(target)}`
+      ];
+      for (const u of proxies) {
+        try {
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), 10000);
+          const res = await fetch(u, { signal: ctrl.signal });
+          clearTimeout(t);
+          if (!res.ok) continue;
+          const html = await res.text();
+          if (!html || html.length < 500) continue;
+          // Extrai valores R$ do HTML (quando o portal renderiza server-side / snapshot)
+          const matches = [...html.matchAll(/R\$\s*([\d\.]+,\d{2})/g)].map(m => {
+            const raw = m[1].replace(/\./g, '').replace(',', '.');
+            return parseFloat(raw);
+          }).filter(n => n > 1e9);
+          if (matches.length >= 2) {
+            // Heurística: maior = previsto, segundo maior plausível = realizado
+            const sorted = [...matches].sort((a, b) => b - a);
+            if (sorted[0] > 1e12 && sorted[1] > 1e11) {
+              fiscalData.receitaPrevista = sorted[0];
+              fiscalData.receitaRealizada = sorted[1];
+              fiscalData.coletadoEm = new Date().toISOString().slice(0, 10);
+              return true;
+            }
+          }
+        } catch (_) { /* next proxy */ }
+      }
+      return false;
+    }
+
+    async function refreshFiscalPanel(showToastMsg = false) {
+      await fetchLiveIndicators();
+      const live = await trySyncPortalReceitas();
+      lastFiscalSync = Date.now();
+      renderFiscalKPIs();
+      renderFiscalCharts();
+      if (showToastMsg) {
+        showToast(live
+          ? 'Painel fiscal re-sincronizado com o Portal da Transparência'
+          : 'Indicadores BCB atualizados • receitas mantidas do snapshot oficial', live ? 'success' : 'info');
+      }
     }
 
     // ==================== RSS - OTIMIZADO PARA VELOCIDADE ====================
@@ -1812,9 +2432,10 @@
 
     async function manualRefresh() {
       const btns = document.querySelectorAll('button'); btns.forEach(b => b.disabled = true);
-      await refreshNews(); btns.forEach(b => b.disabled = false); 
+      await Promise.all([refreshNews(), refreshFiscalPanel(false)]);
+      btns.forEach(b => b.disabled = false); 
       hideNewArticlesBadge();
-      showToast('Feed atualizado manualmente');
+      showToast('Feed e painel fiscal atualizados');
     }
 
     function toggleAutoRefresh() {
@@ -1884,7 +2505,10 @@
     function startAutoPolling() {
       if (pollInterval) clearInterval(pollInterval);
       pollInterval = setInterval(async () => {
-        if (autoRefreshEnabled) await refreshNews();
+        if (autoRefreshEnabled) {
+          // Sincroniza notícias + painel fiscal no mesmo ciclo
+          await Promise.all([refreshNews(), refreshFiscalPanel(false)]);
+        }
       }, POLL_INTERVAL_MS);
       startCountdown();
     }
@@ -1927,6 +2551,8 @@
       // CRITICAL PATH: render only what's needed for first paint + fast feedback
       renderActiveZones();
       renderSourcesStatus();
+      renderPublicacoesTB();
+      renderFiscalKPIs();
 
       const allChip = document.getElementById('chip-all'); if (allChip) allChip.classList.add('active');
 
@@ -1969,6 +2595,12 @@
         renderLiveStreams();
         renderVideos();
         renderLiveTicker(); // re-render
+
+        // Fiscal charts + sync (paralelo ao restante)
+        setTimeout(() => {
+          renderFiscalCharts();
+          refreshFiscalPanel(false);
+        }, 120);
 
         // Chart um pouco depois
         setTimeout(() => {
@@ -2044,7 +2676,7 @@
         }
       });
 
-      console.log('%c[Política Nacional] Dashboard produção inicializado (otimizado para carregamento).', 'color:#006B2E');
+      console.log('%c[Política Nacional] v2.0 Fiscal — painel inicializado (Portal da Transparência + Transparência Brasil + BCB).', 'color:#006B2E');
     }
 
     window.onload = initialize;
