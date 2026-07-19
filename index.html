@@ -96,13 +96,50 @@
     }
 
     .bias-chip {
-      transition: all 0.1s ease;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+    
+    .bias-chip:hover:not(.active) {
+      color: #fff;
+      background-color: rgba(39, 39, 42, 0.9);
     }
     
     .bias-chip.active {
       background-color: #002776;
       color: white;
       border-color: #002776;
+      box-shadow: 0 0 0 1px rgba(0, 39, 118, 0.35);
+    }
+
+    .filter-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .filter-segment {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: 2px;
+      padding: 3px;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 9999px;
+      max-width: 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .filter-segment::-webkit-scrollbar { display: none; }
+
+    .filter-segment .region-chip,
+    .filter-segment .bias-chip {
+      border-radius: 9999px;
+      border-left: none !important;
+      flex-shrink: 0;
     }
 
     .news-grid {
@@ -702,48 +739,61 @@
 
       <!-- FEED DE NOTÍCIAS -->
       <div class="xl:col-span-7">
-        <div class="flex items-center justify-between mb-2 px-1">
-          <div class="flex items-center gap-x-3">
-            <div class="section-header text-zinc-400">NOTÍCIAS EM TEMPO REAL</div>
-            <div id="results-count" class="px-2.5 py-px rounded-full bg-zinc-800 text-xs font-medium text-zinc-400 tabular-nums"></div>
-          </div>
-          
-          <div class="hidden md:flex items-center bg-zinc-900 border border-zinc-800 rounded-2xl p-0.5 text-xs">
-            <button onclick="setRegionFilter('all')" id="chip-all" class="region-chip active px-3 py-1 text-xs font-medium rounded-[13px]">Todos</button>
-            <button onclick="setRegionFilter('Nacional')" id="chip-Nacional" class="region-chip px-3 py-1 text-xs font-medium text-zinc-300 hover:text-white rounded-[13px]">Nacional</button>
-            <button onclick="setRegionFilter('Centro-Oeste')" id="chip-Centro-Oeste" class="region-chip px-3 py-1 text-xs font-medium text-zinc-300 hover:text-white rounded-[13px]">Centro-Oeste</button>
-            <button onclick="setRegionFilter('Sudeste')" id="chip-Sudeste" class="region-chip px-3 py-1 text-xs font-medium text-zinc-300 hover:text-white rounded-[13px]">Sudeste</button>
-            <button onclick="setRegionFilter('Nordeste')" id="chip-Nordeste" class="region-chip px-3 py-1 text-xs font-medium text-zinc-300 hover:text-white rounded-[13px]">Nordeste</button>
-          </div>
-
-          <!-- Filtro por Viés Editorial -->
-          <div class="hidden lg:flex items-center bg-zinc-900 border border-zinc-800 rounded-2xl p-0.5 text-xs ml-2">
-            <button onclick="setBiasFilter('all')" id="bias-all" class="bias-chip active px-2.5 py-1 text-xs font-medium rounded-[13px]">Todos</button>
-            <button onclick="setBiasFilter('centro')" id="bias-centro" class="bias-chip px-2.5 py-1 text-xs font-medium text-zinc-300 hover:text-white rounded-[13px] border-l border-zinc-700">Centro</button>
-            <button onclick="setBiasFilter('centro-direita')" id="bias-centro-direita" class="bias-chip px-2.5 py-1 text-xs font-medium text-zinc-300 hover:text-white rounded-[13px] border-l border-zinc-700">Centro-Direita</button>
-            <button onclick="setBiasFilter('direita')" id="bias-direita" class="bias-chip px-2.5 py-1 text-xs font-medium text-zinc-300 hover:text-white rounded-[13px] border-l border-zinc-700">Direita</button>
-          </div>
-
-          <!-- Real-time interactivity controls -->
-          <div class="flex items-center gap-2 ml-3 pl-3 border-l border-zinc-700 text-xs">
-            <div id="realtime-status" class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-zinc-950 border border-zinc-700">
-              <div class="w-1.5 h-1.5 bg-br-green rounded-full live-dot"></div>
-              <span class="text-br-green font-medium">Tempo real</span>
+        <div class="flex flex-col gap-2 mb-2 px-1">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-x-3 min-w-0">
+              <div class="section-header text-zinc-400">NOTÍCIAS EM TEMPO REAL</div>
+              <div id="results-count" class="px-2.5 py-px rounded-full bg-zinc-800 text-xs font-medium text-zinc-400 tabular-nums"></div>
             </div>
-            
-            <button onclick="toggleAutoRefresh()" id="autorefresh-btn"
-                    class="px-3 py-1 rounded-xl border border-br-green text-br-green hover:bg-br-green hover:text-black transition-colors text-[11px] font-medium">
-              Pausar
-            </button>
 
-            <button onclick="manualRefresh()" 
-                    class="px-3 py-1 rounded-xl bg-br-gold text-black font-semibold hover:bg-yellow-400 active:bg-br-gold-dark transition-colors text-[11px]">
-              Atualizar feed
-            </button>
+            <!-- Real-time interactivity controls -->
+            <div class="flex items-center gap-2 text-xs flex-wrap">
+              <div id="realtime-status" class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-zinc-950 border border-zinc-700">
+                <div class="w-1.5 h-1.5 bg-br-green rounded-full live-dot"></div>
+                <span class="text-br-green font-medium">Tempo real</span>
+              </div>
+              
+              <button onclick="toggleAutoRefresh()" id="autorefresh-btn"
+                      class="px-3 py-1 rounded-xl border border-br-green text-br-green hover:bg-br-green hover:text-black transition-colors text-[11px] font-medium">
+                Pausar
+              </button>
 
-            <div id="new-articles-badge" onclick="showOnlyNewArticles()"
-                 class="hidden cursor-pointer px-2.5 py-1 rounded-xl bg-br-gold text-black text-[11px] font-bold items-center gap-1">
-              <span id="new-count">0</span> <span>novas</span>
+              <button onclick="manualRefresh()" 
+                      class="px-3 py-1 rounded-xl bg-br-gold text-black font-semibold hover:bg-yellow-400 active:bg-br-gold-dark transition-colors text-[11px]">
+                Atualizar feed
+              </button>
+
+              <div id="new-articles-badge" onclick="showOnlyNewArticles()"
+                   class="hidden cursor-pointer px-2.5 py-1 rounded-xl bg-br-gold text-black text-[11px] font-bold items-center gap-1">
+                <span id="new-count">0</span> <span>novas</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filtros: região + viés editorial (segmented, responsivos) -->
+          <div class="filter-toolbar">
+            <div class="flex items-center gap-1.5 min-w-0">
+              <span class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold shrink-0 hidden sm:inline">Região</span>
+              <div class="filter-segment text-xs" role="group" aria-label="Filtrar por região">
+                <button type="button" onclick="setRegionFilter('all')" id="chip-all" class="region-chip active px-3 py-1.5 text-[11px] font-medium text-white">Todos</button>
+                <button type="button" onclick="setRegionFilter('Nacional')" id="chip-Nacional" class="region-chip px-3 py-1.5 text-[11px] font-medium text-zinc-300">Nacional</button>
+                <button type="button" onclick="setRegionFilter('Centro-Oeste')" id="chip-Centro-Oeste" class="region-chip px-3 py-1.5 text-[11px] font-medium text-zinc-300">C-Oeste</button>
+                <button type="button" onclick="setRegionFilter('Sudeste')" id="chip-Sudeste" class="region-chip px-3 py-1.5 text-[11px] font-medium text-zinc-300">Sudeste</button>
+                <button type="button" onclick="setRegionFilter('Nordeste')" id="chip-Nordeste" class="region-chip px-3 py-1.5 text-[11px] font-medium text-zinc-300">Nordeste</button>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 min-w-0">
+              <span class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold shrink-0 hidden sm:inline">Viés</span>
+              <div class="filter-segment text-xs" role="group" aria-label="Filtrar por viés editorial">
+                <button type="button" onclick="setBiasFilter('all')" id="bias-all" class="bias-chip active px-3 py-1.5 text-[11px] font-medium">Todos</button>
+                <button type="button" onclick="setBiasFilter('centro')" id="bias-centro" class="bias-chip px-3 py-1.5 text-[11px] font-medium text-zinc-300" title="Centro">Centro</button>
+                <button type="button" onclick="setBiasFilter('centro-direita')" id="bias-centro-direita" class="bias-chip px-3 py-1.5 text-[11px] font-medium text-zinc-300" title="Centro-Direita">
+                  <span class="sm:hidden">C-Dir.</span>
+                  <span class="hidden sm:inline">Centro-Dir.</span>
+                </button>
+                <button type="button" onclick="setBiasFilter('direita')" id="bias-direita" class="bias-chip px-3 py-1.5 text-[11px] font-medium text-zinc-300" title="Direita">Direita</button>
+              </div>
             </div>
           </div>
         </div>
@@ -2204,31 +2254,40 @@
     function setRegionFilter(region, doApply = true) {
       currentRegionFilter = region;
       document.querySelectorAll('[id^="chip-"]').forEach(chip => {
-        chip.classList.remove('active'); chip.classList.add('text-zinc-300');
-        if (region === 'all' && chip.id === 'chip-all') { chip.classList.add('active'); chip.classList.remove('text-zinc-300'); }
-        else if (chip.id === `chip-${region}`) { chip.classList.add('active'); chip.classList.remove('text-zinc-300'); }
+        const isActive = (region === 'all' && chip.id === 'chip-all') || chip.id === `chip-${region}`;
+        chip.classList.toggle('active', isActive);
+        chip.classList.toggle('text-zinc-300', !isActive);
+        chip.classList.toggle('text-white', isActive);
+        chip.setAttribute('aria-pressed', isActive ? 'true' : 'false');
       });
       if (!activeConflictFilter) resetMapHighlights();
       if (doApply) applyFilters();
     }
 
-    function setBiasFilter(bias) {
+    function setBiasFilter(bias, doApply = true) {
       currentBiasFilter = bias;
       document.querySelectorAll('[id^="bias-"]').forEach(chip => {
-        chip.classList.remove('active'); chip.classList.add('text-zinc-300');
-        if (bias === 'all' && chip.id === 'bias-all') { chip.classList.add('active'); chip.classList.remove('text-zinc-300'); }
-        else if (chip.id === `bias-${bias}`) { chip.classList.add('active'); chip.classList.remove('text-zinc-300'); }
+        const isActive = chip.id === `bias-${bias}` || (bias === 'all' && chip.id === 'bias-all');
+        chip.classList.toggle('active', isActive);
+        chip.classList.toggle('text-zinc-300', !isActive);
+        chip.classList.toggle('text-white', isActive);
+        chip.setAttribute('aria-pressed', isActive ? 'true' : 'false');
       });
-      applyFilters();
+      if (doApply) applyFilters();
     }
 
     function clearAllFilters() {
-      currentRegionFilter = 'all'; activeConflictFilter = null; currentSearch = '';
+      currentRegionFilter = 'all';
+      activeConflictFilter = null;
+      currentSearch = '';
+      currentBiasFilter = 'all';
       document.getElementById('search-input').value = '';
-      document.querySelectorAll('[id^="chip-"]').forEach(c => c.classList.remove('active'));
-      document.getElementById('chip-all').classList.add('active');
+      setRegionFilter('all', false);
+      setBiasFilter('all', false);
       hideNewArticlesBadge();
-      renderActiveZones(); applyFilters(); resetMapHighlights();
+      renderActiveZones();
+      applyFilters();
+      resetMapHighlights();
     }
 
     function resetMapFilters() { activeConflictFilter = null; renderActiveZones(); setRegionFilter('all'); resetMapHighlights(); }
