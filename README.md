@@ -6,13 +6,15 @@ Identidade visual brasileira (verde #009739, amarelo #FFCC00, azul #002776). UX 
 
 ---
 
-## Novidades v2.0
+## Novidades v2.1
 
 | Módulo | O que faz | Fonte |
 |--------|-----------|--------|
+| **Atlas Público** | Fonte RSS da edição/notícias oficiais (DOU, Câmara, Senado) | [atlaspublico.com.br/edicao](https://atlaspublico.com.br/edicao) · [RSS](https://atlaspublico.com.br/noticias/rss.xml) |
+| **Aba Candidatos 2026** | Consulta por nome, número, cargo, partido, UF e reeleição (UX similar ao Atlas) | [Atlas · Candidatos](https://atlaspublico.com.br/eleicoes-2026/candidatos) · [TSE](https://divulgacandcontas.tse.jus.br/) |
 | **Finanças Públicas da União** | KPIs de receita prevista vs arrecadada, categorias econômicas, composição de despesas, Selic/IPCA ao vivo | [Portal da Transparência — Receitas](https://portaldatransparencia.gov.br/receitas) + [BCB SGS](https://www.bcb.gov.br/) |
 | **Publicações TB** | Cartões com relatórios recentes (emendas, teto, AGU, medicamentos) | [transparencia.org.br/publicacoes](https://www.transparencia.org.br/publicacoes/) |
-| **Serviços rápidos** | Atalhos oficiais (Receitas, Despesas, Câmara, Senado, STF, TB) | Estilo piracanjuba.ai |
+| **Serviços rápidos** | Atalhos oficiais + Atlas + Candidatos | Estilo piracanjuba.ai |
 | **Sync no mesmo ciclo** | Atualizar feed também re-sincroniza o painel fiscal (~42s) | Front-end |
 
 ---

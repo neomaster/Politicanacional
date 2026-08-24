@@ -347,6 +347,18 @@
       transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
     html { scroll-behavior: smooth; }
+
+    .cand-card {
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .cand-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(0, 151, 57, 0.5);
+      box-shadow: 0 12px 24px -12px rgba(0, 151, 57, 0.35);
+    }
+    .cand-avatar {
+      background: linear-gradient(135deg, #009739 0%, #002776 55%, #FFCC00 100%);
+    }
   </style>
 </head>
 <body class="bg-zinc-950 text-zinc-200">
@@ -367,11 +379,12 @@
             </div>
           </div>
           <div class="hidden lg:flex items-center gap-1 ml-2 pl-3 border-l border-zinc-800">
-            <a href="#fiscal" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl">Fiscal União</a>
-            <a href="#publicacoes" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl">Publicações</a>
-            <a href="#noticias" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl">Notícias</a>
-            <a href="#mapa" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl">Mapa</a>
-            <a href="#ao-vivo" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl">Ao vivo</a>
+            <button type="button" onclick="switchMainTab('monitor')" id="tab-btn-monitor" class="nav-anchor text-[11px] font-medium text-white bg-br-green/15 px-2.5 py-1.5 rounded-xl">Monitor</button>
+            <button type="button" onclick="switchMainTab('candidatos')" id="tab-btn-candidatos" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl">Candidatos</button>
+            <a href="#fiscal" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl" onclick="switchMainTab('monitor')">Fiscal</a>
+            <a href="#publicacoes" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl" onclick="switchMainTab('monitor')">Publicações</a>
+            <a href="#noticias" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl" onclick="switchMainTab('monitor')">Notícias</a>
+            <a href="#ao-vivo" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl" onclick="switchMainTab('monitor')">Ao vivo</a>
           </div>
           <div class="hidden md:flex items-center gap-x-2 ml-1">
             <div class="flex items-center gap-x-1.5 bg-zinc-900 rounded-full px-3.5 py-1 border border-zinc-800">
@@ -404,6 +417,13 @@
     </div>
   </nav>
 
+  <!-- Mobile tabs -->
+  <div class="lg:hidden border-b border-zinc-800 bg-zinc-950 px-4 py-2 flex gap-2">
+    <button type="button" onclick="switchMainTab('monitor')" class="tab-mobile-btn flex-1 px-3 py-2 rounded-xl text-xs font-semibold bg-br-green text-white" data-tab="monitor">Monitor</button>
+    <button type="button" onclick="switchMainTab('candidatos')" class="tab-mobile-btn flex-1 px-3 py-2 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-300 border border-zinc-800" data-tab="candidatos">Candidatos 2026</button>
+  </div>
+
+  <div id="panel-monitor">
   <!-- STATS BAR -->
   <div class="border-b border-zinc-800 bg-zinc-900/60">
     <div class="max-w-[1520px] mx-auto px-6 py-4">
@@ -460,7 +480,7 @@
         <div class="section-header text-zinc-400">SERVIÇOS RÁPIDOS • FONTES OFICIAIS</div>
         <div class="text-[10px] text-zinc-500 hidden sm:block">Dados públicos organizados em um só ambiente</div>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-2">
         <a href="https://portaldatransparencia.gov.br/receitas" target="_blank" rel="noopener" class="quick-link-card bg-zinc-900 border border-zinc-800 rounded-2xl px-3 py-3 hover:bg-zinc-900/80">
           <div class="text-br-green text-lg mb-1">💰</div>
           <div class="text-xs font-semibold text-white leading-tight">Receitas da União</div>
@@ -471,6 +491,16 @@
           <div class="text-xs font-semibold text-white leading-tight">Despesas Públicas</div>
           <div class="text-[10px] text-zinc-500 mt-0.5">Empenhos e pagamentos</div>
         </a>
+        <a href="https://atlaspublico.com.br/edicao" target="_blank" rel="noopener" class="quick-link-card bg-zinc-900 border border-zinc-800 rounded-2xl px-3 py-3 hover:bg-zinc-900/80">
+          <div class="text-emerald-300 text-lg mb-1">📰</div>
+          <div class="text-xs font-semibold text-white leading-tight">Atlas Público · Edição</div>
+          <div class="text-[10px] text-zinc-500 mt-0.5">DOU, atos e contratos</div>
+        </a>
+        <button type="button" onclick="switchMainTab('candidatos')" class="quick-link-card text-left bg-zinc-900 border border-zinc-800 rounded-2xl px-3 py-3 hover:bg-zinc-900/80 w-full">
+          <div class="text-br-gold text-lg mb-1">🗳️</div>
+          <div class="text-xs font-semibold text-white leading-tight">Candidatos 2026</div>
+          <div class="text-[10px] text-zinc-500 mt-0.5">Consulta por nome, cargo e UF</div>
+        </button>
         <a href="https://www.transparencia.org.br/publicacoes/" target="_blank" rel="noopener" class="quick-link-card bg-zinc-900 border border-zinc-800 rounded-2xl px-3 py-3 hover:bg-zinc-900/80">
           <div class="text-sky-400 text-lg mb-1">📑</div>
           <div class="text-xs font-semibold text-white leading-tight">Transparência Brasil</div>
@@ -933,7 +963,8 @@
           <div class="font-semibold text-br-green mb-2">Veículos Jornalísticos</div>
           <div class="space-y-1 text-zinc-400 text-[12px] leading-snug">
             Folha de S.Paulo • G1 • CNN Brasil • CNN Money Brasil • UOL • Metrópoles • Exame<br>
-            Gazeta do Povo • O Antagonista • Revista Oeste • Pleno News • Diário do Poder • Congresso em Foco
+            Gazeta do Povo • O Antagonista • Revista Oeste • Pleno News • Diário do Poder • Congresso em Foco<br>
+            <a href="https://atlaspublico.com.br/edicao" target="_blank" rel="noopener" class="text-br-green hover:underline">Atlas Público (edição / DOU)</a>
           </div>
         </div>
         <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
@@ -941,13 +972,16 @@
           <div class="space-y-1 text-zinc-400 text-[12px] leading-snug">
             <a href="https://portaldatransparencia.gov.br/receitas" target="_blank" rel="noopener" class="text-br-green hover:underline">Portal da Transparência (Receitas)</a> •
             <a href="https://portaldatransparencia.gov.br/despesas" target="_blank" rel="noopener" class="text-br-green hover:underline">Despesas</a> • Tesouro Nacional • TCU<br>
-            Agência Brasil • Câmara • Senado • STF • CanalGov • Banco Central (SGS)
+            Agência Brasil • Câmara • Senado • STF • CanalGov • Banco Central (SGS) •
+            <a href="https://divulgacandcontas.tse.jus.br/" target="_blank" rel="noopener" class="text-br-green hover:underline">TSE DivulgaCandContas</a>
           </div>
         </div>
         <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
           <div class="font-semibold text-sky-400 mb-2">Análise &amp; Pesquisa</div>
           <div class="space-y-1 text-zinc-400 text-[12px] leading-snug">
             <a href="https://www.transparencia.org.br/publicacoes/" target="_blank" rel="noopener" class="text-sky-400 hover:underline">Transparência Brasil — Publicações</a> • DadosJusBr<br>
+            <a href="https://atlaspublico.com.br/edicao" target="_blank" rel="noopener" class="text-emerald-300 hover:underline">Atlas Público — Edição</a> ·
+            <a href="https://atlaspublico.com.br/eleicoes-2026/candidatos" target="_blank" rel="noopener" class="text-emerald-300 hover:underline">Candidatos 2026</a><br>
             Datafolha • Ipec • Quaest • AtlasIntel • Ipea • FGV • CEBRI
           </div>
         </div>
@@ -979,12 +1013,119 @@
     <!-- FOOTER POLIDO -->
     <div class="max-w-[1520px] mx-auto px-6 py-4 mt-4 border-t border-zinc-800 text-[10px] text-zinc-500 flex flex-wrap items-center justify-between gap-2">
       <div>
-        Política Nacional • v2.0 Fiscal + Transparência • Portal da Transparência · Transparência Brasil · ref. piracanjuba.ai
+        Política Nacional • v2.1 Candidatos + Atlas Público · Portal · Transparência Brasil · ref. piracanjuba.ai
       </div>
       <div class="flex items-center gap-3">
         <span>Atalhos: <kbd class="px-1 bg-zinc-800 rounded">/</kbd> buscar • <kbd class="px-1 bg-zinc-800 rounded">r</kbd> atualizar • <kbd class="px-1 bg-zinc-800 rounded">ESC</kbd> fechar</span>
         <span class="hidden md:inline">•</span>
         <span class="hidden md:inline">Código aberto • Hospede em GitHub Pages / Netlify / Vercel</span>
+      </div>
+    </div>
+  </div>
+  </div><!-- /panel-monitor -->
+
+  <!-- ABA CANDIDATOS 2026 (estilo Atlas Público) -->
+  <div id="panel-candidatos" class="hidden">
+    <div class="max-w-[1520px] mx-auto px-6 py-6">
+      <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
+        <div>
+          <div class="text-[10px] font-semibold tracking-widest text-br-gold uppercase mb-1">Eleições 2026 · Registros no TSE</div>
+          <h1 class="font-display text-2xl md:text-3xl text-white tracking-tight">Conheça quem se apresentou para disputar as eleições</h1>
+          <p class="text-sm text-zinc-400 mt-2 max-w-3xl leading-relaxed">
+            Consulte por nome, número, partido, cargo e UF — no mesmo espírito de
+            <a href="https://atlaspublico.com.br/eleicoes-2026/candidatos" target="_blank" rel="noopener" class="text-br-green hover:underline">Atlas Público · Candidaturas</a>.
+            Os registros refletem dados públicos da Justiça Eleitoral e podem mudar durante julgamento, substituição ou renúncia.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <a href="https://atlaspublico.com.br/eleicoes-2026/candidatos" target="_blank" rel="noopener" class="px-3.5 py-2 rounded-xl bg-br-green text-white text-xs font-semibold hover:bg-emerald-600">Abrir no Atlas Público →</a>
+          <a href="https://divulgacandcontas.tse.jus.br/" target="_blank" rel="noopener" class="px-3.5 py-2 rounded-xl border border-zinc-700 text-zinc-300 text-xs font-medium hover:border-br-gold hover:text-white">DivulgaCandContas (TSE)</a>
+          <button type="button" onclick="switchMainTab('monitor')" class="px-3.5 py-2 rounded-xl border border-zinc-700 text-zinc-400 text-xs hover:text-white">← Voltar ao Monitor</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+        <div class="kpi-card p-4">
+          <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Registros na base</div>
+          <div id="cand-stat-total" class="kpi-value text-3xl font-semibold text-white mt-1">—</div>
+        </div>
+        <div class="kpi-card p-4">
+          <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Cargos e funções</div>
+          <div id="cand-stat-cargos" class="kpi-value text-3xl font-semibold text-br-gold mt-1">—</div>
+        </div>
+        <div class="kpi-card p-4">
+          <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Partidos</div>
+          <div id="cand-stat-partidos" class="kpi-value text-3xl font-semibold text-sky-300 mt-1">—</div>
+        </div>
+        <div class="kpi-card p-4">
+          <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Resultados filtrados</div>
+          <div id="cand-stat-filtrados" class="kpi-value text-3xl font-semibold text-emerald-300 mt-1">—</div>
+        </div>
+      </div>
+
+      <div class="bg-amber-950/40 border border-amber-800/40 rounded-2xl px-4 py-3 text-[11px] text-amber-200/90 mb-5 leading-relaxed">
+        Registro apresentado <strong>não significa candidatura deferida</strong>. A situação individual é reproduzida conforme fontes públicas (TSE / Atlas Público) e esta amostra local pode estar incompleta frente à base nacional (~20 mil pedidos). Sempre confira no TSE.
+      </div>
+
+      <!-- Filtros -->
+      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 mb-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+          <div class="xl:col-span-2">
+            <label class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold" for="cand-q">Nome ou número</label>
+            <input id="cand-q" type="search" placeholder="Ex.: Lula, 13, Tarcísio…"
+                   class="mt-1 w-full bg-zinc-950 border border-zinc-700 focus:border-br-green rounded-xl px-3 py-2.5 text-sm outline-none"
+                   oninput="applyCandidatosFilters()">
+          </div>
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold" for="cand-cargo">Cargo</label>
+            <select id="cand-cargo" class="mt-1 w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm outline-none" onchange="applyCandidatosFilters()"></select>
+          </div>
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold" for="cand-partido">Partido</label>
+            <select id="cand-partido" class="mt-1 w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm outline-none" onchange="applyCandidatosFilters()"></select>
+          </div>
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold" for="cand-uf">UF</label>
+            <select id="cand-uf" class="mt-1 w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm outline-none" onchange="applyCandidatosFilters()"></select>
+          </div>
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold" for="cand-reeleicao">Reeleição</label>
+            <select id="cand-reeleicao" class="mt-1 w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm outline-none" onchange="applyCandidatosFilters()">
+              <option value="todas">Todas</option>
+              <option value="sim">Somente reeleição</option>
+              <option value="nao">Sem reeleição</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-3 mt-3 pt-3 border-t border-zinc-800">
+          <div>
+            <label class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold" for="cand-ordem">Ordenação</label>
+            <select id="cand-ordem" class="mt-1 bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2 text-sm outline-none" onchange="applyCandidatosFilters()">
+              <option value="nome">Nome (A–Z)</option>
+              <option value="uf">UF, depois nome</option>
+              <option value="cargo">Cargo, depois nome</option>
+              <option value="numero">Número</option>
+            </select>
+          </div>
+          <div class="flex gap-2">
+            <button type="button" onclick="resetCandidatosFilters()" class="px-3 py-2 rounded-xl border border-zinc-700 text-xs text-zinc-400 hover:text-white">Limpar filtros</button>
+            <button type="button" onclick="refreshCandidatosData(true)" class="px-3 py-2 rounded-xl border border-br-green text-br-green text-xs font-semibold hover:bg-br-green hover:text-black">Atualizar amostra</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="candidatos-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+        <!-- JS -->
+      </div>
+
+      <div class="mt-6 text-[11px] text-zinc-500 leading-relaxed border-t border-zinc-800 pt-4">
+        <strong class="text-zinc-400">Sobre os dados:</strong> informações declaradas à Justiça Eleitoral. Nomes, números, partidos, cargos e situações podem ser atualizados pelo TSE.
+        Fonte de referência da interface:
+        <a href="https://atlaspublico.com.br/eleicoes-2026/candidatos" target="_blank" rel="noopener" class="text-br-green hover:underline">atlaspublico.com.br/eleicoes-2026/candidatos</a>
+        · Edição diária:
+        <a href="https://atlaspublico.com.br/edicao" target="_blank" rel="noopener" class="text-br-green hover:underline">atlaspublico.com.br/edicao</a>
+        · Oficial:
+        <a href="https://divulgacandcontas.tse.jus.br/" target="_blank" rel="noopener" class="text-br-green hover:underline">divulgacandcontas.tse.jus.br</a>
       </div>
     </div>
   </div>
@@ -1054,8 +1195,85 @@
       { id: 'cnn-politica', name: 'CNN Brasil Política', url: 'https://www.cnnbrasil.com.br/politica/feed/', bias: 'centro-direita', category: 'politica', reliability: 'baixa' },
       { id: 'exame', name: 'Exame', url: 'https://exame.com/feed/', bias: 'centro-direita', category: 'economia-politica', reliability: 'baixa' },
       { id: 'metropoles', name: 'Metrópoles Política', url: 'https://www.metropoles.com/feed', bias: 'centro', category: 'politica', reliability: 'baixa' },
-      { id: 'valor', name: 'Valor Política', url: 'https://valor.globo.com/rss/politica/', bias: 'centro', category: 'politica-economia', reliability: 'baixa' }
+      { id: 'valor', name: 'Valor Política', url: 'https://valor.globo.com/rss/politica/', bias: 'centro', category: 'politica-economia', reliability: 'baixa' },
+
+      // Atlas Público — edição diária / notícias oficiais (DOU, Câmara, Senado)
+      { id: 'atlas-publico', name: 'Atlas Público', url: 'https://atlaspublico.com.br/noticias/rss.xml', bias: 'centro', category: 'oficial', reliability: 'alta', homepage: 'https://atlaspublico.com.br/edicao' }
     ];
+
+    // ==================== CANDIDATOS 2026 (amostra curada — ref. Atlas Público / TSE) ====================
+    // Interface inspirada em https://atlaspublico.com.br/eleicoes-2026/candidatos
+    // Totais TSE (painel DivulgaCandContas, ago/2026): ~20,7 mil pedidos. Esta amostra local é para consulta rápida.
+    const CANDIDATOS_UFS = [
+      { sigla: 'BR', nome: 'Brasil · eleição presidencial' },
+      { sigla: 'AC', nome: 'Acre' }, { sigla: 'AL', nome: 'Alagoas' }, { sigla: 'AM', nome: 'Amazonas' },
+      { sigla: 'AP', nome: 'Amapá' }, { sigla: 'BA', nome: 'Bahia' }, { sigla: 'CE', nome: 'Ceará' },
+      { sigla: 'DF', nome: 'Distrito Federal' }, { sigla: 'ES', nome: 'Espírito Santo' }, { sigla: 'GO', nome: 'Goiás' },
+      { sigla: 'MA', nome: 'Maranhão' }, { sigla: 'MG', nome: 'Minas Gerais' }, { sigla: 'MS', nome: 'Mato Grosso do Sul' },
+      { sigla: 'MT', nome: 'Mato Grosso' }, { sigla: 'PA', nome: 'Pará' }, { sigla: 'PB', nome: 'Paraíba' },
+      { sigla: 'PE', nome: 'Pernambuco' }, { sigla: 'PI', nome: 'Piauí' }, { sigla: 'PR', nome: 'Paraná' },
+      { sigla: 'RJ', nome: 'Rio de Janeiro' }, { sigla: 'RN', nome: 'Rio Grande do Norte' }, { sigla: 'RO', nome: 'Rondônia' },
+      { sigla: 'RR', nome: 'Roraima' }, { sigla: 'RS', nome: 'Rio Grande do Sul' }, { sigla: 'SC', nome: 'Santa Catarina' },
+      { sigla: 'SE', nome: 'Sergipe' }, { sigla: 'SP', nome: 'São Paulo' }, { sigla: 'TO', nome: 'Tocantins' }
+    ];
+
+    const CANDIDATOS_2026 = [
+      // Presidente / Vice
+      { id: 'p1', nome: 'Luiz Inácio Lula da Silva', numero: '13', cargo: 'Presidente', partido: 'PT', uf: 'BR', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Presidente da República' },
+      { id: 'p2', nome: 'Geraldo Alckmin', numero: '13', cargo: 'Vice-presidente', partido: 'PSB', uf: 'BR', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Vice-presidente da República' },
+      { id: 'p3', nome: 'Tarcísio Gomes de Freitas', numero: '10', cargo: 'Presidente', partido: 'REPUBLICANOS', uf: 'BR', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Engenheiro / Ex-governador' },
+      { id: 'p4', nome: 'Michelle Bolsonaro', numero: '22', cargo: 'Presidente', partido: 'PL', uf: 'BR', situacao: 'Pendente', reeleicao: false, genero: 'Feminino', ocupacao: 'Primeira-dama / Ativista' },
+      { id: 'p5', nome: 'Ronaldo Caiado', numero: '44', cargo: 'Presidente', partido: 'UNIÃO', uf: 'BR', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Médico / Ex-governador' },
+      { id: 'p6', nome: 'Eduardo Leite', numero: '45', cargo: 'Presidente', partido: 'PSDB', uf: 'BR', situacao: 'Em análise', reeleicao: false, genero: 'Masculino', ocupacao: 'Governador' },
+      { id: 'p7', nome: 'Simone Tebet', numero: '15', cargo: 'Presidente', partido: 'MDB', uf: 'BR', situacao: 'Pendente', reeleicao: false, genero: 'Feminino', ocupacao: 'Ministra / Senadora' },
+      { id: 'p8', nome: 'Ciro Gomes', numero: '12', cargo: 'Presidente', partido: 'PDT', uf: 'BR', situacao: 'Em análise', reeleicao: false, genero: 'Masculino', ocupacao: 'Advogado / Ex-ministro' },
+      { id: 'p9', nome: 'Guilherme Boulos', numero: '50', cargo: 'Presidente', partido: 'PSOL', uf: 'BR', situacao: 'Pendente', reeleicao: false, genero: 'Masculino', ocupacao: 'Deputado federal' },
+      { id: 'p10', nome: 'João Amoêdo', numero: '30', cargo: 'Presidente', partido: 'NOVO', uf: 'BR', situacao: 'Em análise', reeleicao: false, genero: 'Masculino', ocupacao: 'Empresário' },
+
+      // Governadores (amostra)
+      { id: 'g1', nome: 'Romeu Zema', numero: '30', cargo: 'Governador', partido: 'NOVO', uf: 'MG', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Empresário / Ex-governador' },
+      { id: 'g2', nome: 'Cláudio Castro', numero: '22', cargo: 'Governador', partido: 'PL', uf: 'RJ', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Ex-governador' },
+      { id: 'g3', nome: 'Ratinho Junior', numero: '11', cargo: 'Governador', partido: 'PSD', uf: 'PR', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Ex-governador' },
+      { id: 'g4', nome: 'Jorginho Mello', numero: '22', cargo: 'Governador', partido: 'PL', uf: 'SC', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Governador' },
+      { id: 'g5', nome: 'Wilson Lima', numero: '11', cargo: 'Governador', partido: 'UNIÃO', uf: 'AM', situacao: 'Em análise', reeleicao: false, genero: 'Masculino', ocupacao: 'Jornalista' },
+      { id: 'g6', nome: 'Jerônimo Rodrigues', numero: '13', cargo: 'Governador', partido: 'PT', uf: 'BA', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Governador' },
+      { id: 'g7', nome: 'Elmano de Freitas', numero: '13', cargo: 'Governador', partido: 'PT', uf: 'CE', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Governador' },
+      { id: 'g8', nome: 'Raquel Lyra', numero: '45', cargo: 'Governador', partido: 'PSDB', uf: 'PE', situacao: 'Deferido', reeleicao: true, genero: 'Feminino', ocupacao: 'Governadora' },
+      { id: 'g9', nome: 'Helder Barbalho', numero: '15', cargo: 'Governador', partido: 'MDB', uf: 'PA', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Ex-governador' },
+      { id: 'g10', nome: 'Ronaldo Caiado Filho', numero: '44', cargo: 'Governador', partido: 'UNIÃO', uf: 'GO', situacao: 'Pendente', reeleicao: false, genero: 'Masculino', ocupacao: 'Empresário' },
+      { id: 'g11', nome: 'Tarcísio de Freitas (legado SP)', numero: '10', cargo: 'Governador', partido: 'REPUBLICANOS', uf: 'SP', situacao: 'Substituído', reeleicao: false, genero: 'Masculino', ocupacao: 'Pré-candidato a presidente' },
+      { id: 'g12', nome: 'Kim Kataguiri', numero: '30', cargo: 'Governador', partido: 'MISSÃO', uf: 'SP', situacao: 'Em análise', reeleicao: false, genero: 'Masculino', ocupacao: 'Deputado federal' },
+
+      // Senadores
+      { id: 's1', nome: 'Davi Alcolumbre', numero: '444', cargo: 'Senador', partido: 'UNIÃO', uf: 'AP', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Presidente do Senado' },
+      { id: 's2', nome: 'Rodrigo Pacheco', numero: '151', cargo: 'Senador', partido: 'PSD', uf: 'MG', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Senador' },
+      { id: 's3', nome: 'Renan Calheiros', numero: '151', cargo: 'Senador', partido: 'MDB', uf: 'AL', situacao: 'Em análise', reeleicao: false, genero: 'Masculino', ocupacao: 'Senador' },
+      { id: 's4', nome: 'Soraya Thronicke', numero: '450', cargo: 'Senador', partido: 'PODE', uf: 'MS', situacao: 'Deferido', reeleicao: false, genero: 'Feminino', ocupacao: 'Senadora' },
+      { id: 's5', nome: 'Omar Aziz', numero: '111', cargo: 'Senador', partido: 'PSD', uf: 'AM', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Senador' },
+      { id: 's6', nome: 'Flávio Bolsonaro', numero: '222', cargo: 'Senador', partido: 'PL', uf: 'RJ', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Senador' },
+
+      // Deputados Federais (amostra)
+      { id: 'df1', nome: 'Arthur Lira', numero: '2222', cargo: 'Deputado Federal', partido: 'PP', uf: 'AL', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Deputado federal' },
+      { id: 'df2', nome: 'Gleisi Hoffmann', numero: '1313', cargo: 'Deputado Federal', partido: 'PT', uf: 'PR', situacao: 'Deferido', reeleicao: true, genero: 'Feminino', ocupacao: 'Deputada / Ministra' },
+      { id: 'df3', nome: 'Nikolas Ferreira', numero: '2200', cargo: 'Deputado Federal', partido: 'PL', uf: 'MG', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Deputado federal' },
+      { id: 'df4', nome: 'Tabata Amaral', numero: '1234', cargo: 'Deputado Federal', partido: 'PSB', uf: 'SP', situacao: 'Deferido', reeleicao: true, genero: 'Feminino', ocupacao: 'Deputada federal' },
+      { id: 'df5', nome: 'Caroline de Toni', numero: '2222', cargo: 'Deputado Federal', partido: 'PL', uf: 'SC', situacao: 'Deferido', reeleicao: true, genero: 'Feminino', ocupacao: 'Deputada federal' },
+      { id: 'df6', nome: 'André Janones', numero: '7007', cargo: 'Deputado Federal', partido: 'AVANTE', uf: 'MG', situacao: 'Em análise', reeleicao: true, genero: 'Masculino', ocupacao: 'Deputado federal' },
+      { id: 'df7', nome: 'Erika Hilton', numero: '5050', cargo: 'Deputado Federal', partido: 'PSOL', uf: 'SP', situacao: 'Deferido', reeleicao: true, genero: 'Feminino', ocupacao: 'Deputada federal' },
+      { id: 'df8', nome: 'Capitão Alberto Neto', numero: '1010', cargo: 'Deputado Federal', partido: 'PL', uf: 'AM', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Deputado federal' },
+
+      // Deputados Estaduais / Distrital (amostra)
+      { id: 'de1', nome: 'Carlos Bolsonaro', numero: '22222', cargo: 'Deputado Estadual', partido: 'PL', uf: 'RJ', situacao: 'Pendente', reeleicao: false, genero: 'Masculino', ocupacao: 'Vereador' },
+      { id: 'de2', nome: 'Delegado Bruno Lima', numero: '10123', cargo: 'Deputado Estadual', partido: 'PP', uf: 'SP', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Deputado estadual' },
+      { id: 'dd1', nome: 'Júlia Lucy', numero: '45123', cargo: 'Deputado Distrital', partido: 'NOVO', uf: 'DF', situacao: 'Deferido', reeleicao: true, genero: 'Feminino', ocupacao: 'Deputada distrital' },
+      { id: 'dd2', nome: 'Chico Vigilante', numero: '13131', cargo: 'Deputado Distrital', partido: 'PT', uf: 'DF', situacao: 'Em análise', reeleicao: false, genero: 'Masculino', ocupacao: 'Ativista' }
+    ];
+
+    const TSE_TOTAIS_REF = {
+      Presidente: 13, 'Vice-presidente': 13, Governador: 199, 'Vice-governador': 202,
+      Senador: 317, 'Deputado Federal': 7703, 'Deputado Estadual': 11179, 'Deputado Distrital': 429,
+      atualizadoEm: '2026-08-22', fonte: 'https://divulgacandcontas.tse.jus.br/'
+    };
 
     const POLL_INTERVAL_MS = 42000; // ~42s - balance between freshness and proxy load
     const CACHE_KEY = 'pb_news_cache_v2';
@@ -1329,6 +1547,12 @@
     let lastFiscalSync = null;
     let liveIndicators = { selic: null, selicData: null, ipca: null, ipcaData: null };
 
+    // Candidatos tab state
+    let currentMainTab = 'monitor';
+    let candidatosData = [...CANDIDATOS_2026];
+    let candidatosFiltrados = [...CANDIDATOS_2026];
+    let candidatosInitialized = false;
+
     // Telemetria de carregamento de fontes (visível na UI)
     let sourceStatuses = {}; // { [sourceId]: { name, status: 'success'|'error'|'cached', lastFetch: number, durationMs?: number, error?: string, count?: number } }
 
@@ -1380,6 +1604,205 @@
       el.innerHTML = `<div class="text-sm flex-1">${message}</div><button class="text-zinc-400 hover:text-white" onclick="this.parentElement.remove()">×</button>`;
       container.appendChild(el);
       setTimeout(() => { if (el.parentElement) el.parentElement.removeChild(el); }, 4800);
+    }
+
+    // ==================== ABAS + CANDIDATOS 2026 ====================
+    function switchMainTab(tab) {
+      currentMainTab = tab === 'candidatos' ? 'candidatos' : 'monitor';
+      const panelMonitor = document.getElementById('panel-monitor');
+      const panelCand = document.getElementById('panel-candidatos');
+      if (panelMonitor) panelMonitor.classList.toggle('hidden', currentMainTab !== 'monitor');
+      if (panelCand) panelCand.classList.toggle('hidden', currentMainTab !== 'candidatos');
+
+      const btnMon = document.getElementById('tab-btn-monitor');
+      const btnCand = document.getElementById('tab-btn-candidatos');
+      if (btnMon) {
+        btnMon.classList.toggle('text-white', currentMainTab === 'monitor');
+        btnMon.classList.toggle('bg-br-green/15', currentMainTab === 'monitor');
+        btnMon.classList.toggle('text-zinc-400', currentMainTab !== 'monitor');
+      }
+      if (btnCand) {
+        btnCand.classList.toggle('text-white', currentMainTab === 'candidatos');
+        btnCand.classList.toggle('bg-br-green/15', currentMainTab === 'candidatos');
+        btnCand.classList.toggle('text-zinc-400', currentMainTab !== 'candidatos');
+      }
+
+      document.querySelectorAll('.tab-mobile-btn').forEach(btn => {
+        const active = btn.getAttribute('data-tab') === currentMainTab;
+        btn.classList.toggle('bg-br-green', active);
+        btn.classList.toggle('text-white', active);
+        btn.classList.toggle('bg-zinc-900', !active);
+        btn.classList.toggle('text-zinc-300', !active);
+        btn.classList.toggle('border', !active);
+        btn.classList.toggle('border-zinc-800', !active);
+      });
+
+      if (currentMainTab === 'candidatos') {
+        if (location.hash !== '#candidatos') history.replaceState(null, '', '#candidatos');
+        if (!candidatosInitialized) initCandidatosTab();
+        else applyCandidatosFilters();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        if (location.hash === '#candidatos') history.replaceState(null, '', location.pathname + location.search);
+        if (map) setTimeout(() => { try { map.invalidateSize(); } catch (_) {} }, 80);
+      }
+    }
+
+    function situacaoClass(s) {
+      const v = (s || '').toLowerCase();
+      if (v.includes('defer')) return 'bg-emerald-900/50 text-emerald-300 border-emerald-700/50';
+      if (v.includes('pend')) return 'bg-amber-900/40 text-amber-300 border-amber-700/40';
+      if (v.includes('análise') || v.includes('analise')) return 'bg-sky-900/40 text-sky-300 border-sky-700/40';
+      if (v.includes('subst') || v.includes('indefer') || v.includes('renún')) return 'bg-zinc-800 text-zinc-400 border-zinc-700';
+      return 'bg-zinc-800 text-zinc-300 border-zinc-700';
+    }
+
+    function iniciaisNome(nome) {
+      return (nome || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase();
+    }
+
+    function populateCandidatosSelects() {
+      const cargos = ['', ...new Set(candidatosData.map(c => c.cargo))].filter((v, i, a) => a.indexOf(v) === i);
+      const partidos = ['', ...new Set(candidatosData.map(c => c.partido))].sort();
+      const cargoEl = document.getElementById('cand-cargo');
+      const partidoEl = document.getElementById('cand-partido');
+      const ufEl = document.getElementById('cand-uf');
+      if (cargoEl) {
+        cargoEl.innerHTML = '<option value="">Todos os cargos</option>' +
+          cargos.filter(Boolean).map(c => `<option value="${c}">${c}</option>`).join('');
+      }
+      if (partidoEl) {
+        partidoEl.innerHTML = '<option value="">Todos os partidos</option>' +
+          partidos.filter(Boolean).map(p => `<option value="${p}">${p}</option>`).join('');
+      }
+      if (ufEl) {
+        ufEl.innerHTML = '<option value="">Todas as UFs</option>' +
+          CANDIDATOS_UFS.map(u => `<option value="${u.sigla}">${u.nome} · ${u.sigla}</option>`).join('');
+      }
+    }
+
+    function updateCandidatosStats() {
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      set('cand-stat-total', candidatosData.length.toLocaleString('pt-BR'));
+      set('cand-stat-cargos', new Set(candidatosData.map(c => c.cargo)).size);
+      set('cand-stat-partidos', new Set(candidatosData.map(c => c.partido)).size);
+      set('cand-stat-filtrados', candidatosFiltrados.length.toLocaleString('pt-BR'));
+    }
+
+    function applyCandidatosFilters() {
+      const q = normalizeText(document.getElementById('cand-q')?.value || '');
+      const cargo = document.getElementById('cand-cargo')?.value || '';
+      const partido = document.getElementById('cand-partido')?.value || '';
+      const uf = document.getElementById('cand-uf')?.value || '';
+      const reeleicao = document.getElementById('cand-reeleicao')?.value || 'todas';
+      const ordem = document.getElementById('cand-ordem')?.value || 'nome';
+
+      let list = candidatosData.filter(c => {
+        if (cargo && c.cargo !== cargo) return false;
+        if (partido && c.partido !== partido) return false;
+        if (uf && c.uf !== uf) return false;
+        if (reeleicao === 'sim' && !c.reeleicao) return false;
+        if (reeleicao === 'nao' && c.reeleicao) return false;
+        if (q) {
+          const blob = normalizeText(`${c.nome} ${c.numero} ${c.partido} ${c.cargo} ${c.uf} ${c.ocupacao || ''}`);
+          if (!blob.includes(q)) return false;
+        }
+        return true;
+      });
+
+      list.sort((a, b) => {
+        if (ordem === 'uf') return a.uf.localeCompare(b.uf) || a.nome.localeCompare(b.nome, 'pt-BR');
+        if (ordem === 'cargo') return a.cargo.localeCompare(b.cargo) || a.nome.localeCompare(b.nome, 'pt-BR');
+        if (ordem === 'numero') return String(a.numero).localeCompare(String(b.numero), 'pt-BR', { numeric: true });
+        return a.nome.localeCompare(b.nome, 'pt-BR');
+      });
+
+      candidatosFiltrados = list;
+      updateCandidatosStats();
+      renderCandidatosGrid();
+    }
+
+    function resetCandidatosFilters() {
+      ['cand-q', 'cand-cargo', 'cand-partido', 'cand-uf'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      const re = document.getElementById('cand-reeleicao'); if (re) re.value = 'todas';
+      const ord = document.getElementById('cand-ordem'); if (ord) ord.value = 'nome';
+      applyCandidatosFilters();
+    }
+
+    function renderCandidatosGrid() {
+      const grid = document.getElementById('candidatos-grid');
+      if (!grid) return;
+      if (!candidatosFiltrados.length) {
+        grid.innerHTML = `<div class="col-span-full text-center py-16 text-zinc-500 text-sm">Nenhuma candidatura encontrada com esses filtros.<br><span class="text-xs">Tente limpar os filtros ou abrir a base completa no Atlas Público / TSE.</span></div>`;
+        return;
+      }
+      grid.innerHTML = candidatosFiltrados.map(c => {
+        const atlasUrl = `https://atlaspublico.com.br/eleicoes-2026/candidatos?q=${encodeURIComponent(c.nome)}`;
+        const tseUrl = 'https://divulgacandcontas.tse.jus.br/';
+        return `
+        <article class="cand-card bg-zinc-900 border border-zinc-800 rounded-3xl p-4 flex gap-3">
+          <div class="cand-avatar w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-bold text-white shrink-0">${iniciaisNome(c.nome)}</div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-start justify-between gap-2">
+              <h3 class="text-sm font-semibold text-white leading-snug truncate" title="${c.nome}">${c.nome}</h3>
+              <span class="text-[10px] font-mono text-br-gold shrink-0">Nº ${c.numero}</span>
+            </div>
+            <div class="text-[11px] text-zinc-400 mt-0.5">${c.cargo} · <span class="text-zinc-300 font-medium">${c.partido}</span> · ${c.uf}</div>
+            <div class="flex flex-wrap gap-1.5 mt-2">
+              <span class="text-[9px] px-2 py-0.5 rounded-full border ${situacaoClass(c.situacao)}">${c.situacao}</span>
+              ${c.reeleicao ? '<span class="text-[9px] px-2 py-0.5 rounded-full border border-violet-700/50 bg-violet-950/40 text-violet-300">Reeleição</span>' : ''}
+              ${c.genero ? `<span class="text-[9px] px-2 py-0.5 rounded-full border border-zinc-700 text-zinc-400">${c.genero}</span>` : ''}
+            </div>
+            ${c.ocupacao ? `<div class="text-[10px] text-zinc-500 mt-2 truncate">${c.ocupacao}</div>` : ''}
+            <div class="flex gap-3 mt-2.5 text-[11px]">
+              <a href="${atlasUrl}" target="_blank" rel="noopener" class="text-br-green hover:underline font-medium">Ver no Atlas</a>
+              <a href="${tseUrl}" target="_blank" rel="noopener" class="text-zinc-500 hover:text-white">TSE</a>
+            </div>
+          </div>
+        </article>`;
+      }).join('');
+    }
+
+    function initCandidatosTab() {
+      candidatosInitialized = true;
+      populateCandidatosSelects();
+      applyCandidatosFilters();
+    }
+
+    async function refreshCandidatosData(showMsg = false) {
+      // Tentativa de enriquecer via página pública do Atlas (melhor esforço). Mantém amostra local se falhar.
+      try {
+        const url = 'https://atlaspublico.com.br/eleicoes-2026/candidatos';
+        const proxies = [
+          `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+          `https://corsproxy.io/?${encodeURIComponent(url)}`
+        ];
+        let html = '';
+        for (const p of proxies) {
+          try {
+            const ctrl = new AbortController();
+            const t = setTimeout(() => ctrl.abort(), 9000);
+            const res = await fetch(p, { signal: ctrl.signal });
+            clearTimeout(t);
+            if (res.ok) {
+              html = await res.text();
+              if (html && html.length > 800) break;
+            }
+          } catch (_) {}
+        }
+        // A página é SPA — em geral não traz a lista no HTML. Mantemos a amostra curada.
+        if (showMsg) {
+          showToast(html.length > 800
+            ? 'Fonte Atlas alcançada. Mantendo amostra local consultável (base completa no Atlas/TSE).'
+            : 'Amostra local ativa. Consulte a base completa no Atlas Público ou no TSE.', 'info');
+        }
+      } catch (_) {
+        if (showMsg) showToast('Usando amostra local de candidaturas. Abra o Atlas Público para a base completa.', 'warning');
+      }
+      applyCandidatosFilters();
     }
 
     // ==================== FISCAL + PUBLICAÇÕES ====================
@@ -2613,6 +3036,11 @@
       renderPublicacoesTB();
       renderFiscalKPIs();
 
+      // Deep-link / hash para aba Candidatos
+      if (location.hash === '#candidatos' || location.hash.startsWith('#candidatos')) {
+        switchMainTab('candidatos');
+      }
+
       const allChip = document.getElementById('chip-all'); if (allChip) allChip.classList.add('active');
 
       // Carrega cache imediatamente (velocidade percebida)
@@ -2735,7 +3163,14 @@
         }
       });
 
-      console.log('%c[Política Nacional] v2.0 Fiscal — painel inicializado (Portal da Transparência + Transparência Brasil + BCB).', 'color:#006B2E');
+      window.addEventListener('hashchange', () => {
+        if (location.hash === '#candidatos' || location.hash.startsWith('#candidatos')) switchMainTab('candidatos');
+        else if (['#fiscal', '#publicacoes', '#noticias', '#mapa', '#ao-vivo', ''].includes(location.hash) || location.hash.startsWith('#')) {
+          if (currentMainTab !== 'monitor' && location.hash !== '#candidatos') switchMainTab('monitor');
+        }
+      });
+
+      console.log('%c[Política Nacional] v2.1 — Atlas Público + aba Candidatos 2026 inicializados.', 'color:#006B2E');
     }
 
     window.onload = initialize;

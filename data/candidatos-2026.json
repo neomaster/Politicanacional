@@ -1,0 +1,18 @@
+{
+  "fonteInterface": "https://atlaspublico.com.br/eleicoes-2026/candidatos",
+  "fonteOficial": "https://divulgacandcontas.tse.jus.br/",
+  "edicaoAtlas": "https://atlaspublico.com.br/edicao",
+  "rssAtlas": "https://atlaspublico.com.br/noticias/rss.xml",
+  "nota": "Amostra curada para consulta rápida no painel. A base nacional do TSE tem ~20 mil pedidos de registro (ago/2026). Sempre confira no Atlas Público ou DivulgaCandContas.",
+  "totaisTseRef": {
+    "Presidente": 13,
+    "Vice-presidente": 13,
+    "Governador": 199,
+    "Vice-governador": 202,
+    "Senador": 317,
+    "Deputado Federal": 7703,
+    "Deputado Estadual": 11179,
+    "Deputado Distrital": 429,
+    "atualizadoEm": "2026-08-22"
+  }
+}
