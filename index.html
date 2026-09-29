@@ -376,18 +376,196 @@
     .cand-avatar {
       background: linear-gradient(135deg, #009739 0%, #002776 55%, #FFCC00 100%);
     }
+
+    /* Faixa da bandeira — presente nos dois frames */
+    .flag-stripe {
+      height: 6px;
+      background: linear-gradient(90deg, #009739 0 33.333%, #FFDF00 33.333% 66.666%, #002776 66.666% 100%);
+    }
+    .frame-swatch {
+      width: 16px;
+      height: 11px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #009739 33%, #FFDF00 33% 66%, #002776 66%);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.28);
+      flex-shrink: 0;
+    }
+    .flag-mark {
+      background: #009739;
+      box-shadow: 0 0 0 2px #FFDF00, 0 0 0 4px #002776;
+    }
+
+    .flag-rail { display: none; }
+
+    /* Frame alternativo: campo verde, losango amarelo, globo azul */
+    html[data-frame="bandeira"] body {
+      background: #006B2E;
+    }
+    html[data-frame="bandeira"] #app-frame {
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr);
+      min-height: 100vh;
+      margin: 14px;
+      padding: 10px;
+      gap: 10px;
+      background:
+        linear-gradient(160deg, rgba(255, 223, 0, 0.18), transparent 42%),
+        #009739;
+      border-radius: 28px;
+      box-shadow:
+        0 0 0 6px #FFDF00,
+        0 0 0 12px #009739,
+        0 24px 48px rgba(0, 20, 8, 0.45);
+    }
+    html[data-frame="bandeira"] .flag-rail {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 18px 8px 18px;
+      border-radius: 18px;
+      background: #007a32;
+      position: relative;
+      overflow: hidden;
+    }
+    html[data-frame="bandeira"] .flag-rail::before {
+      content: "";
+      position: absolute;
+      width: 148px;
+      height: 148px;
+      left: 50%;
+      top: 42%;
+      transform: translate(-50%, -50%);
+      background: #FFDF00;
+      clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+    }
+    .flag-globe {
+      position: absolute;
+      z-index: 1;
+      left: 50%;
+      top: 42%;
+      transform: translate(-50%, -50%);
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 35%, #1a4a9c 0 18%, transparent 19%),
+        #002776;
+      box-shadow: 0 0 0 3px rgba(255, 223, 0, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .flag-globe span {
+      color: #FFDF00;
+      font-size: 5.5px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-align: center;
+      line-height: 1.15;
+      width: 40px;
+      text-transform: uppercase;
+    }
+    .flag-rail-caption {
+      position: relative;
+      z-index: 1;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      font-weight: 700;
+      color: #FFDF00;
+    }
+    html[data-frame="bandeira"] .app-stage {
+      background: #09090b;
+      border-radius: 18px;
+      border: 3px solid #002776;
+      box-shadow: inset 0 0 0 1px #FFDF00;
+      min-width: 0;
+    }
+    html[data-frame="bandeira"] .app-stage > nav {
+      background: #002776;
+      border-bottom: 3px solid #FFDF00;
+      border-radius: 14px 14px 0 0;
+    }
+    html[data-frame="bandeira"] .app-stage > nav .border-zinc-800,
+    html[data-frame="bandeira"] .app-stage > .lg\:hidden {
+      border-color: rgba(255, 223, 0, 0.35);
+    }
+    html[data-frame="bandeira"] .kpi-card,
+    html[data-frame="bandeira"] .cand-card,
+    html[data-frame="bandeira"] .pub-card,
+    html[data-frame="bandeira"] .news-card,
+    html[data-frame="bandeira"] .quick-link-card {
+      box-shadow: inset 3px 0 0 #009739;
+    }
+    html[data-frame="bandeira"] .section-header {
+      color: #FFDF00;
+    }
+
+    @media (max-width: 800px) {
+      html[data-frame="bandeira"] #app-frame {
+        grid-template-columns: 1fr;
+        margin: 8px;
+        padding: 8px;
+        gap: 8px;
+      }
+      html[data-frame="bandeira"] .flag-rail {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 14px;
+        min-height: 72px;
+        padding: 10px 14px;
+      }
+      html[data-frame="bandeira"] .flag-rail::before {
+        width: 92px;
+        height: 92px;
+        left: 52px;
+        top: 50%;
+      }
+      .flag-globe {
+        width: 36px;
+        height: 36px;
+        left: 52px;
+        top: 50%;
+      }
+      .flag-rail-caption {
+        writing-mode: horizontal-tb;
+        transform: none;
+        margin-left: auto;
+      }
+    }
   </style>
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('pn-frame') === 'bandeira') {
+          document.documentElement.setAttribute('data-frame', 'bandeira');
+        }
+      } catch (_) {}
+    })();
+  </script>
 </head>
 <body class="bg-zinc-950 text-zinc-200">
+  <div id="app-frame">
+    <aside class="flag-rail" aria-hidden="true">
+      <div class="flag-globe"><span>Ordem e Progresso</span></div>
+      <div class="flag-rail-caption">BRASIL</div>
+    </aside>
+    <div class="app-stage">
+  <div class="flag-stripe" role="presentation"></div>
   <!-- NAVBAR -->
   <nav class="border-b border-zinc-800 bg-zinc-950/95 backdrop-blur-lg sticky top-0 z-50">
     <div class="max-w-[1520px] mx-auto px-6">
       <div class="h-16 flex items-center justify-between gap-3">
         <div class="flex items-center gap-x-3 min-w-0">
           <div class="flex items-center gap-x-3 shrink-0">
-            <div class="w-10 h-10 bg-br-green rounded-2xl flex items-center justify-center shadow-inner">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5.5 h-5.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            <div class="flag-mark w-10 h-10 rounded-2xl flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-5" viewBox="0 0 20 14" aria-hidden="true">
+                <rect width="20" height="14" rx="1" fill="#009739"/>
+                <polygon points="10,1.15 18.7,7 10,12.85 1.3,7" fill="#FFDF00"/>
+                <circle cx="10" cy="7" r="2.55" fill="#002776"/>
+                <path d="M7.7 7.15c1.4-.55 3.1-.55 4.6.05" fill="none" stroke="#FFDF00" stroke-width="0.45"/>
               </svg>
             </div>
             <div>
@@ -412,6 +590,12 @@
         </div>
 
         <div class="flex items-center gap-x-3 shrink-0">
+          <button type="button" id="frame-toggle" onclick="toggleAppFrame()" aria-pressed="false"
+                  class="flex items-center gap-x-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 px-3 h-9 rounded-2xl text-xs font-semibold transition-colors"
+                  title="Alternar entre o painel noturno e a moldura da bandeira">
+            <span class="frame-swatch" aria-hidden="true"></span>
+            <span id="frame-toggle-label">Bandeira</span>
+          </button>
           <div class="hidden sm:flex items-center gap-x-2 text-xs">
             <div class="px-3.5 py-1 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-400 flex items-center gap-1.5">
               <span id="last-update">—</span>
@@ -1192,6 +1376,8 @@
       </div>
     </div>
   </div>
+    </div><!-- /app-stage -->
+  </div><!-- /app-frame -->
 
   <!-- VIDEO MODAL -->
   <div id="video-modal" onclick="if (event.target.id === 'video-modal') closeVideoModal()" 
@@ -3540,8 +3726,28 @@
       updateLastUpdateTime(); updateStats(allArticles); renderNews(filteredArticles);
     }
 
+    function applyAppFrame(mode, persist) {
+      const bandeira = mode === 'bandeira';
+      if (bandeira) document.documentElement.setAttribute('data-frame', 'bandeira');
+      else document.documentElement.removeAttribute('data-frame');
+      const label = document.getElementById('frame-toggle-label');
+      if (label) label.textContent = bandeira ? 'Noite' : 'Bandeira';
+      const btn = document.getElementById('frame-toggle');
+      if (btn) btn.setAttribute('aria-pressed', bandeira ? 'true' : 'false');
+      if (persist) {
+        try { localStorage.setItem('pn-frame', bandeira ? 'bandeira' : 'noite'); } catch (_) {}
+      }
+      if (map) setTimeout(() => { try { map.invalidateSize(); } catch (_) {} }, 60);
+    }
+
+    function toggleAppFrame() {
+      const bandeira = document.documentElement.getAttribute('data-frame') === 'bandeira';
+      applyAppFrame(bandeira ? 'noite' : 'bandeira', true);
+    }
+
     // ==================== INIT ====================
     async function initialize() {
+      applyAppFrame(document.documentElement.getAttribute('data-frame') === 'bandeira' ? 'bandeira' : 'noite', false);
       // Aviso para execução via file:// (restrições de segurança)
       if (location.protocol === 'file:') {
         setTimeout(() => {
