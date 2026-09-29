@@ -2090,7 +2090,7 @@
       wrap.innerHTML = CAND_CARGO_CHIPS.map(c => {
         const label = c || 'Todos';
         const active = (selected || '') === c;
-        return `<button type="button" onclick="setCandCargo(${JSON.stringify(c)})"
+        return `<button type="button" onclick='setCandCargo(${JSON.stringify(c)})'
           class="px-3 py-1.5 rounded-full text-[11px] font-medium border transition-colors ${active ? 'bg-br-green text-white border-br-green' : 'bg-zinc-950 text-zinc-300 border-zinc-700 hover:border-br-green/50 hover:text-white'}">${label}</button>`;
       }).join('');
     }
@@ -2102,7 +2102,7 @@
       wrap.innerHTML = opts.map(r => {
         const label = r || 'Todas';
         const active = candRegiao === r;
-        return `<button type="button" onclick="setCandRegiao(${JSON.stringify(r)})"
+        return `<button type="button" onclick='setCandRegiao(${JSON.stringify(r)})'
           class="px-3 py-1.5 rounded-full text-[11px] font-medium border transition-colors ${active ? 'bg-sky-600 text-white border-sky-500' : 'bg-zinc-950 text-zinc-300 border-zinc-700 hover:border-sky-500/50 hover:text-white'}">${label}</button>`;
       }).join('');
     }
@@ -2229,7 +2229,7 @@
         if (cargo && c.cargo !== cargo) return false;
         if (partido && c.partido !== partido) return false;
         if (uf && c.uf !== uf) return false;
-        if (ufsDaRegiao && !ufsDaRegiao.includes(c.uf) && c.uf !== 'BR') return false;
+        if (ufsDaRegiao && !ufsDaRegiao.includes(c.uf)) return false;
         if (situacao) {
           const s = (c.situacao || '').toLowerCase();
           if (!s.includes(situacao.toLowerCase())) return false;
