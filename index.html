@@ -377,6 +377,40 @@
       background: linear-gradient(135deg, #009739 0%, #002776 55%, #FFCC00 100%);
     }
 
+    /* Abas Candidatos — sempre legíveis, nos dois frames */
+    .tab-cand {
+      color: #fff !important;
+      background: rgba(0, 39, 118, 0.72);
+      border: 1px solid #FFDF00 !important;
+      opacity: 1 !important;
+      pointer-events: auto;
+    }
+    .tab-cand.is-on {
+      background: #009739 !important;
+      color: #fff !important;
+      box-shadow: 0 0 0 1px #FFDF00;
+    }
+    html[data-frame="bandeira"] .tab-cand {
+      color: #002776 !important;
+      background: #FFDF00 !important;
+      border-color: #FFDF00 !important;
+    }
+    html[data-frame="bandeira"] .tab-cand.is-on {
+      background: #fff !important;
+      color: #009739 !important;
+      box-shadow: 0 0 0 2px #002776;
+    }
+    button.cand-entry {
+      border-color: #FFDF00 !important;
+      box-shadow: inset 3px 0 0 #009739;
+      opacity: 1 !important;
+      cursor: pointer;
+    }
+    button.cand-entry:hover {
+      border-color: #fff !important;
+      background: #002776 !important;
+    }
+
     /* Faixa da bandeira — presente nos dois frames */
     .flag-stripe {
       height: 6px;
@@ -575,7 +609,7 @@
           </div>
           <div class="hidden lg:flex items-center gap-1 ml-2 pl-3 border-l border-zinc-800">
             <button type="button" onclick="switchMainTab('monitor')" id="tab-btn-monitor" class="nav-anchor text-[11px] font-medium text-white bg-br-green/15 px-2.5 py-1.5 rounded-xl">Monitor</button>
-            <button type="button" onclick="switchMainTab('candidatos')" id="tab-btn-candidatos" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl">Candidatos</button>
+            <button type="button" onclick="switchMainTab('candidatos')" id="tab-btn-candidatos" class="nav-anchor tab-cand text-[11px] font-semibold px-2.5 py-1.5 rounded-xl">Candidatos</button>
             <a href="#fiscal" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl" onclick="switchMainTab('monitor')">Fiscal</a>
             <a href="#publicacoes" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl" onclick="switchMainTab('monitor')">Publicações</a>
             <a href="#noticias" class="nav-anchor text-[11px] font-medium text-zinc-400 px-2.5 py-1.5 rounded-xl" onclick="switchMainTab('monitor')">Notícias</a>
@@ -621,7 +655,7 @@
   <!-- Mobile tabs -->
   <div class="lg:hidden border-b border-zinc-800 bg-zinc-950 px-4 py-2 flex gap-2">
     <button type="button" onclick="switchMainTab('monitor')" class="tab-mobile-btn flex-1 px-3 py-2 rounded-xl text-xs font-semibold bg-br-green text-white" data-tab="monitor">Monitor</button>
-    <button type="button" onclick="switchMainTab('candidatos')" class="tab-mobile-btn flex-1 px-3 py-2 rounded-xl text-xs font-semibold bg-zinc-900 text-zinc-300 border border-zinc-800" data-tab="candidatos">Candidatos 2026</button>
+    <button type="button" onclick="switchMainTab('candidatos')" class="tab-mobile-btn tab-cand flex-1 px-3 py-2 rounded-xl text-xs font-semibold" data-tab="candidatos">Candidatos 2026</button>
   </div>
 
   <div id="panel-monitor">
@@ -697,10 +731,10 @@
           <div class="text-xs font-semibold text-white leading-tight">Atlas Público · Edição</div>
           <div class="text-[10px] text-zinc-500 mt-0.5">DOU, atos e contratos</div>
         </a>
-        <button type="button" onclick="switchMainTab('candidatos')" class="quick-link-card text-left bg-zinc-900 border border-zinc-800 rounded-2xl px-3 py-3 hover:bg-zinc-900/80 w-full">
+        <button type="button" onclick="switchMainTab('candidatos')" class="quick-link-card cand-entry text-left bg-zinc-900 border border-zinc-800 rounded-2xl px-3 py-3 w-full">
           <div class="text-br-gold text-lg mb-1">🗳️</div>
           <div class="text-xs font-semibold text-white leading-tight">Candidatos 2026</div>
-          <div class="text-[10px] text-zinc-500 mt-0.5">Consulta por nome, cargo e UF</div>
+          <div class="text-[10px] text-br-gold mt-0.5">Abrir a lista do TSE</div>
         </button>
         <a href="https://www.transparencia.org.br/publicacoes/" target="_blank" rel="noopener" class="quick-link-card bg-zinc-900 border border-zinc-800 rounded-2xl px-3 py-3 hover:bg-zinc-900/80">
           <div class="text-sky-400 text-lg mb-1">📑</div>
@@ -1891,20 +1925,19 @@
       if (panelCand) panelCand.classList.toggle('hidden', currentMainTab !== 'candidatos');
 
       const btnMon = document.getElementById('tab-btn-monitor');
-      const btnCand = document.getElementById('tab-btn-candidatos');
       if (btnMon) {
         btnMon.classList.toggle('text-white', currentMainTab === 'monitor');
         btnMon.classList.toggle('bg-br-green/15', currentMainTab === 'monitor');
         btnMon.classList.toggle('text-zinc-400', currentMainTab !== 'monitor');
       }
-      if (btnCand) {
-        btnCand.classList.toggle('text-white', currentMainTab === 'candidatos');
-        btnCand.classList.toggle('bg-br-green/15', currentMainTab === 'candidatos');
-        btnCand.classList.toggle('text-zinc-400', currentMainTab !== 'candidatos');
-      }
+      document.querySelectorAll('.tab-cand').forEach(btn => {
+        btn.classList.toggle('is-on', currentMainTab === 'candidatos');
+        btn.disabled = false;
+      });
 
       document.querySelectorAll('.tab-mobile-btn').forEach(btn => {
         const active = btn.getAttribute('data-tab') === currentMainTab;
+        if (btn.classList.contains('tab-cand')) return;
         btn.classList.toggle('bg-br-green', active);
         btn.classList.toggle('text-white', active);
         btn.classList.toggle('bg-zinc-900', !active);
@@ -3618,11 +3651,16 @@
     }
 
     async function manualRefresh() {
-      const btns = document.querySelectorAll('button'); btns.forEach(b => b.disabled = true);
-      await Promise.all([refreshNews(), refreshFiscalPanel(false)]);
-      btns.forEach(b => b.disabled = false); 
-      hideNewArticlesBadge();
-      showToast('Feed e painel fiscal atualizados');
+      const btn = document.querySelector('button[onclick="manualRefresh()"]');
+      if (btn) btn.disabled = true;
+      try {
+        await Promise.all([refreshNews(), refreshFiscalPanel(false)]);
+        hideNewArticlesBadge();
+        showToast('Feed e painel fiscal atualizados');
+      } finally {
+        if (btn) btn.disabled = false;
+        document.querySelectorAll('.tab-cand, .cand-entry').forEach(el => { el.disabled = false; });
+      }
     }
 
     function toggleAutoRefresh() {
