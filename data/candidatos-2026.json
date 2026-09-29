@@ -1,18 +1,41 @@
 {
+  "atualizadoEm": "2026-09-28",
   "fonteInterface": "https://atlaspublico.com.br/eleicoes-2026/candidatos",
   "fonteOficial": "https://divulgacandcontas.tse.jus.br/",
-  "edicaoAtlas": "https://atlaspublico.com.br/edicao",
-  "rssAtlas": "https://atlaspublico.com.br/noticias/rss.xml",
-  "nota": "Amostra curada para consulta rápida no painel. A base nacional do TSE tem ~20 mil pedidos de registro (ago/2026). Sempre confira no Atlas Público ou DivulgaCandContas.",
+  "fontesConsulta": [
+    "https://valor.globo.com/politica/eleicoes-2026/noticia/2026/09/25/candidatos-a-presidente-em-2026-veja-a-lista-completa-e-atualizada.ghtml",
+    "https://guverno.com.br/eleicoes/presidente",
+    "https://valor.globo.com/politica/eleicoes-2026/noticia/2026/09/23/candidatos-a-governador-de-sao-paulo-sp-veja-a-lista-atualizada-das-eleicoes-2026.ghtml"
+  ],
+  "primeiroTurno": "2026-10-04",
+  "segundoTurno": "2026-10-25",
+  "nota": "Lista local prioriza Presidência (completa) e Governo de SP. Totais nacionais vêm do painel DivulgaCandContas. Situações mudam com julgamentos do TSE.",
   "totaisTseRef": {
-    "Presidente": 13,
-    "Vice-presidente": 13,
-    "Governador": 199,
-    "Vice-governador": 202,
-    "Senador": 317,
-    "Deputado Federal": 7703,
-    "Deputado Estadual": 11179,
-    "Deputado Distrital": 429,
-    "atualizadoEm": "2026-08-22"
-  }
+    "Presidente": 14,
+    "Vice-presidente": 14,
+    "Governador": 201,
+    "Vice-governador": 211,
+    "Senador": 318,
+    "Deputado Federal": 7803,
+    "Deputado Estadual": 11293,
+    "Deputado Distrital": 433,
+    "total": 20984,
+    "atualizadoEm": "2026-09-28"
+  },
+  "presidencia": [
+    { "numero": "13", "nomeUrna": "LULA", "partido": "PT", "vice": "Geraldo Alckmin (PSB)", "situacao": "Deferido" },
+    { "numero": "14", "nomeUrna": "RENAN SANTOS", "partido": "MISSÃO", "vice": "Coronel Medina (MISSÃO)", "situacao": "Deferido" },
+    { "numero": "16", "nomeUrna": "HERTZ DIAS", "partido": "PSTU", "vice": "Vanessa Portugal (PSTU)", "situacao": "Deferido" },
+    { "numero": "21", "nomeUrna": "EDMILSON COSTA", "partido": "PCB", "vice": "Cleusa Santos (PCB)", "situacao": "Deferido" },
+    { "numero": "22", "nomeUrna": "FLAVIO BOLSONARO", "partido": "PL", "vice": "Alfredo Gaspar (PL)", "situacao": "Deferido" },
+    { "numero": "27", "nomeUrna": "CLARIANA BARAO", "partido": "DC", "vice": "Fabiana Torquato (DC)", "situacao": "Deferido" },
+    { "numero": "28", "nomeUrna": "LEONARDO AVALANCHE", "partido": "PRTB", "vice": "Sílvia (PRTB)", "situacao": "Deferido" },
+    { "numero": "28", "nomeUrna": "PABLO MARÇAL", "partido": "PRTB", "situacao": "Indeferido" },
+    { "numero": "29", "nomeUrna": "RUI COSTA PIMENTA", "partido": "PCO", "vice": "Antônio Carlos (PCO)", "situacao": "Deferido" },
+    { "numero": "30", "nomeUrna": "ZEMA", "partido": "NOVO", "vice": "Eduardo Girão (NOVO)", "situacao": "Deferido" },
+    { "numero": "35", "nomeUrna": "VETERINÁRIO WILSON GRASSI", "partido": "DEMOCRATA", "vice": "Suêd Haidar (DEMOCRATA)", "situacao": "Deferido" },
+    { "numero": "55", "nomeUrna": "RONALDO CAIADO", "partido": "PSD", "vice": "Gilberto Kassab (PSD)", "situacao": "Deferido" },
+    { "numero": "70", "nomeUrna": "ESCRITOR AUGUSTO CURY", "partido": "AVANTE", "vice": "Júlio Delgado (AVANTE)", "situacao": "Deferido" },
+    { "numero": "80", "nomeUrna": "SAMARA", "partido": "UP", "vice": "Raquel Brício (UP)", "situacao": "Deferido" }
+  ]
 }

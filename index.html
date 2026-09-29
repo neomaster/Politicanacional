@@ -1047,12 +1047,13 @@
     <div class="max-w-[1520px] mx-auto px-6 py-6">
       <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
         <div>
-          <div class="text-[10px] font-semibold tracking-widest text-br-gold uppercase mb-1">Eleições 2026 · Registros no TSE</div>
-          <h1 class="font-display text-2xl md:text-3xl text-white tracking-tight">Conheça quem se apresentou para disputar as eleições</h1>
+          <div class="text-[10px] font-semibold tracking-widest text-br-gold uppercase mb-1">Eleições 2026 · Registros no TSE · atualizado 28/09/2026</div>
+          <h1 class="font-display text-2xl md:text-3xl text-white tracking-tight">Candidatos disponíveis ao pleito</h1>
           <p class="text-sm text-zinc-400 mt-2 max-w-3xl leading-relaxed">
-            Consulte por nome, número, partido, cargo e UF — no mesmo espírito de
-            <a href="https://atlaspublico.com.br/eleicoes-2026/candidatos" target="_blank" rel="noopener" class="text-br-green hover:underline">Atlas Público · Candidaturas</a>.
-            Os registros refletem dados públicos da Justiça Eleitoral e podem mudar durante julgamento, substituição ou renúncia.
+            Lista atualizada das chapas à <strong class="text-zinc-300">Presidência</strong> e ao <strong class="text-zinc-300">governo de SP</strong>, com amostra de outras disputas.
+            Fonte: DivulgaCandContas (TSE) via reportagens oficiais · interface inspirada em
+            <a href="https://atlaspublico.com.br/eleicoes-2026/candidatos" target="_blank" rel="noopener" class="text-br-green hover:underline">Atlas Público</a>.
+            1º turno: <strong class="text-zinc-300">4 de outubro de 2026</strong>.
           </p>
         </div>
         <div class="flex flex-wrap gap-2">
@@ -1062,18 +1063,23 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5">
         <div class="kpi-card p-4">
-          <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Registros na base</div>
-          <div id="cand-stat-total" class="kpi-value text-3xl font-semibold text-white mt-1">—</div>
+          <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Pedidos no TSE (BR)</div>
+          <div id="cand-stat-tse-total" class="kpi-value text-3xl font-semibold text-white mt-1">—</div>
+          <div class="text-[10px] text-zinc-500 mt-1">Painel DivulgaCandContas</div>
         </div>
         <div class="kpi-card p-4">
-          <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Cargos e funções</div>
-          <div id="cand-stat-cargos" class="kpi-value text-3xl font-semibold text-br-gold mt-1">—</div>
+          <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Presidente (TSE)</div>
+          <div id="cand-stat-pres" class="kpi-value text-3xl font-semibold text-br-gold mt-1">—</div>
+        </div>
+        <div class="kpi-card p-4">
+          <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Nesta consulta</div>
+          <div id="cand-stat-total" class="kpi-value text-3xl font-semibold text-sky-300 mt-1">—</div>
         </div>
         <div class="kpi-card p-4">
           <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Partidos</div>
-          <div id="cand-stat-partidos" class="kpi-value text-3xl font-semibold text-sky-300 mt-1">—</div>
+          <div id="cand-stat-partidos" class="kpi-value text-3xl font-semibold text-violet-300 mt-1">—</div>
         </div>
         <div class="kpi-card p-4">
           <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Resultados filtrados</div>
@@ -1235,62 +1241,59 @@
       { sigla: 'SE', nome: 'Sergipe' }, { sigla: 'SP', nome: 'São Paulo' }, { sigla: 'TO', nome: 'Tocantins' }
     ];
 
+    // Atualizado em 28/09/2026 — Presidência e Governo SP conforme DivulgaCandContas / Valor / G1 / UOL.
+    // Base nacional TSE ~20.984 pedidos. Esta lista prioriza chapas majoritárias oficiais.
     const CANDIDATOS_2026 = [
-      // Presidente / Vice
-      { id: 'p1', nome: 'Luiz Inácio Lula da Silva', numero: '13', cargo: 'Presidente', partido: 'PT', uf: 'BR', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Presidente da República' },
-      { id: 'p2', nome: 'Geraldo Alckmin', numero: '13', cargo: 'Vice-presidente', partido: 'PSB', uf: 'BR', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Vice-presidente da República' },
-      { id: 'p3', nome: 'Tarcísio Gomes de Freitas', numero: '10', cargo: 'Presidente', partido: 'REPUBLICANOS', uf: 'BR', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Engenheiro / Ex-governador' },
-      { id: 'p4', nome: 'Michelle Bolsonaro', numero: '22', cargo: 'Presidente', partido: 'PL', uf: 'BR', situacao: 'Pendente', reeleicao: false, genero: 'Feminino', ocupacao: 'Primeira-dama / Ativista' },
-      { id: 'p5', nome: 'Ronaldo Caiado', numero: '44', cargo: 'Presidente', partido: 'UNIÃO', uf: 'BR', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Médico / Ex-governador' },
-      { id: 'p6', nome: 'Eduardo Leite', numero: '45', cargo: 'Presidente', partido: 'PSDB', uf: 'BR', situacao: 'Em análise', reeleicao: false, genero: 'Masculino', ocupacao: 'Governador' },
-      { id: 'p7', nome: 'Simone Tebet', numero: '15', cargo: 'Presidente', partido: 'MDB', uf: 'BR', situacao: 'Pendente', reeleicao: false, genero: 'Feminino', ocupacao: 'Ministra / Senadora' },
-      { id: 'p8', nome: 'Ciro Gomes', numero: '12', cargo: 'Presidente', partido: 'PDT', uf: 'BR', situacao: 'Em análise', reeleicao: false, genero: 'Masculino', ocupacao: 'Advogado / Ex-ministro' },
-      { id: 'p9', nome: 'Guilherme Boulos', numero: '50', cargo: 'Presidente', partido: 'PSOL', uf: 'BR', situacao: 'Pendente', reeleicao: false, genero: 'Masculino', ocupacao: 'Deputado federal' },
-      { id: 'p10', nome: 'João Amoêdo', numero: '30', cargo: 'Presidente', partido: 'NOVO', uf: 'BR', situacao: 'Em análise', reeleicao: false, genero: 'Masculino', ocupacao: 'Empresário' },
+      // ===== PRESIDENTE (urna + vice) =====
+      { id: 'pres-13', nomeUrna: 'LULA', nome: 'Luiz Inácio Lula da Silva', numero: '13', cargo: 'Presidente', partido: 'PT', uf: 'BR', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Presidente da República', vice: 'Geraldo Alckmin (PSB)', coligacao: 'Brasil Pronto pra Mais', tse: 'https://divulgacandcontas.tse.jus.br/divulga/#/candidato/2026/6257/BR/280002542548' },
+      { id: 'vp-13', nomeUrna: 'GERALDO ALCKMIN', nome: 'Geraldo José Rodrigues Alckmin Filho', numero: '13', cargo: 'Vice-presidente', partido: 'PSB', uf: 'BR', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Vice-presidente da República', tse: 'https://divulgacandcontas.tse.jus.br/' },
+      { id: 'pres-14', nomeUrna: 'RENAN SANTOS', nome: 'Renan Antonio Ferreira dos Santos', numero: '14', cargo: 'Presidente', partido: 'MISSÃO', uf: 'BR', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Empresário / Dirigente partidário', vice: 'Coronel Medina (MISSÃO)', tse: 'https://divulgacandcontas.tse.jus.br/divulga/#/candidato/2026/6257/BR/280002540694' },
+      { id: 'pres-16', nomeUrna: 'HERTZ DIAS', nome: 'Hertz da Conceição Dias', numero: '16', cargo: 'Presidente', partido: 'PSTU', uf: 'BR', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Professor', vice: 'Vanessa Portugal (PSTU)', tse: 'https://divulgacandcontas.tse.jus.br/divulga/#/candidato/2026/6257/BR/280002541457' },
+      { id: 'pres-21', nomeUrna: 'EDMILSON COSTA', nome: 'Edmilson Silva Costa', numero: '21', cargo: 'Presidente', partido: 'PCB', uf: 'BR', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Economista', vice: 'Cleusa Santos (PCB)', tse: 'https://divulgacandcontas.tse.jus.br/divulga/#/candidato/2026/6257/BR/280002551975' },
+      { id: 'pres-22', nomeUrna: 'FLAVIO BOLSONARO', nome: 'Flávio Nantes Bolsonaro', numero: '22', cargo: 'Presidente', partido: 'PL', uf: 'BR', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Senador', vice: 'Alfredo Gaspar (PL)', tse: 'https://divulgacandcontas.tse.jus.br/divulga/#/candidato/2026/6257/BR/280002551544' },
+      { id: 'pres-27', nomeUrna: 'CLARIANA BARAO', nome: 'Clariana Zacarkim Barão', numero: '27', cargo: 'Presidente', partido: 'DC', uf: 'BR', situacao: 'Deferido', reeleicao: false, genero: 'Feminino', ocupacao: 'Advogada', vice: 'Fabiana Torquato (DC)', tse: 'https://divulgacandcontas.tse.jus.br/divulga/#/candidato/2026/6257/BR/280002552484' },
+      { id: 'pres-28a', nomeUrna: 'LEONARDO AVALANCHE', nome: 'Leonardo Alves de Araújo', numero: '28', cargo: 'Presidente', partido: 'PRTB', uf: 'BR', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Empresário', vice: 'Sílvia (PRTB)', tse: 'https://divulgacandcontas.tse.jus.br/divulga/#/candidato/2026/6257/BR/280002554479' },
+      { id: 'pres-28b', nomeUrna: 'PABLO MARÇAL', nome: 'Pablo Henrique Costa Marçal', numero: '28', cargo: 'Presidente', partido: 'PRTB', uf: 'BR', situacao: 'Indeferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Empresário / Influenciador', vice: 'Sílvia (PRTB)', tse: 'https://divulgacandcontas.tse.jus.br/divulga/#/candidato/2026/6257/BR/280002553884' },
+      { id: 'pres-29', nomeUrna: 'RUI COSTA PIMENTA', nome: 'Rui Costa Pimenta', numero: '29', cargo: 'Presidente', partido: 'PCO', uf: 'BR', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Jornalista', vice: 'Antônio Carlos (PCO)', tse: 'https://divulgacandcontas.tse.jus.br/divulga/#/candidato/2026/6257/BR/280002552487' },
+      { id: 'pres-30', nomeUrna: 'ZEMA', nome: 'Romeu Zema Neto', numero: '30', cargo: 'Presidente', partido: 'NOVO', uf: 'BR', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Empresário / Ex-governador de MG', vice: 'Eduardo Girão (NOVO)', tse: 'https://divulgacandcontas.tse.jus.br/divulga/#/candidato/2026/6257/BR/280002539826' },
+      { id: 'pres-35', nomeUrna: 'VETERINÁRIO WILSON GRASSI', nome: 'Wilson Grassi Junior', numero: '35', cargo: 'Presidente', partido: 'DEMOCRATA', uf: 'BR', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Veterinário', vice: 'Suêd Haidar (DEMOCRATA)', tse: 'https://divulgacandcontas.tse.jus.br/divulga/#/candidato/2026/6257/BR/280002548139' },
+      { id: 'pres-55', nomeUrna: 'RONALDO CAIADO', nome: 'Ronaldo Ramos Caiado', numero: '55', cargo: 'Presidente', partido: 'PSD', uf: 'BR', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Médico / Ex-governador de GO', vice: 'Gilberto Kassab (PSD)', tse: 'https://divulgacandcontas.tse.jus.br/divulga/#/candidato/2026/6257/BR/280002551932' },
+      { id: 'pres-70', nomeUrna: 'ESCRITOR AUGUSTO CURY', nome: 'Augusto Jorge Cury', numero: '70', cargo: 'Presidente', partido: 'AVANTE', uf: 'BR', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Escritor / Psiquiatra', vice: 'Júlio Delgado (AVANTE)', coligacao: 'Brasil dos Nossos Sonhos', tse: 'https://divulgacandcontas.tse.jus.br/divulga/#/candidato/2026/6257/BR/280002551547' },
+      { id: 'pres-80', nomeUrna: 'SAMARA', nome: 'Samara Martins da Silva Feitosa', numero: '80', cargo: 'Presidente', partido: 'UP', uf: 'BR', situacao: 'Deferido', reeleicao: false, genero: 'Feminino', ocupacao: 'Militante', vice: 'Raquel Brício (UP)', tse: 'https://divulgacandcontas.tse.jus.br/divulga/#/candidato/2026/6257/BR/280002538811' },
 
-      // Governadores (amostra)
-      { id: 'g1', nome: 'Romeu Zema', numero: '30', cargo: 'Governador', partido: 'NOVO', uf: 'MG', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Empresário / Ex-governador' },
-      { id: 'g2', nome: 'Cláudio Castro', numero: '22', cargo: 'Governador', partido: 'PL', uf: 'RJ', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Ex-governador' },
-      { id: 'g3', nome: 'Ratinho Junior', numero: '11', cargo: 'Governador', partido: 'PSD', uf: 'PR', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Ex-governador' },
-      { id: 'g4', nome: 'Jorginho Mello', numero: '22', cargo: 'Governador', partido: 'PL', uf: 'SC', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Governador' },
-      { id: 'g5', nome: 'Wilson Lima', numero: '11', cargo: 'Governador', partido: 'UNIÃO', uf: 'AM', situacao: 'Em análise', reeleicao: false, genero: 'Masculino', ocupacao: 'Jornalista' },
-      { id: 'g6', nome: 'Jerônimo Rodrigues', numero: '13', cargo: 'Governador', partido: 'PT', uf: 'BA', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Governador' },
-      { id: 'g7', nome: 'Elmano de Freitas', numero: '13', cargo: 'Governador', partido: 'PT', uf: 'CE', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Governador' },
-      { id: 'g8', nome: 'Raquel Lyra', numero: '45', cargo: 'Governador', partido: 'PSDB', uf: 'PE', situacao: 'Deferido', reeleicao: true, genero: 'Feminino', ocupacao: 'Governadora' },
-      { id: 'g9', nome: 'Helder Barbalho', numero: '15', cargo: 'Governador', partido: 'MDB', uf: 'PA', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Ex-governador' },
-      { id: 'g10', nome: 'Ronaldo Caiado Filho', numero: '44', cargo: 'Governador', partido: 'UNIÃO', uf: 'GO', situacao: 'Pendente', reeleicao: false, genero: 'Masculino', ocupacao: 'Empresário' },
-      { id: 'g11', nome: 'Tarcísio de Freitas (legado SP)', numero: '10', cargo: 'Governador', partido: 'REPUBLICANOS', uf: 'SP', situacao: 'Substituído', reeleicao: false, genero: 'Masculino', ocupacao: 'Pré-candidato a presidente' },
-      { id: 'g12', nome: 'Kim Kataguiri', numero: '30', cargo: 'Governador', partido: 'MISSÃO', uf: 'SP', situacao: 'Em análise', reeleicao: false, genero: 'Masculino', ocupacao: 'Deputado federal' },
+      // ===== GOVERNADOR SP (lista TSE/Valor set/2026) =====
+      { id: 'gov-sp-10', nomeUrna: 'TARCÍSIO', nome: 'Tarcísio Gomes de Freitas', numero: '10', cargo: 'Governador', partido: 'REPUBLICANOS', uf: 'SP', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Governador', vice: 'Felicio Ramuth (MDB)', coligacao: 'Coragem para Seguir Avançando' },
+      { id: 'gov-sp-13', nomeUrna: 'FERNANDO HADDAD', nome: 'Fernando Haddad', numero: '13', cargo: 'Governador', partido: 'PT', uf: 'SP', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Ex-ministro da Fazenda', vice: 'Márcio França (PSB)', coligacao: 'Desperta São Paulo' },
+      { id: 'gov-sp-16', nomeUrna: 'VERA LÚCIA', nome: 'Vera Lúcia Salgado', numero: '16', cargo: 'Governador', partido: 'PSTU', uf: 'SP', situacao: 'Deferido', reeleicao: false, genero: 'Feminino', ocupacao: 'Metalúrgica / Dirigente partidária', vice: 'Fabio Bosco (PSTU)' },
+      { id: 'gov-sp-21', nomeUrna: 'CARLOS MACHADO', nome: 'Carlos Alberto Machado', numero: '21', cargo: 'Governador', partido: 'PCB', uf: 'SP', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Professor', vice: 'Felipe Queiroz (PCB)' },
+      { id: 'gov-sp-29', nomeUrna: 'IZADORA DIAS', nome: 'Izadora Dias', numero: '29', cargo: 'Governador', partido: 'PCO', uf: 'SP', situacao: 'Indeferido', reeleicao: false, genero: 'Feminino', ocupacao: 'Militante', vice: 'Nivaldo Orlandi (PCO)' },
+      { id: 'gov-sp-36', nomeUrna: 'POLICIAL EDJANE', nome: 'Edjane', numero: '36', cargo: 'Governador', partido: 'AGIR', uf: 'SP', situacao: 'Indeferido', reeleicao: false, genero: 'Feminino', ocupacao: 'Policial', vice: 'Professora Nayr Duarte (AGIR)' },
+      { id: 'gov-sp-80', nomeUrna: 'VIVIAN MENDES', nome: 'Vivian Mendes', numero: '80', cargo: 'Governador', partido: 'UP', uf: 'SP', situacao: 'Deferido', reeleicao: false, genero: 'Feminino', ocupacao: 'Militante', vice: 'Cris Damasio (UP)' },
 
-      // Senadores
-      { id: 's1', nome: 'Davi Alcolumbre', numero: '444', cargo: 'Senador', partido: 'UNIÃO', uf: 'AP', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Presidente do Senado' },
-      { id: 's2', nome: 'Rodrigo Pacheco', numero: '151', cargo: 'Senador', partido: 'PSD', uf: 'MG', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Senador' },
-      { id: 's3', nome: 'Renan Calheiros', numero: '151', cargo: 'Senador', partido: 'MDB', uf: 'AL', situacao: 'Em análise', reeleicao: false, genero: 'Masculino', ocupacao: 'Senador' },
-      { id: 's4', nome: 'Soraya Thronicke', numero: '450', cargo: 'Senador', partido: 'PODE', uf: 'MS', situacao: 'Deferido', reeleicao: false, genero: 'Feminino', ocupacao: 'Senadora' },
-      { id: 's5', nome: 'Omar Aziz', numero: '111', cargo: 'Senador', partido: 'PSD', uf: 'AM', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Senador' },
-      { id: 's6', nome: 'Flávio Bolsonaro', numero: '222', cargo: 'Senador', partido: 'PL', uf: 'RJ', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Senador' },
+      // ===== OUTROS GOVERNADORES (amostra de disputa estadual) =====
+      { id: 'gov-mg-zema-legado', nomeUrna: '—', nome: 'Romeu Zema (legado MG)', numero: '30', cargo: 'Governador', partido: 'NOVO', uf: 'MG', situacao: 'Substituída', reeleicao: false, genero: 'Masculino', ocupacao: 'Candidato a presidente (NOVO)' },
+      { id: 'gov-ba-13', nomeUrna: 'JERÔNIMO', nome: 'Jerônimo Rodrigues', numero: '13', cargo: 'Governador', partido: 'PT', uf: 'BA', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Governador' },
+      { id: 'gov-ce-13', nomeUrna: 'ELMANO', nome: 'Elmano de Freitas', numero: '13', cargo: 'Governador', partido: 'PT', uf: 'CE', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Governador' },
+      { id: 'gov-pe-45', nomeUrna: 'RAQUEL LYRA', nome: 'Raquel Lyra', numero: '45', cargo: 'Governador', partido: 'PSDB', uf: 'PE', situacao: 'Deferido', reeleicao: true, genero: 'Feminino', ocupacao: 'Governadora' },
+      { id: 'gov-sc-22', nomeUrna: 'JORGINHO MELLO', nome: 'Jorginho Mello', numero: '22', cargo: 'Governador', partido: 'PL', uf: 'SC', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Governador' },
+      { id: 'gov-pr-11', nomeUrna: 'RATINHO JUNIOR', nome: 'Carlos Roberto Massa Júnior', numero: '11', cargo: 'Governador', partido: 'PSD', uf: 'PR', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Ex-governador' },
+      { id: 'gov-rj-22', nomeUrna: 'CLÁUDIO CASTRO', nome: 'Cláudio Bomfim de Castro e Silva', numero: '22', cargo: 'Governador', partido: 'PL', uf: 'RJ', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Ex-governador' },
+      { id: 'gov-pa-15', nomeUrna: 'HELDER BARBALHO', nome: 'Helder Zahluth Barbalho', numero: '15', cargo: 'Governador', partido: 'MDB', uf: 'PA', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Ex-governador' },
 
-      // Deputados Federais (amostra)
-      { id: 'df1', nome: 'Arthur Lira', numero: '2222', cargo: 'Deputado Federal', partido: 'PP', uf: 'AL', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Deputado federal' },
-      { id: 'df2', nome: 'Gleisi Hoffmann', numero: '1313', cargo: 'Deputado Federal', partido: 'PT', uf: 'PR', situacao: 'Deferido', reeleicao: true, genero: 'Feminino', ocupacao: 'Deputada / Ministra' },
-      { id: 'df3', nome: 'Nikolas Ferreira', numero: '2200', cargo: 'Deputado Federal', partido: 'PL', uf: 'MG', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Deputado federal' },
-      { id: 'df4', nome: 'Tabata Amaral', numero: '1234', cargo: 'Deputado Federal', partido: 'PSB', uf: 'SP', situacao: 'Deferido', reeleicao: true, genero: 'Feminino', ocupacao: 'Deputada federal' },
-      { id: 'df5', nome: 'Caroline de Toni', numero: '2222', cargo: 'Deputado Federal', partido: 'PL', uf: 'SC', situacao: 'Deferido', reeleicao: true, genero: 'Feminino', ocupacao: 'Deputada federal' },
-      { id: 'df6', nome: 'André Janones', numero: '7007', cargo: 'Deputado Federal', partido: 'AVANTE', uf: 'MG', situacao: 'Em análise', reeleicao: true, genero: 'Masculino', ocupacao: 'Deputado federal' },
-      { id: 'df7', nome: 'Erika Hilton', numero: '5050', cargo: 'Deputado Federal', partido: 'PSOL', uf: 'SP', situacao: 'Deferido', reeleicao: true, genero: 'Feminino', ocupacao: 'Deputada federal' },
-      { id: 'df8', nome: 'Capitão Alberto Neto', numero: '1010', cargo: 'Deputado Federal', partido: 'PL', uf: 'AM', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Deputado federal' },
-
-      // Deputados Estaduais / Distrital (amostra)
-      { id: 'de1', nome: 'Carlos Bolsonaro', numero: '22222', cargo: 'Deputado Estadual', partido: 'PL', uf: 'RJ', situacao: 'Pendente', reeleicao: false, genero: 'Masculino', ocupacao: 'Vereador' },
-      { id: 'de2', nome: 'Delegado Bruno Lima', numero: '10123', cargo: 'Deputado Estadual', partido: 'PP', uf: 'SP', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Deputado estadual' },
-      { id: 'dd1', nome: 'Júlia Lucy', numero: '45123', cargo: 'Deputado Distrital', partido: 'NOVO', uf: 'DF', situacao: 'Deferido', reeleicao: true, genero: 'Feminino', ocupacao: 'Deputada distrital' },
-      { id: 'dd2', nome: 'Chico Vigilante', numero: '13131', cargo: 'Deputado Distrital', partido: 'PT', uf: 'DF', situacao: 'Em análise', reeleicao: false, genero: 'Masculino', ocupacao: 'Ativista' }
+      // ===== SENADO / CÂMARA (amostra de nomes com registro público) =====
+      { id: 'sen-ap-davi', nomeUrna: 'DAVI ALCOLUMBRE', nome: 'Davi Alcolumbre', numero: '444', cargo: 'Senador', partido: 'UNIÃO', uf: 'AP', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Presidente do Senado' },
+      { id: 'sen-mg-pacheco', nomeUrna: 'RODRIGO PACHECO', nome: 'Rodrigo Pacheco', numero: '151', cargo: 'Senador', partido: 'PSD', uf: 'MG', situacao: 'Deferido', reeleicao: false, genero: 'Masculino', ocupacao: 'Senador' },
+      { id: 'df-al-lira', nomeUrna: 'ARTHUR LIRA', nome: 'Arthur Lira', numero: '1111', cargo: 'Deputado Federal', partido: 'PP', uf: 'AL', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Deputado federal' },
+      { id: 'df-mg-nikolas', nomeUrna: 'NIKOLAS FERREIRA', nome: 'Nikolas Ferreira de Oliveira', numero: '2200', cargo: 'Deputado Federal', partido: 'PL', uf: 'MG', situacao: 'Deferido', reeleicao: true, genero: 'Masculino', ocupacao: 'Deputado federal' },
+      { id: 'df-sp-tabata', nomeUrna: 'TABATA AMARAL', nome: 'Tabata Amaral de Pontes', numero: '1234', cargo: 'Deputado Federal', partido: 'PSB', uf: 'SP', situacao: 'Deferido', reeleicao: true, genero: 'Feminino', ocupacao: 'Deputada federal' },
+      { id: 'df-sc-toni', nomeUrna: 'CAROLINE DE TONI', nome: 'Caroline de Toni', numero: '2222', cargo: 'Deputado Federal', partido: 'PL', uf: 'SC', situacao: 'Deferido', reeleicao: true, genero: 'Feminino', ocupacao: 'Deputada federal' },
+      { id: 'df-sp-erika', nomeUrna: 'ERIKA HILTON', nome: 'Erika Santos Silva', numero: '5050', cargo: 'Deputado Federal', partido: 'PSOL', uf: 'SP', situacao: 'Deferido', reeleicao: true, genero: 'Feminino', ocupacao: 'Deputada federal' }
     ];
 
     const TSE_TOTAIS_REF = {
-      Presidente: 13, 'Vice-presidente': 13, Governador: 199, 'Vice-governador': 202,
-      Senador: 317, 'Deputado Federal': 7703, 'Deputado Estadual': 11179, 'Deputado Distrital': 429,
-      atualizadoEm: '2026-08-22', fonte: 'https://divulgacandcontas.tse.jus.br/'
+      Presidente: 14, 'Vice-presidente': 14, Governador: 201, 'Vice-governador': 211,
+      Senador: 318, 'Deputado Federal': 7803, 'Deputado Estadual': 11293, 'Deputado Distrital': 433,
+      total: 20984, atualizadoEm: '2026-09-28', fonte: 'https://divulgacandcontas.tse.jus.br/'
     };
 
     const POLL_INTERVAL_MS = 42000; // ~42s - balance between freshness and proxy load
@@ -1668,10 +1671,10 @@
 
     function situacaoClass(s) {
       const v = (s || '').toLowerCase();
-      if (v.includes('defer')) return 'bg-emerald-900/50 text-emerald-300 border-emerald-700/50';
-      if (v.includes('pend')) return 'bg-amber-900/40 text-amber-300 border-amber-700/40';
-      if (v.includes('análise') || v.includes('analise')) return 'bg-sky-900/40 text-sky-300 border-sky-700/40';
-      if (v.includes('subst') || v.includes('indefer') || v.includes('renún')) return 'bg-zinc-800 text-zinc-400 border-zinc-700';
+      if (v.includes('defer') && !v.includes('indefer')) return 'bg-emerald-900/50 text-emerald-300 border-emerald-700/50';
+      if (v.includes('indefer')) return 'bg-rose-950/50 text-rose-300 border-rose-700/50';
+      if (v.includes('pend') || v.includes('análise') || v.includes('analise') || v.includes('julgamento')) return 'bg-amber-900/40 text-amber-300 border-amber-700/40';
+      if (v.includes('subst') || v.includes('renún')) return 'bg-zinc-800 text-zinc-400 border-zinc-700';
       return 'bg-zinc-800 text-zinc-300 border-zinc-700';
     }
 
@@ -1701,8 +1704,9 @@
 
     function updateCandidatosStats() {
       const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      set('cand-stat-tse-total', (TSE_TOTAIS_REF.total || 20984).toLocaleString('pt-BR'));
+      set('cand-stat-pres', String(TSE_TOTAIS_REF.Presidente || 14));
       set('cand-stat-total', candidatosData.length.toLocaleString('pt-BR'));
-      set('cand-stat-cargos', new Set(candidatosData.map(c => c.cargo)).size);
       set('cand-stat-partidos', new Set(candidatosData.map(c => c.partido)).size);
       set('cand-stat-filtrados', candidatosFiltrados.length.toLocaleString('pt-BR'));
     }
@@ -1722,7 +1726,7 @@
         if (reeleicao === 'sim' && !c.reeleicao) return false;
         if (reeleicao === 'nao' && c.reeleicao) return false;
         if (q) {
-          const blob = normalizeText(`${c.nome} ${c.numero} ${c.partido} ${c.cargo} ${c.uf} ${c.ocupacao || ''}`);
+          const blob = normalizeText(`${c.nome} ${c.nomeUrna || ''} ${c.numero} ${c.partido} ${c.cargo} ${c.uf} ${c.ocupacao || ''} ${c.vice || ''} ${c.coligacao || ''}`);
           if (!blob.includes(q)) return false;
         }
         return true;
@@ -1758,26 +1762,31 @@
         return;
       }
       grid.innerHTML = candidatosFiltrados.map(c => {
-        const atlasUrl = `https://atlaspublico.com.br/eleicoes-2026/candidatos?q=${encodeURIComponent(c.nome)}`;
-        const tseUrl = 'https://divulgacandcontas.tse.jus.br/';
+        const atlasUrl = `https://atlaspublico.com.br/eleicoes-2026/candidatos?q=${encodeURIComponent(c.nomeUrna || c.nome)}`;
+        const tseUrl = c.tse || 'https://divulgacandcontas.tse.jus.br/';
+        const titulo = c.nomeUrna && c.nomeUrna !== '—' ? c.nomeUrna : c.nome;
         return `
         <article class="cand-card bg-zinc-900 border border-zinc-800 rounded-3xl p-4 flex gap-3">
-          <div class="cand-avatar w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-bold text-white shrink-0">${iniciaisNome(c.nome)}</div>
+          <div class="cand-avatar w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-bold text-white shrink-0">${iniciaisNome(titulo)}</div>
           <div class="min-w-0 flex-1">
             <div class="flex items-start justify-between gap-2">
-              <h3 class="text-sm font-semibold text-white leading-snug truncate" title="${c.nome}">${c.nome}</h3>
+              <div class="min-w-0">
+                <h3 class="text-sm font-semibold text-white leading-snug truncate" title="${c.nome}">${titulo}</h3>
+                ${c.nomeUrna && c.nomeUrna !== c.nome ? `<div class="text-[10px] text-zinc-500 truncate">${c.nome}</div>` : ''}
+              </div>
               <span class="text-[10px] font-mono text-br-gold shrink-0">Nº ${c.numero}</span>
             </div>
             <div class="text-[11px] text-zinc-400 mt-0.5">${c.cargo} · <span class="text-zinc-300 font-medium">${c.partido}</span> · ${c.uf}</div>
+            ${c.vice ? `<div class="text-[10px] text-zinc-500 mt-1">Vice: <span class="text-zinc-400">${c.vice}</span></div>` : ''}
             <div class="flex flex-wrap gap-1.5 mt-2">
               <span class="text-[9px] px-2 py-0.5 rounded-full border ${situacaoClass(c.situacao)}">${c.situacao}</span>
               ${c.reeleicao ? '<span class="text-[9px] px-2 py-0.5 rounded-full border border-violet-700/50 bg-violet-950/40 text-violet-300">Reeleição</span>' : ''}
-              ${c.genero ? `<span class="text-[9px] px-2 py-0.5 rounded-full border border-zinc-700 text-zinc-400">${c.genero}</span>` : ''}
+              ${c.coligacao ? `<span class="text-[9px] px-2 py-0.5 rounded-full border border-zinc-700 text-zinc-400 truncate max-w-[140px]" title="${c.coligacao}">${c.coligacao}</span>` : ''}
             </div>
             ${c.ocupacao ? `<div class="text-[10px] text-zinc-500 mt-2 truncate">${c.ocupacao}</div>` : ''}
             <div class="flex gap-3 mt-2.5 text-[11px]">
               <a href="${atlasUrl}" target="_blank" rel="noopener" class="text-br-green hover:underline font-medium">Ver no Atlas</a>
-              <a href="${tseUrl}" target="_blank" rel="noopener" class="text-zinc-500 hover:text-white">TSE</a>
+              <a href="${tseUrl}" target="_blank" rel="noopener" class="text-zinc-500 hover:text-white">Ficha TSE</a>
             </div>
           </div>
         </article>`;
