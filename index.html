@@ -1047,11 +1047,13 @@
     <div class="max-w-[1520px] mx-auto px-6 py-6">
       <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-5">
         <div>
-          <div class="text-[10px] font-semibold tracking-widest text-br-gold uppercase mb-1">Eleições 2026 · Registros no TSE · atualizado 28/09/2026</div>
+          <div class="text-[10px] font-semibold tracking-widest text-br-gold uppercase mb-1">Eleições 2026 · DivulgaCandContas (TSE) · ao vivo</div>
           <h1 class="font-display text-2xl md:text-3xl text-white tracking-tight">Candidatos disponíveis ao pleito</h1>
           <p class="text-sm text-zinc-400 mt-2 max-w-3xl leading-relaxed">
-            Lista atualizada das chapas à <strong class="text-zinc-300">Presidência</strong> e ao <strong class="text-zinc-300">governo de SP</strong>, com amostra de outras disputas.
-            Fonte: DivulgaCandContas (TSE) via reportagens oficiais · interface inspirada em
+            Chapas majoritárias locais + listas regionais ao vivo do TSE — inclusive
+            <strong class="text-zinc-300">Deputado Estadual</strong> por UF (~11 mil registros no Brasil).
+            Fonte oficial: <a href="https://divulgacandcontas.tse.jus.br/" target="_blank" rel="noopener" class="text-br-green hover:underline">DivulgaCandContas</a>
+            · interface inspirada em
             <a href="https://atlaspublico.com.br/eleicoes-2026/candidatos" target="_blank" rel="noopener" class="text-br-green hover:underline">Atlas Público</a>.
             1º turno: <strong class="text-zinc-300">4 de outubro de 2026</strong>.
           </p>
@@ -1087,30 +1089,51 @@
         </div>
       </div>
 
-      <div class="bg-amber-950/40 border border-amber-800/40 rounded-2xl px-4 py-3 text-[11px] text-amber-200/90 mb-5 leading-relaxed">
-        Registro apresentado <strong>não significa candidatura deferida</strong>. A situação individual é reproduzida conforme fontes públicas (TSE / Atlas Público) e esta amostra local pode estar incompleta frente à base nacional (~20 mil pedidos). Sempre confira no TSE.
+      <div class="bg-amber-950/40 border border-amber-800/40 rounded-2xl px-4 py-3 text-[11px] text-amber-200/90 mb-5 leading-relaxed flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          Registro apresentado <strong>não significa candidatura deferida</strong>.
+          <span id="cand-live-hint">Selecione <strong>Deputado Estadual</strong> + uma <strong>UF</strong> e clique em <strong>Buscar no TSE</strong> para carregar a lista regional ao vivo.</span>
+        </div>
+        <div id="cand-live-badge" class="shrink-0 px-2.5 py-1 rounded-full bg-zinc-950/60 border border-zinc-700 text-[10px] text-zinc-400 font-mono">fonte: local</div>
       </div>
 
-      <!-- Filtros -->
-      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 mb-5">
+      <!-- Filtros aprimorados -->
+      <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 mb-5 space-y-4">
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold mb-2">Cargo</div>
+          <div id="cand-cargo-chips" class="flex flex-wrap gap-1.5"></div>
+          <select id="cand-cargo" class="hidden" onchange="onCandCargoChange()"></select>
+        </div>
+
+        <div>
+          <div class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold mb-2">Região</div>
+          <div id="cand-regiao-chips" class="flex flex-wrap gap-1.5"></div>
+        </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
           <div class="xl:col-span-2">
-            <label class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold" for="cand-q">Nome ou número</label>
-            <input id="cand-q" type="search" placeholder="Ex.: Lula, 13, Tarcísio…"
+            <label class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold" for="cand-q">Nome, número ou partido</label>
+            <input id="cand-q" type="search" placeholder="Ex.: Abdul, 40999, PL…"
                    class="mt-1 w-full bg-zinc-950 border border-zinc-700 focus:border-br-green rounded-xl px-3 py-2.5 text-sm outline-none"
-                   oninput="applyCandidatosFilters()">
+                   oninput="debounceCandFilters()">
           </div>
           <div>
-            <label class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold" for="cand-cargo">Cargo</label>
-            <select id="cand-cargo" class="mt-1 w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm outline-none" onchange="applyCandidatosFilters()"></select>
+            <label class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold" for="cand-uf">UF (lista ao vivo)</label>
+            <select id="cand-uf" class="mt-1 w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm outline-none" onchange="onCandUfChange()"></select>
           </div>
           <div>
             <label class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold" for="cand-partido">Partido</label>
             <select id="cand-partido" class="mt-1 w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm outline-none" onchange="applyCandidatosFilters()"></select>
           </div>
           <div>
-            <label class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold" for="cand-uf">UF</label>
-            <select id="cand-uf" class="mt-1 w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm outline-none" onchange="applyCandidatosFilters()"></select>
+            <label class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold" for="cand-situacao">Situação TSE</label>
+            <select id="cand-situacao" class="mt-1 w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm outline-none" onchange="applyCandidatosFilters()">
+              <option value="">Todas</option>
+              <option value="Deferido">Deferido</option>
+              <option value="Indeferido">Indeferido</option>
+              <option value="Pendente">Pendente / julgamento</option>
+              <option value="Substitu">Substituída</option>
+            </select>
           </div>
           <div>
             <label class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold" for="cand-reeleicao">Reeleição</label>
@@ -1121,26 +1144,42 @@
             </select>
           </div>
         </div>
-        <div class="flex flex-wrap items-center justify-between gap-3 mt-3 pt-3 border-t border-zinc-800">
-          <div>
-            <label class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold" for="cand-ordem">Ordenação</label>
-            <select id="cand-ordem" class="mt-1 bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2 text-sm outline-none" onchange="applyCandidatosFilters()">
-              <option value="nome">Nome (A–Z)</option>
-              <option value="uf">UF, depois nome</option>
-              <option value="cargo">Cargo, depois nome</option>
-              <option value="numero">Número</option>
-            </select>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-zinc-800">
+          <div class="flex flex-wrap items-center gap-3">
+            <div>
+              <label class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold" for="cand-ordem">Ordenação</label>
+              <select id="cand-ordem" class="mt-1 bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2 text-sm outline-none" onchange="applyCandidatosFilters()">
+                <option value="nome">Nome (A–Z)</option>
+                <option value="uf">UF, depois nome</option>
+                <option value="cargo">Cargo, depois nome</option>
+                <option value="numero">Número</option>
+                <option value="partido">Partido, depois nome</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold" for="cand-page-size">Por página</label>
+              <select id="cand-page-size" class="mt-1 bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2 text-sm outline-none" onchange="candPage=1; applyCandidatosFilters()">
+                <option value="24">24</option>
+                <option value="48" selected>48</option>
+                <option value="96">96</option>
+              </select>
+            </div>
           </div>
-          <div class="flex gap-2">
-            <button type="button" onclick="resetCandidatosFilters()" class="px-3 py-2 rounded-xl border border-zinc-700 text-xs text-zinc-400 hover:text-white">Limpar filtros</button>
-            <button type="button" onclick="refreshCandidatosData(true)" class="px-3 py-2 rounded-xl border border-br-green text-br-green text-xs font-semibold hover:bg-br-green hover:text-black">Atualizar amostra</button>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="resetCandidatosFilters()" class="px-3 py-2 rounded-xl border border-zinc-700 text-xs text-zinc-400 hover:text-white">Limpar</button>
+            <button type="button" id="cand-tse-btn" onclick="loadTseCandidatosLive(true)" class="px-3 py-2 rounded-xl bg-br-green text-white text-xs font-semibold hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed">
+              Buscar no TSE (ao vivo)
+            </button>
           </div>
         </div>
+        <div id="cand-tse-status" class="text-[11px] text-zinc-500"></div>
       </div>
 
       <div id="candidatos-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
         <!-- JS -->
       </div>
+      <div id="cand-pagination" class="mt-4 flex flex-wrap items-center justify-between gap-3"></div>
 
       <div class="mt-6 text-[11px] text-zinc-500 leading-relaxed border-t border-zinc-800 pt-4">
         <strong class="text-zinc-400">Sobre os dados:</strong> informações declaradas à Justiça Eleitoral. Nomes, números, partidos, cargos e situações podem ser atualizados pelo TSE.
@@ -1570,9 +1609,39 @@
 
     // Candidatos tab state
     let currentMainTab = 'monitor';
+    let candidatosSeed = [...CANDIDATOS_2026];
     let candidatosData = [...CANDIDATOS_2026];
     let candidatosFiltrados = [...CANDIDATOS_2026];
     let candidatosInitialized = false;
+    let candPage = 1;
+    let candFilterTimer = null;
+    let candRegiao = ''; // '', Norte, Nordeste, Centro-Oeste, Sudeste, Sul
+    let candLiveMeta = { source: 'local', uf: null, cargo: null, fetchedAt: null, count: 0 };
+    let candTseCache = {}; // key: `${uf}|${cargoCodigo}` -> mapped array
+    let candLoading = false;
+
+    const TSE_ELEICAO_CODIGO = 6257; // DivulgaCandContas 2026
+    const TSE_CARGO_CODIGOS = {
+      'Presidente': 1,
+      'Vice-presidente': 2,
+      'Governador': 3,
+      'Vice-governador': 4,
+      'Senador': 5,
+      'Deputado Federal': 6,
+      'Deputado Estadual': 7,
+      'Deputado Distrital': 8
+    };
+    const CAND_CARGO_CHIPS = [
+      '', 'Presidente', 'Governador', 'Senador',
+      'Deputado Federal', 'Deputado Estadual', 'Deputado Distrital', 'Vice-presidente'
+    ];
+    const CAND_REGIOES = {
+      Norte: ['AC', 'AP', 'AM', 'PA', 'RO', 'RR', 'TO'],
+      Nordeste: ['AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE'],
+      'Centro-Oeste': ['DF', 'GO', 'MT', 'MS'],
+      Sudeste: ['ES', 'MG', 'RJ', 'SP'],
+      Sul: ['PR', 'RS', 'SC']
+    };
 
     // Telemetria de carregamento de fontes (visível na UI)
     let sourceStatuses = {}; // { [sourceId]: { name, status: 'success'|'error'|'cached', lastFetch: number, durationMs?: number, error?: string, count?: number } }
@@ -1673,7 +1742,7 @@
       const v = (s || '').toLowerCase();
       if (v.includes('defer') && !v.includes('indefer')) return 'bg-emerald-900/50 text-emerald-300 border-emerald-700/50';
       if (v.includes('indefer')) return 'bg-rose-950/50 text-rose-300 border-rose-700/50';
-      if (v.includes('pend') || v.includes('análise') || v.includes('analise') || v.includes('julgamento')) return 'bg-amber-900/40 text-amber-300 border-amber-700/40';
+      if (v.includes('pend') || v.includes('análise') || v.includes('analise') || v.includes('julgamento') || v.includes('aguard')) return 'bg-amber-900/40 text-amber-300 border-amber-700/40';
       if (v.includes('subst') || v.includes('renún')) return 'bg-zinc-800 text-zinc-400 border-zinc-700';
       return 'bg-zinc-800 text-zinc-300 border-zinc-700';
     }
@@ -1682,24 +1751,199 @@
       return (nome || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase();
     }
 
+    function fixMoji(s) {
+      if (!s) return '';
+      // corrige mojibake comum (UTF-8 lido como Latin-1) em proxies
+      try {
+        if (/Ã.|Â.|�/.test(s)) {
+          const bytes = Uint8Array.from([...s].map(ch => ch.charCodeAt(0) & 0xff));
+          return new TextDecoder('utf-8').decode(bytes);
+        }
+      } catch (_) {}
+      return s;
+    }
+
+    function mapTseCandidate(raw, ufFallback, cargoFallback) {
+      const partido = fixMoji(raw.partido?.sigla || raw.partido?.nome || '—');
+      const cargo = fixMoji(raw.cargo?.nome || cargoFallback || '—');
+      const uf = (raw.ufCandidatura || ufFallback || 'BR').toUpperCase();
+      const situacao = fixMoji(raw.descricaoSituacao || raw.descricaoSituacaoCandidato || '—');
+      const nomeUrna = fixMoji(raw.nomeUrna || '');
+      const nome = fixMoji(raw.nomeCompleto || nomeUrna);
+      const idCand = raw.id || `${uf}-${raw.numero}-${nomeUrna}`;
+      return {
+        id: `tse-${idCand}`,
+        nomeUrna,
+        nome,
+        numero: String(raw.numero ?? ''),
+        cargo,
+        partido,
+        uf,
+        situacao,
+        reeleicao: raw.st_REELEICAO === true || raw.st_REELEICAO === 'S' || raw.st_REELEICAO === 1,
+        genero: fixMoji(raw.descricaoSexo || ''),
+        ocupacao: fixMoji(raw.ocupacao || ''),
+        coligacao: fixMoji(raw.nomeColigacao || ''),
+        totalizacao: fixMoji(raw.descricaoTotalizacao || ''),
+        live: true,
+        tse: `https://divulgacandcontas.tse.jus.br/divulga/#/candidato/2026/${TSE_ELEICAO_CODIGO}/${uf}/${idCand}`
+      };
+    }
+
+    function extractJsonPayload(text) {
+      if (!text) return null;
+      const marker = '{"unidadeEleitoral"';
+      let idx = text.indexOf(marker);
+      if (idx < 0) idx = text.indexOf('{"candidatos"');
+      if (idx < 0) {
+        try { return JSON.parse(text); } catch (_) { return null; }
+      }
+      let depth = 0;
+      for (let i = idx; i < text.length; i++) {
+        const ch = text[i];
+        if (ch === '{') depth++;
+        else if (ch === '}') {
+          depth--;
+          if (depth === 0) {
+            try { return JSON.parse(text.slice(idx, i + 1)); } catch (_) { return null; }
+          }
+        }
+      }
+      return null;
+    }
+
+    async function fetchTseListRaw(uf, cargoCodigo) {
+      const path = `divulga/rest/v1/candidatura/listar/2026/${uf}/${TSE_ELEICAO_CODIGO}/${cargoCodigo}/candidatos`;
+      const tseUrl = `https://divulgacandcontas.tse.jus.br/${path}`;
+      // jina primeiro: GitHub Pages não executa /api; proxy Vercel fica como reforço opcional
+      const apiRel = new URL(`api/tse-candidatos?uf=${encodeURIComponent(uf)}&cargo=${cargoCodigo}&eleicao=${TSE_ELEICAO_CODIGO}`, location.href).href;
+      const endpoints = [
+        `https://r.jina.ai/http://divulgacandcontas.tse.jus.br/${path}`,
+        `https://r.jina.ai/https://divulgacandcontas.tse.jus.br/${path}`,
+        apiRel,
+        tseUrl
+      ];
+
+      for (const url of endpoints) {
+        try {
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), 55000);
+          const res = await fetch(url, {
+            signal: ctrl.signal,
+            headers: { Accept: 'application/json,text/plain,*/*' }
+          });
+          clearTimeout(t);
+          if (!res.ok) continue;
+          const ctype = res.headers.get('content-type') || '';
+          if (ctype.includes('application/json')) {
+            const json = await res.json();
+            if (json?.data?.candidatos) return json.data;
+            if (json?.candidatos) return json;
+          }
+          const text = await res.text();
+          const parsed = extractJsonPayload(text);
+          if (parsed?.candidatos) return parsed;
+        } catch (_) { /* next */ }
+      }
+      return null;
+    }
+
+    function setCandLiveBadge() {
+      const badge = document.getElementById('cand-live-badge');
+      const status = document.getElementById('cand-tse-status');
+      if (badge) {
+        if (candLiveMeta.source === 'tse') {
+          badge.textContent = `TSE ao vivo · ${candLiveMeta.uf} · ${candLiveMeta.count} · ${candLiveMeta.fetchedAt || ''}`;
+          badge.className = 'shrink-0 px-2.5 py-1 rounded-full bg-br-green/15 border border-br-green/40 text-[10px] text-br-green font-mono';
+        } else {
+          badge.textContent = 'fonte: local + cache';
+          badge.className = 'shrink-0 px-2.5 py-1 rounded-full bg-zinc-950/60 border border-zinc-700 text-[10px] text-zinc-400 font-mono';
+        }
+      }
+      if (status && candLiveMeta.source === 'tse') {
+        status.innerHTML = `Lista regional sincronizada com <a class="text-br-green hover:underline" href="https://divulgacandcontas.tse.jus.br/" target="_blank" rel="noopener">DivulgaCandContas</a> (${candLiveMeta.cargo} · ${candLiveMeta.uf}).`;
+      }
+    }
+
+    function renderCargoChips(selected) {
+      const wrap = document.getElementById('cand-cargo-chips');
+      if (!wrap) return;
+      wrap.innerHTML = CAND_CARGO_CHIPS.map(c => {
+        const label = c || 'Todos';
+        const active = (selected || '') === c;
+        return `<button type="button" onclick="setCandCargo(${JSON.stringify(c)})"
+          class="px-3 py-1.5 rounded-full text-[11px] font-medium border transition-colors ${active ? 'bg-br-green text-white border-br-green' : 'bg-zinc-950 text-zinc-300 border-zinc-700 hover:border-br-green/50 hover:text-white'}">${label}</button>`;
+      }).join('');
+    }
+
+    function renderRegiaoChips() {
+      const wrap = document.getElementById('cand-regiao-chips');
+      if (!wrap) return;
+      const opts = ['', ...Object.keys(CAND_REGIOES)];
+      wrap.innerHTML = opts.map(r => {
+        const label = r || 'Todas';
+        const active = candRegiao === r;
+        return `<button type="button" onclick="setCandRegiao(${JSON.stringify(r)})"
+          class="px-3 py-1.5 rounded-full text-[11px] font-medium border transition-colors ${active ? 'bg-sky-600 text-white border-sky-500' : 'bg-zinc-950 text-zinc-300 border-zinc-700 hover:border-sky-500/50 hover:text-white'}">${label}</button>`;
+      }).join('');
+    }
+
+    function setCandRegiao(regiao) {
+      candRegiao = regiao || '';
+      // Ao escolher região, limpa UF pontual para não conflitar (salvo se a UF já estiver na região)
+      const ufEl = document.getElementById('cand-uf');
+      if (ufEl && candRegiao && ufEl.value) {
+        const ufs = CAND_REGIOES[candRegiao] || [];
+        if (ufEl.value !== 'BR' && !ufs.includes(ufEl.value)) ufEl.value = '';
+      }
+      renderRegiaoChips();
+      candPage = 1;
+      applyCandidatosFilters();
+    }
+
+    function setCandCargo(cargo) {
+      const el = document.getElementById('cand-cargo');
+      if (el) el.value = cargo || '';
+      renderCargoChips(cargo || '');
+      onCandCargoChange();
+    }
+
     function populateCandidatosSelects() {
-      const cargos = ['', ...new Set(candidatosData.map(c => c.cargo))].filter((v, i, a) => a.indexOf(v) === i);
-      const partidos = ['', ...new Set(candidatosData.map(c => c.partido))].sort();
+      const fixedCargos = ['', 'Presidente', 'Vice-presidente', 'Governador', 'Senador', 'Deputado Federal', 'Deputado Estadual', 'Deputado Distrital'];
+      const fromData = [...new Set(candidatosData.map(c => c.cargo))];
+      const cargos = [...new Set([...fixedCargos, ...fromData])];
+      const partidos = ['', ...new Set(candidatosData.map(c => c.partido).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
       const cargoEl = document.getElementById('cand-cargo');
       const partidoEl = document.getElementById('cand-partido');
       const ufEl = document.getElementById('cand-uf');
+      const prevCargo = cargoEl?.value || '';
+      const prevPartido = partidoEl?.value || '';
+      const prevUf = ufEl?.value || '';
+
       if (cargoEl) {
-        cargoEl.innerHTML = '<option value="">Todos os cargos</option>' +
-          cargos.filter(Boolean).map(c => `<option value="${c}">${c}</option>`).join('');
+        cargoEl.innerHTML = cargos.map(c => `<option value="${c}">${c || 'Todos os cargos'}</option>`).join('');
+        cargoEl.value = cargos.includes(prevCargo) ? prevCargo : '';
       }
       if (partidoEl) {
         partidoEl.innerHTML = '<option value="">Todos os partidos</option>' +
           partidos.filter(Boolean).map(p => `<option value="${p}">${p}</option>`).join('');
+        if ([...partidoEl.options].some(o => o.value === prevPartido)) partidoEl.value = prevPartido;
       }
       if (ufEl) {
-        ufEl.innerHTML = '<option value="">Todas as UFs</option>' +
-          CANDIDATOS_UFS.map(u => `<option value="${u.sigla}">${u.nome} · ${u.sigla}</option>`).join('');
+        let html = '<option value="">Todas as UFs</option>';
+        Object.entries(CAND_REGIOES).forEach(([reg, ufs]) => {
+          html += `<optgroup label="${reg}">` +
+            ufs.map(sigla => {
+              const meta = CANDIDATOS_UFS.find(u => u.sigla === sigla);
+              return `<option value="${sigla}">${meta ? meta.nome : sigla} · ${sigla}</option>`;
+            }).join('') + '</optgroup>';
+        });
+        html += `<optgroup label="Nacional"><option value="BR">Brasil · eleição presidencial</option></optgroup>`;
+        ufEl.innerHTML = html;
+        if ([...ufEl.options].some(o => o.value === prevUf)) ufEl.value = prevUf;
       }
+      renderCargoChips(cargoEl?.value || '');
+      renderRegiaoChips();
     }
 
     function updateCandidatosStats() {
@@ -1709,6 +1953,46 @@
       set('cand-stat-total', candidatosData.length.toLocaleString('pt-BR'));
       set('cand-stat-partidos', new Set(candidatosData.map(c => c.partido)).size);
       set('cand-stat-filtrados', candidatosFiltrados.length.toLocaleString('pt-BR'));
+      setCandLiveBadge();
+    }
+
+    function debounceCandFilters() {
+      clearTimeout(candFilterTimer);
+      candFilterTimer = setTimeout(() => { candPage = 1; applyCandidatosFilters(); }, 180);
+    }
+
+    function onCandCargoChange() {
+      candPage = 1;
+      const cargo = document.getElementById('cand-cargo')?.value || '';
+      renderCargoChips(cargo);
+      const hint = document.getElementById('cand-live-hint');
+      if (hint) {
+        if (cargo === 'Deputado Estadual') {
+          hint.innerHTML = 'Cargo <strong>Deputado Estadual</strong>: escolha a <strong>UF</strong> e use <strong>Buscar no TSE</strong> para carregar todos os candidatos regionais ao vivo (~11 mil no Brasil).';
+        } else if (cargo === 'Deputado Distrital') {
+          hint.innerHTML = 'Para DF, selecione UF <strong>DF</strong> e busque <strong>Deputado Distrital</strong> no TSE.';
+        } else if (cargo === 'Deputado Federal') {
+          hint.innerHTML = 'Selecione a <strong>UF</strong> e clique em <strong>Buscar no TSE</strong> para a lista federal estadualizada.';
+        } else {
+          hint.innerHTML = 'Use os filtros ou carregue listas regionais ao vivo no TSE (ideal para deputado estadual).';
+        }
+      }
+      applyCandidatosFilters();
+      // Auto-fetch quando cargo regional + UF já selecionada
+      const uf = document.getElementById('cand-uf')?.value || '';
+      if ((cargo === 'Deputado Estadual' || cargo === 'Deputado Federal' || cargo === 'Deputado Distrital') && uf && uf !== 'BR') {
+        loadTseCandidatosLive(false);
+      }
+    }
+
+    function onCandUfChange() {
+      candPage = 1;
+      applyCandidatosFilters();
+      const cargo = document.getElementById('cand-cargo')?.value || '';
+      const uf = document.getElementById('cand-uf')?.value || '';
+      if ((cargo === 'Deputado Estadual' || cargo === 'Deputado Federal' || cargo === 'Deputado Distrital') && uf && uf !== 'BR') {
+        loadTseCandidatosLive(false);
+      }
     }
 
     function applyCandidatosFilters() {
@@ -1716,52 +2000,105 @@
       const cargo = document.getElementById('cand-cargo')?.value || '';
       const partido = document.getElementById('cand-partido')?.value || '';
       const uf = document.getElementById('cand-uf')?.value || '';
+      const situacao = document.getElementById('cand-situacao')?.value || '';
       const reeleicao = document.getElementById('cand-reeleicao')?.value || 'todas';
       const ordem = document.getElementById('cand-ordem')?.value || 'nome';
+
+      const ufsDaRegiao = candRegiao ? (CAND_REGIOES[candRegiao] || []) : null;
 
       let list = candidatosData.filter(c => {
         if (cargo && c.cargo !== cargo) return false;
         if (partido && c.partido !== partido) return false;
         if (uf && c.uf !== uf) return false;
+        if (ufsDaRegiao && !ufsDaRegiao.includes(c.uf) && c.uf !== 'BR') return false;
+        if (situacao) {
+          const s = (c.situacao || '').toLowerCase();
+          if (!s.includes(situacao.toLowerCase())) return false;
+        }
         if (reeleicao === 'sim' && !c.reeleicao) return false;
         if (reeleicao === 'nao' && c.reeleicao) return false;
         if (q) {
-          const blob = normalizeText(`${c.nome} ${c.nomeUrna || ''} ${c.numero} ${c.partido} ${c.cargo} ${c.uf} ${c.ocupacao || ''} ${c.vice || ''} ${c.coligacao || ''}`);
+          const blob = normalizeText(`${c.nome} ${c.nomeUrna || ''} ${c.numero} ${c.partido} ${c.cargo} ${c.uf} ${c.ocupacao || ''} ${c.vice || ''} ${c.coligacao || ''} ${c.totalizacao || ''}`);
           if (!blob.includes(q)) return false;
         }
         return true;
       });
 
       list.sort((a, b) => {
-        if (ordem === 'uf') return a.uf.localeCompare(b.uf) || a.nome.localeCompare(b.nome, 'pt-BR');
-        if (ordem === 'cargo') return a.cargo.localeCompare(b.cargo) || a.nome.localeCompare(b.nome, 'pt-BR');
+        if (ordem === 'uf') return a.uf.localeCompare(b.uf) || (a.nomeUrna || a.nome).localeCompare(b.nomeUrna || b.nome, 'pt-BR');
+        if (ordem === 'cargo') return a.cargo.localeCompare(b.cargo) || (a.nomeUrna || a.nome).localeCompare(b.nomeUrna || b.nome, 'pt-BR');
         if (ordem === 'numero') return String(a.numero).localeCompare(String(b.numero), 'pt-BR', { numeric: true });
-        return a.nome.localeCompare(b.nome, 'pt-BR');
+        if (ordem === 'partido') return a.partido.localeCompare(b.partido) || (a.nomeUrna || a.nome).localeCompare(b.nomeUrna || b.nome, 'pt-BR');
+        return (a.nomeUrna || a.nome).localeCompare(b.nomeUrna || b.nome, 'pt-BR');
       });
 
       candidatosFiltrados = list;
+      const pageSize = parseInt(document.getElementById('cand-page-size')?.value || '48', 10);
+      const maxPage = Math.max(1, Math.ceil(list.length / pageSize));
+      if (candPage > maxPage) candPage = maxPage;
       updateCandidatosStats();
       renderCandidatosGrid();
+      renderCandPagination();
     }
 
     function resetCandidatosFilters() {
-      ['cand-q', 'cand-cargo', 'cand-partido', 'cand-uf'].forEach(id => {
+      ['cand-q', 'cand-cargo', 'cand-partido', 'cand-uf', 'cand-situacao'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
       });
       const re = document.getElementById('cand-reeleicao'); if (re) re.value = 'todas';
       const ord = document.getElementById('cand-ordem'); if (ord) ord.value = 'nome';
+      candRegiao = '';
+      candPage = 1;
+      candidatosData = [...candidatosSeed];
+      candLiveMeta = { source: 'local', uf: null, cargo: null, fetchedAt: null, count: 0 };
+      populateCandidatosSelects();
       applyCandidatosFilters();
+      const status = document.getElementById('cand-tse-status');
+      if (status) status.textContent = '';
+    }
+
+    function renderCandPagination() {
+      const el = document.getElementById('cand-pagination');
+      if (!el) return;
+      const pageSize = parseInt(document.getElementById('cand-page-size')?.value || '48', 10);
+      const total = candidatosFiltrados.length;
+      const maxPage = Math.max(1, Math.ceil(total / pageSize));
+      if (total <= pageSize) {
+        el.innerHTML = total ? `<div class="text-[11px] text-zinc-500">Exibindo ${total} registro(s)</div>` : '';
+        return;
+      }
+      el.innerHTML = `
+        <div class="text-[11px] text-zinc-500">Página ${candPage} de ${maxPage} · ${total.toLocaleString('pt-BR')} registros</div>
+        <div class="flex gap-2">
+          <button type="button" class="px-3 py-1.5 rounded-xl border border-zinc-700 text-xs text-zinc-300 disabled:opacity-40" ${candPage <= 1 ? 'disabled' : ''} onclick="candPage--; applyCandidatosFilters(); window.scrollTo({top: document.getElementById('candidatos-grid').offsetTop - 80, behavior:'smooth'})">← Anterior</button>
+          <button type="button" class="px-3 py-1.5 rounded-xl border border-zinc-700 text-xs text-zinc-300 disabled:opacity-40" ${candPage >= maxPage ? 'disabled' : ''} onclick="candPage++; applyCandidatosFilters(); window.scrollTo({top: document.getElementById('candidatos-grid').offsetTop - 80, behavior:'smooth'})">Próxima →</button>
+        </div>`;
     }
 
     function renderCandidatosGrid() {
       const grid = document.getElementById('candidatos-grid');
       if (!grid) return;
-      if (!candidatosFiltrados.length) {
-        grid.innerHTML = `<div class="col-span-full text-center py-16 text-zinc-500 text-sm">Nenhuma candidatura encontrada com esses filtros.<br><span class="text-xs">Tente limpar os filtros ou abrir a base completa no Atlas Público / TSE.</span></div>`;
+      if (candLoading) {
+        grid.innerHTML = `<div class="col-span-full text-center py-16 text-zinc-400 text-sm flex flex-col items-center gap-3">
+          <div class="w-6 h-6 border-2 border-zinc-700 border-t-br-green rounded-full animate-spin"></div>
+          Carregando candidatos no TSE…</div>`;
         return;
       }
-      grid.innerHTML = candidatosFiltrados.map(c => {
+      if (!candidatosFiltrados.length) {
+        const cargo = document.getElementById('cand-cargo')?.value || '';
+        const uf = document.getElementById('cand-uf')?.value || '';
+        const tip = (cargo === 'Deputado Estadual' && (!uf || uf === 'BR'))
+          ? 'Selecione uma UF e clique em “Buscar no TSE (ao vivo)”.'
+          : 'Tente limpar os filtros ou buscar no TSE.';
+        grid.innerHTML = `<div class="col-span-full text-center py-16 text-zinc-500 text-sm">Nenhuma candidatura encontrada.<br><span class="text-xs">${tip}</span></div>`;
+        return;
+      }
+      const pageSize = parseInt(document.getElementById('cand-page-size')?.value || '48', 10);
+      const start = (candPage - 1) * pageSize;
+      const pageItems = candidatosFiltrados.slice(start, start + pageSize);
+
+      grid.innerHTML = pageItems.map(c => {
         const atlasUrl = `https://atlaspublico.com.br/eleicoes-2026/candidatos?q=${encodeURIComponent(c.nomeUrna || c.nome)}`;
         const tseUrl = c.tse || 'https://divulgacandcontas.tse.jus.br/';
         const titulo = c.nomeUrna && c.nomeUrna !== '—' ? c.nomeUrna : c.nome;
@@ -1780,12 +2117,13 @@
             ${c.vice ? `<div class="text-[10px] text-zinc-500 mt-1">Vice: <span class="text-zinc-400">${c.vice}</span></div>` : ''}
             <div class="flex flex-wrap gap-1.5 mt-2">
               <span class="text-[9px] px-2 py-0.5 rounded-full border ${situacaoClass(c.situacao)}">${c.situacao}</span>
+              ${c.live ? '<span class="text-[9px] px-2 py-0.5 rounded-full border border-br-green/40 bg-br-green/10 text-br-green">TSE ao vivo</span>' : ''}
               ${c.reeleicao ? '<span class="text-[9px] px-2 py-0.5 rounded-full border border-violet-700/50 bg-violet-950/40 text-violet-300">Reeleição</span>' : ''}
-              ${c.coligacao ? `<span class="text-[9px] px-2 py-0.5 rounded-full border border-zinc-700 text-zinc-400 truncate max-w-[140px]" title="${c.coligacao}">${c.coligacao}</span>` : ''}
+              ${c.totalizacao ? `<span class="text-[9px] px-2 py-0.5 rounded-full border border-zinc-700 text-zinc-400">${c.totalizacao}</span>` : ''}
             </div>
-            ${c.ocupacao ? `<div class="text-[10px] text-zinc-500 mt-2 truncate">${c.ocupacao}</div>` : ''}
+            ${c.coligacao ? `<div class="text-[10px] text-zinc-500 mt-2 truncate" title="${c.coligacao}">${c.coligacao}</div>` : ''}
             <div class="flex gap-3 mt-2.5 text-[11px]">
-              <a href="${atlasUrl}" target="_blank" rel="noopener" class="text-br-green hover:underline font-medium">Ver no Atlas</a>
+              <a href="${atlasUrl}" target="_blank" rel="noopener" class="text-br-green hover:underline font-medium">Atlas</a>
               <a href="${tseUrl}" target="_blank" rel="noopener" class="text-zinc-500 hover:text-white">Ficha TSE</a>
             </div>
           </div>
@@ -1793,43 +2131,105 @@
       }).join('');
     }
 
+    function mergeLiveIntoDataset(mapped, cargoNome, uf) {
+      // Remove entradas anteriores do mesmo cargo+UF (seed ou live) e injeta a lista TSE
+      candidatosData = [
+        ...candidatosData.filter(c => !(c.cargo === cargoNome && c.uf === uf)),
+        ...mapped
+      ];
+      candLiveMeta = {
+        source: 'tse',
+        uf,
+        cargo: cargoNome,
+        fetchedAt: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        count: mapped.length
+      };
+      populateCandidatosSelects();
+      const cargoEl = document.getElementById('cand-cargo');
+      const ufEl = document.getElementById('cand-uf');
+      if (cargoEl) cargoEl.value = cargoNome;
+      if (ufEl) ufEl.value = uf;
+      renderCargoChips(cargoNome);
+      candPage = 1;
+      applyCandidatosFilters();
+    }
+
+    async function loadTseCandidatosLive(showMsg = true) {
+      const cargoNome = document.getElementById('cand-cargo')?.value || '';
+      const uf = (document.getElementById('cand-uf')?.value || '').toUpperCase();
+      const cargoCodigo = TSE_CARGO_CODIGOS[cargoNome];
+
+      if (!cargoCodigo) {
+        if (showMsg) showToast('Selecione um cargo (ex.: Deputado Estadual) para buscar no TSE.', 'warning');
+        return;
+      }
+      if (!uf || uf === 'BR') {
+        if (cargoNome === 'Presidente' || cargoNome === 'Vice-presidente') {
+          // BR ok for president
+        } else {
+          if (showMsg) showToast('Selecione a UF para carregar candidatos regionais no TSE.', 'warning');
+          return;
+        }
+      }
+      const targetUf = (!uf || (cargoNome.startsWith('Presidente') || cargoNome.startsWith('Vice-presidente'))) ? 'BR' : uf;
+      if ((cargoNome === 'Deputado Estadual' || cargoNome === 'Deputado Federal' || cargoNome === 'Deputado Distrital') && targetUf === 'BR') {
+        if (showMsg) showToast('Para deputados, escolha a UF do estado.', 'warning');
+        return;
+      }
+      if (cargoNome === 'Deputado Distrital' && targetUf !== 'DF') {
+        if (showMsg) showToast('Deputado Distrital existe apenas no DF.', 'warning');
+        return;
+      }
+
+      const cacheKey = `${targetUf}|${cargoCodigo}`;
+      if (candTseCache[cacheKey] && !showMsg) {
+        mergeLiveIntoDataset(candTseCache[cacheKey], cargoNome, targetUf);
+        return;
+      }
+
+      const btn = document.getElementById('cand-tse-btn');
+      const status = document.getElementById('cand-tse-status');
+      candLoading = true;
+      if (btn) btn.disabled = true;
+      if (status) status.textContent = `Consultando TSE · ${cargoNome} · ${targetUf}…`;
+      renderCandidatosGrid();
+
+      try {
+        const raw = await fetchTseListRaw(targetUf, cargoCodigo);
+        if (!raw?.candidatos?.length) throw new Error('Lista vazia ou inacessível');
+        const mapped = raw.candidatos.map(c => mapTseCandidate(c, targetUf, cargoNome));
+        candTseCache[cacheKey] = mapped;
+        try { sessionStorage.setItem('pn_tse_' + cacheKey, JSON.stringify({ at: Date.now(), mapped: mapped.slice(0, 2500) })); } catch (_) {}
+        mergeLiveIntoDataset(mapped, cargoNome, targetUf);
+        if (showMsg) showToast(`${mapped.length.toLocaleString('pt-BR')} candidatos de ${cargoNome} (${targetUf}) carregados do TSE.`, 'success');
+        if (status) status.innerHTML = `Sincronizado com DivulgaCandContas · ${mapped.length.toLocaleString('pt-BR')} registros · ${cargoNome}/${targetUf}`;
+      } catch (e) {
+        if (status) status.textContent = 'Falha ao consultar o TSE. Tente de novo ou abra o DivulgaCandContas.';
+        if (showMsg) showToast('Não foi possível obter a lista ao vivo do TSE neste momento.', 'warning');
+        console.warn('[TSE]', e);
+      } finally {
+        candLoading = false;
+        if (btn) btn.disabled = false;
+        applyCandidatosFilters();
+      }
+    }
+
     function initCandidatosTab() {
       candidatosInitialized = true;
+      // Restaura cache de sessão (trechos) se houver
+      try {
+        Object.keys(sessionStorage).forEach(k => {
+          if (!k.startsWith('pn_tse_')) return;
+          const raw = JSON.parse(sessionStorage.getItem(k));
+          if (raw?.mapped?.length) candTseCache[k.replace('pn_tse_', '')] = raw.mapped;
+        });
+      } catch (_) {}
       populateCandidatosSelects();
       applyCandidatosFilters();
     }
 
     async function refreshCandidatosData(showMsg = false) {
-      // Tentativa de enriquecer via página pública do Atlas (melhor esforço). Mantém amostra local se falhar.
-      try {
-        const url = 'https://atlaspublico.com.br/eleicoes-2026/candidatos';
-        const proxies = [
-          `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-          `https://corsproxy.io/?${encodeURIComponent(url)}`
-        ];
-        let html = '';
-        for (const p of proxies) {
-          try {
-            const ctrl = new AbortController();
-            const t = setTimeout(() => ctrl.abort(), 9000);
-            const res = await fetch(p, { signal: ctrl.signal });
-            clearTimeout(t);
-            if (res.ok) {
-              html = await res.text();
-              if (html && html.length > 800) break;
-            }
-          } catch (_) {}
-        }
-        // A página é SPA — em geral não traz a lista no HTML. Mantemos a amostra curada.
-        if (showMsg) {
-          showToast(html.length > 800
-            ? 'Fonte Atlas alcançada. Mantendo amostra local consultável (base completa no Atlas/TSE).'
-            : 'Amostra local ativa. Consulte a base completa no Atlas Público ou no TSE.', 'info');
-        }
-      } catch (_) {
-        if (showMsg) showToast('Usando amostra local de candidaturas. Abra o Atlas Público para a base completa.', 'warning');
-      }
-      applyCandidatosFilters();
+      await loadTseCandidatosLive(showMsg);
     }
 
     // ==================== FISCAL + PUBLICAÇÕES ====================

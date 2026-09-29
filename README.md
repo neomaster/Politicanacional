@@ -11,7 +11,7 @@ Identidade visual brasileira (verde #009739, amarelo #FFCC00, azul #002776). UX 
 | Módulo | O que faz | Fonte |
 |--------|-----------|--------|
 | **Atlas Público** | Fonte RSS da edição/notícias oficiais (DOU, Câmara, Senado) | [atlaspublico.com.br/edicao](https://atlaspublico.com.br/edicao) · [RSS](https://atlaspublico.com.br/noticias/rss.xml) |
-| **Aba Candidatos 2026** | Consulta por nome, número, cargo, partido, UF e reeleição (UX similar ao Atlas) | [Atlas · Candidatos](https://atlaspublico.com.br/eleicoes-2026/candidatos) · [TSE](https://divulgacandcontas.tse.jus.br/) |
+| **Aba Candidatos 2026** | Filtros por cargo (incl. **Deputado Estadual**), região, UF, situação TSE, partido e reeleição. Listas regionais **ao vivo** via DivulgaCandContas (eleição 6257) | [Atlas · Candidatos](https://atlaspublico.com.br/eleicoes-2026/candidatos) · [TSE](https://divulgacandcontas.tse.jus.br/) |
 | **Finanças Públicas da União** | KPIs de receita prevista vs arrecadada, categorias econômicas, composição de despesas, Selic/IPCA ao vivo | [Portal da Transparência — Receitas](https://portaldatransparencia.gov.br/receitas) + [BCB SGS](https://www.bcb.gov.br/) |
 | **Publicações TB** | Cartões com relatórios recentes (emendas, teto, AGU, medicamentos) | [transparencia.org.br/publicacoes](https://www.transparencia.org.br/publicacoes/) |
 | **Serviços rápidos** | Atalhos oficiais + Atlas + Candidatos | Estilo piracanjuba.ai |
@@ -59,7 +59,8 @@ Politicanacional/
 │   └── publicacoes-tb.json     # Catálogo Transparência Brasil
 ├── api/
 │   ├── fiscal.js               # Proxy opcional API CGU (chave necessária)
-│   └── rss.js                  # Proxy opcional de RSS
+│   ├── rss.js                  # Proxy opcional de RSS
+│   └── tse-candidatos.js       # Proxy opcional DivulgaCandContas (Vercel)
 ├── README.md
 └── COMO-HOSPEDAR.md
 ```
