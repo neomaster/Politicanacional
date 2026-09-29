@@ -1171,20 +1171,22 @@
     </div>
 
     <!-- VÍDEOS E ANÁLISES -->
-    <div class="mt-8">
-      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-2 mb-3 px-1">
+    <div class="mt-8" id="analises">
+      <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3 mb-3 px-1">
         <div>
-          <div class="section-header text-zinc-400">ANÁLISES E VÍDEOS RECENTES DE CANAIS NO YOUTUBE (CNN Brasil, Jovem Pan, CNN Money e outros)</div>
+          <div class="section-header text-br-gold">ANÁLISES RECENTES NO YOUTUBE</div>
+          <p class="text-[11px] text-zinc-500 mt-1 max-w-xl">Últimos vídeos publicados por CNN Brasil, Jovem Pan News, CNN Brasil Money, GloboNews e BandNews. Coleta das páginas dos canais em 29/09/2026.</p>
         </div>
         <div id="video-filters" class="flex flex-wrap gap-1 text-xs">
-          <button onclick="filterVideos('all')" id="vchip-all" class="px-3 py-1 rounded-2xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-br-green active-chip">Todos</button>
-          <button onclick="filterVideos('Nacional')" id="vchip-Nacional" class="px-3 py-1 rounded-2xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-br-green">Nacional</button>
-          <button onclick="filterVideos('Centro-Oeste')" id="vchip-Centro-Oeste" class="px-3 py-1 rounded-2xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-br-green">Centro-Oeste</button>
-          <button onclick="filterVideos('Sudeste')" id="vchip-Sudeste" class="px-3 py-1 rounded-2xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-br-green">Sudeste</button>
-          <button onclick="filterVideos('Nordeste')" id="vchip-Nordeste" class="px-3 py-1 rounded-2xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-br-green">Nordeste</button>
+          <button type="button" onclick="filterVideos('all')" id="vchip-all" class="px-3 py-1 rounded-2xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-br-green active-chip">Todos</button>
+          <button type="button" onclick="filterVideos('CNN Brasil')" id="vchip-CNN Brasil" class="px-3 py-1 rounded-2xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-br-green">CNN Brasil</button>
+          <button type="button" onclick="filterVideos('Jovem Pan News')" id="vchip-Jovem Pan News" class="px-3 py-1 rounded-2xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-br-green">Jovem Pan</button>
+          <button type="button" onclick="filterVideos('CNN Brasil Money')" id="vchip-CNN Brasil Money" class="px-3 py-1 rounded-2xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-br-green">CNN Money</button>
+          <button type="button" onclick="filterVideos('GloboNews')" id="vchip-GloboNews" class="px-3 py-1 rounded-2xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-br-green">GloboNews</button>
+          <button type="button" onclick="filterVideos('BandNews')" id="vchip-BandNews" class="px-3 py-1 rounded-2xl border border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-br-green">BandNews</button>
         </div>
       </div>
-      
+
       <div id="videos-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
         <!-- Populated by JS -->
       </div>
@@ -1672,22 +1674,20 @@
 
     // VÍDEOS RECENTES DE CANAIS NO YOUTUBE (atualizados)
     const RELEVANT_VIDEOS = [
-      { id: 'v1', title: 'Reforma tributária: os próximos passos após a regulamentação', source: 'CNN Brasil', region: 'Nacional', youtubeId: 'v1t3kP8m2wQ', duration: '28 min', date: '2025' },
-      { id: 'v2', title: 'STF e Congresso: o que esperar dos próximos julgamentos', source: 'Jovem Pan News', region: 'Centro-Oeste', youtubeId: '9bZkp7q19f0', duration: '41 min', date: '2025' },
-      { id: 'v3', title: 'Eleições 2026: o cenário atual na direita e no centro', source: 'CNN Brasil', region: 'Sudeste', youtubeId: 'dQw4w9wgccc', duration: '25 min', date: '2025' },
-      { id: 'v4', title: 'Emendas parlamentares: o poder real do Congresso sobre o orçamento', source: 'Congresso em Foco', region: 'Centro-Oeste', youtubeId: '3JZ_0p4v0vM', duration: '29 min', date: '2025' },
-      { id: 'v5', title: 'Crise fiscal dos estados: quem pode pedir socorro em 2026?', source: 'Exame', region: 'Sul', youtubeId: '9bZkp7q19f0', duration: '22 min', date: '2025' },
-      { id: 'v6', title: 'Lula e a base aliada: os desafios de governabilidade em 2025', source: 'Jovem Pan News', region: 'Nacional', youtubeId: 'dQw4w9wgccc', duration: '35 min', date: '2025' },
-      { id: 'v7', title: 'Centrão: quem manda de verdade no Congresso hoje?', source: 'Metrópoles', region: 'Centro-Oeste', youtubeId: '3JZ_0p4v0vM', duration: '27 min', date: '2025' },
-      { id: 'v8', title: 'Segurança pública: o que os governadores estão propondo para 2026', source: 'CNN Brasil', region: 'Sudeste', youtubeId: '9bZkp7q19f0', duration: '31 min', date: '2025' },
-      { id: 'v9', title: 'Amazônia e licenciamento: o embate político de 2025', source: 'DW Brasil', region: 'Norte', youtubeId: 'dQw4w9wgccc', duration: '36 min', date: '2025' },
-      { id: 'v10', title: 'Pré-candidatos 2026: quem está subindo nas pesquisas', source: 'UOL Política', region: 'Nacional', youtubeId: '3JZ_0p4v0vM', duration: '19 min', date: '2025' },
-      { id: 'v11', title: 'Reforma administrativa: vai ou não vai sair do papel?', source: 'Exame', region: 'Nacional', youtubeId: '9bZkp7q19f0', duration: '24 min', date: '2025' },
-      { id: 'v12', title: 'Brasil no BRICS: os interesses políticos por trás da diplomacia', source: 'CNN Brasil', region: 'Nacional', youtubeId: 'dQw4w9wgccc', duration: '42 min', date: '2025' },
-      { id: 'v13', title: 'Senado: como Alcolumbre está articulando as votações', source: 'Agência Senado', region: 'Centro-Oeste', youtubeId: '9bZkp7q19f0', duration: '23 min', date: '2025' },
-      { id: 'v14', title: 'Eleições 2026 no Nordeste: o mapa político atual', source: 'Metrópoles', region: 'Nordeste', youtubeId: '3JZ_0p4v0vM', duration: '26 min', date: '2025' },
-      { id: 'v15', title: 'Crime organizado e política: o risco nas capitais do Norte', source: 'Jovem Pan News', region: 'Norte', youtubeId: 'dQw4w9wgccc', duration: '33 min', date: '2025' },
-      { id: 'v16', title: 'CNN Money: o que o mercado espera do governo em 2025', source: 'CNN Brasil Money', region: 'Nacional', youtubeId: 'v1t3kP8m2wQ', duration: '21 min', date: '2025' }
+      { id: 'cnn1', title: 'Fux susta decisão de Dino e retoma ordem contra fake news sobre Nossa Senhora | O GRANDE DEBATE', source: 'CNN Brasil', youtubeId: '8K9IR-gl7XA', date: 'há 31 min', channel: 'https://www.youtube.com/@CNNbrasil' },
+      { id: 'cnn2', title: 'Disputa eleitoral está se apropriando da fé do eleitor? | O GRANDE DEBATE', source: 'CNN Brasil', youtubeId: 'TJ3fHgoDtEo', date: 'há 36 min', channel: 'https://www.youtube.com/@CNNbrasil' },
+      { id: 'cnn3', title: 'STF reverter decisões do TSE na eleição é certo ou errado? | O GRANDE DEBATE', source: 'CNN Brasil', youtubeId: 'f-IAtBdgzDo', date: 'há 38 min', channel: 'https://www.youtube.com/@CNNbrasil' },
+      { id: 'jp1', title: 'e-Título pode ser baixado até o dia da eleição, confirma presidente do TRE-SP | DIRETO AO PONTO', source: 'Jovem Pan News', youtubeId: 'dlyaF-CQ29s', date: 'há 1 min', channel: 'https://www.youtube.com/@jovempannews' },
+      { id: 'jp2', title: '“Não há como invadir o sistema das urnas”, garante presidente do TRE-SP | DIRETO AO PONTO', source: 'Jovem Pan News', youtubeId: 'DXwX-SKUSMQ', date: 'há 13 min', channel: 'https://www.youtube.com/@jovempannews' },
+      { id: 'jp3', title: '“Tem que ser enfrentado”, diz presidente do TRE-SP sobre crime organizado | DIRETO AO PONTO', source: 'Jovem Pan News', youtubeId: 'iN1LO_CVkhQ', date: 'há 18 min', channel: 'https://www.youtube.com/@jovempannews' },
+      { id: 'money1', title: 'Brasil pode sentir pressão do dólar pós-eleição, diz colunista | FECHAMENTO DE MERCADO', source: 'CNN Brasil Money', youtubeId: 'OKpLFwasw4M', date: 'há 4 h', channel: 'https://www.youtube.com/@cnnbrmoney' },
+      { id: 'money2', title: 'Por Lucinda Pinto: Dívida pública reflete vulnerabilidade fiscal | FECHAMENTO DE MERCADO', source: 'CNN Brasil Money', youtubeId: 'zd0sQXxfZcM', date: 'há 4 h', channel: 'https://www.youtube.com/@cnnbrmoney' },
+      { id: 'money3', title: 'BC: Empresários veem inflação maior e pessimismo com economia cresce | FECHAMENTO DE MERCADO', source: 'CNN Brasil Money', youtubeId: 'wOKpauXtZC0', date: 'há 4 h', channel: 'https://www.youtube.com/@cnnbrmoney' },
+      { id: 'gn1', title: 'Missão de novo foguete de Elon Musk foi reduzida após falha, mas empresa vê sucesso; entenda', source: 'GloboNews', youtubeId: 'Yqi3y7bpI9M', date: 'há 4 h', channel: 'https://www.youtube.com/@globonews' },
+      { id: 'gn2', title: 'Você sabe diferenciar uma imagem real de outra criada por IA?', source: 'GloboNews', youtubeId: 'dvNy0kYK4As', date: 'há 5 h', channel: 'https://www.youtube.com/@globonews' },
+      { id: 'bn1', title: 'Oinegue: Flávio Bolsonaro luta contra escrita desafiadora', source: 'BandNews', youtubeId: 'DVyiqRrFrtw', date: 'há 1 h', channel: 'https://www.youtube.com/@bandjornalismo' },
+      { id: 'bn2', title: 'Inflação e Desenrola 3.0 entram no debate sobre os juros | Jornal da Band', source: 'BandNews', youtubeId: 'QF_Y725d3Uc', date: 'há 3 h', channel: 'https://www.youtube.com/@bandjornalismo' },
+      { id: 'bn3', title: 'Pandas e tarifas: os sinais da reaproximação entre EUA e China | Jornal da Band', source: 'BandNews', youtubeId: 'Fd0i0qTvGPM', date: 'há 3 h', channel: 'https://www.youtube.com/@bandjornalismo' }
     ];
 
     // AGENDA DA SEMANA (NOVO - DADOS REALISTAS)
@@ -3118,24 +3118,41 @@
     }
 
     function renderVideos() {
-      const container = document.getElementById('videos-grid'); container.innerHTML = '';
-      let videosToShow = currentVideoRegionFilter === 'all' ? RELEVANT_VIDEOS : RELEVANT_VIDEOS.filter(v => v.region === currentVideoRegionFilter);
+      const container = document.getElementById('videos-grid');
+      if (!container) return;
+      container.innerHTML = '';
+      const videosToShow = currentVideoRegionFilter === 'all'
+        ? RELEVANT_VIDEOS
+        : RELEVANT_VIDEOS.filter(v => v.source === currentVideoRegionFilter);
+      const esc = (s) => String(s || '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
       if (videosToShow.length === 0) {
-        const empty = document.createElement('div'); empty.className = 'col-span-full text-center py-8 text-sm text-zinc-400';
-        empty.innerHTML = `Nenhum vídeo. <span onclick="filterVideos('all')" class="text-br-green cursor-pointer underline">Ver todos</span>`; container.appendChild(empty); return;
+        const empty = document.createElement('div');
+        empty.className = 'col-span-full text-center py-8 text-sm text-zinc-400';
+        empty.innerHTML = `Nenhum vídeo deste canal. <span onclick="filterVideos('all')" class="text-br-green cursor-pointer underline">Ver todos</span>`;
+        container.appendChild(empty);
+        return;
       }
       videosToShow.forEach(video => {
-        const card = document.createElement('div');
-        card.className = `bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden group hover:border-br-green transition-all cursor-pointer political-card`;
-        card.onclick = () => showVideoModal(video);
-        const thumb = video.youtubeId ? `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg` : 'https://picsum.photos/id/1015/320/180';
+        const card = document.createElement('article');
+        card.className = 'bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden group hover:border-br-gold transition-all political-card';
+        const thumb = `https://i.ytimg.com/vi/${encodeURIComponent(video.youtubeId)}/hqdefault.jpg`;
         card.innerHTML = `
-          <div class="relative"><img src="${thumb}" class="w-full h-36 object-cover" loading="lazy" onerror="this.src='https://picsum.photos/id/1015/320/180';this.onerror=null;"><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-          <div class="absolute inset-0 flex items-center justify-center opacity-80 group-hover:opacity-100"><div class="w-10 h-10 bg-br-green/90 rounded-full flex items-center justify-center"><svg class="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
-          <div class="absolute bottom-2 right-2 text-[10px] px-1.5 py-px bg-black/80 rounded text-white font-mono">${video.duration}</div>
-          <div class="absolute top-2 left-2"><span class="text-[10px] px-2 py-0.5 rounded bg-black/70 text-white">${video.source}</span></div></div>
-          <div class="p-3"><div class="text-xs text-br-green mb-0.5 font-medium">${video.region}</div><div class="text-sm font-medium leading-tight line-clamp-2">${video.title}</div>
-          <div class="text-[10px] text-zinc-400 mt-2">${video.date}</div></div>`;
+          <button type="button" class="block w-full text-left" data-video-id="${esc(video.id)}">
+            <div class="relative">
+              <img src="${thumb}" alt="" class="w-full h-36 object-cover" loading="lazy">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent"></div>
+              <div class="absolute inset-0 flex items-center justify-center opacity-80 group-hover:opacity-100"><div class="w-10 h-10 bg-br-green/90 rounded-full flex items-center justify-center"><svg class="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+              <div class="absolute bottom-2 right-2 text-[10px] px-1.5 py-px bg-black/80 rounded text-white font-mono">${esc(video.date)}</div>
+              <div class="absolute top-2 left-2"><span class="text-[10px] px-2 py-0.5 rounded bg-black/75 text-br-gold">${esc(video.source)}</span></div>
+            </div>
+            <div class="p-3">
+              <div class="text-sm font-medium leading-snug line-clamp-3 text-white">${esc(video.title)}</div>
+            </div>
+          </button>
+          <div class="px-3 pb-3 -mt-1">
+            <a href="${esc(video.channel)}" target="_blank" rel="noopener" class="text-[10px] text-zinc-500 hover:text-br-gold">Abrir canal</a>
+          </div>`;
+        card.querySelector('button').onclick = () => showVideoModal(video);
         container.appendChild(card);
       });
     }
@@ -3168,13 +3185,16 @@
       container.innerHTML = html + '<span class="text-zinc-600 mx-4">•</span>' + html;
     }
 
-    function filterVideos(region) {
-      currentVideoRegionFilter = region;
+    function filterVideos(source) {
+      currentVideoRegionFilter = source;
       document.querySelectorAll('[id^="vchip-"]').forEach(chip => {
         chip.classList.remove('active-chip', 'bg-br-green', 'text-white', 'border-br-green');
         chip.classList.add('border-zinc-700', 'bg-zinc-900', 'text-zinc-300');
-        if (region === 'all' && chip.id === 'vchip-all') { chip.classList.add('active-chip', 'bg-br-green', 'text-white', 'border-br-green'); chip.classList.remove('border-zinc-700', 'bg-zinc-900', 'text-zinc-300'); }
-        else if (chip.id === `vchip-${region}`) { chip.classList.add('active-chip', 'bg-br-green', 'text-white', 'border-br-green'); chip.classList.remove('border-zinc-700', 'bg-zinc-900', 'text-zinc-300'); }
+        const on = (source === 'all' && chip.id === 'vchip-all') || chip.id === `vchip-${source}`;
+        if (on) {
+          chip.classList.add('active-chip', 'bg-br-green', 'text-white', 'border-br-green');
+          chip.classList.remove('border-zinc-700', 'bg-zinc-900', 'text-zinc-300');
+        }
       });
       renderVideos();
     }
